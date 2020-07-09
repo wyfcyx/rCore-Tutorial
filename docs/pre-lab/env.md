@@ -28,13 +28,13 @@ brew install qemu
 
 {% label %}运行命令{% endlabel %}
 ```bash
-# 下载源码包 （如果下载速度过慢可以把地址替换为我们提供的地址：TODO）
-wget https://download.qemu.org/qemu-4.2.0.tar.xz
+# 下载源码包（可以通过其他下载软件进行下载和解压）
+wget https://download.qemu.org/qemu-5.0.0.tar.xz
 # 解压
-tar xvJf qemu-4.2.0.tar.xz
+tar xvJf qemu-5.0.0.tar.xz
 # 编译安装并配置 RISC-V 支持
-cd qemu-4.2.0
-./configure --target-list=riscv32-softmmu,riscv64-softmmu
+cd qemu-5.0.0
+./configure --target-list=riscv64-softmmu
 make -j$(nproc)
 sudo make install
 ```
@@ -46,16 +46,7 @@ sudo make install
 
 如果有其他问题，请针对不同操作系统在软件包管理器中查找并安装依赖。
 
-当然如果你可以找到包含较新版本的 QEMU 的软件包源，**也可以**通过软件包管理器直接安装：
-
-{% label %}运行命令{% endlabel %}
-```bash
-# Ubuntu / Debian / Windows WSL
-sudo apt-get install qemu
-
-# CentOS / Fedora / RedHat / SUSE
-sudo yum install qemu
-```
+当然如果你可以找到包含较新版本的 QEMU 的软件包源，**也可以**通过软件包管理器直接安装 `qemu-system-riscv64`。
 
 ### 完成后
 安装完成后可以用 `qemu-system-riscv64 --version` 命令检查是否成功安装我们需要的 RISC-V 64 虚拟器。
@@ -70,11 +61,11 @@ curl https://sh.rustup.rs -sSf | sh
 
 如果通过官方的脚本下载失败了，可以在浏览器的地址栏中输入 https://sh.rustup.rs 来下载脚本，在本地运行即可。
 
-如果官方的脚本在运行时出现了网络速度较慢的问题，**可选地**可以通过修改 rustup 的镜像地址（修改为中国科学技术大学的镜像服务器）来加速：
+如果官方的脚本在运行时出现了网络速度较慢的问题，**可选地**可以通过修改 rustup 的镜像地址来加速：
 
 {% label %}运行命令{% endlabel %}
 ```bash
-export RUSTUP_DIST_SERVER=https://mirrors.ustc.edu.cn/rust-static
+export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
 export RUSTUP_UPDATE_ROOT=https://mirrors.ustc.edu.cn/rust-static/rustup
 curl https://sh.rustup.rs -sSf | sh
 ```
