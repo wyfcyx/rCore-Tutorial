@@ -48,6 +48,8 @@ sudo make install
 
 当然如果你可以找到包含较新版本的 QEMU 的软件包源，**也可以**通过软件包管理器直接安装 `qemu-system-riscv64`。
 
+- Ubuntu 20.04 版本可以通过 `sudo apt-get install qemu-system-misc` 来安装
+
 ### 完成后
 安装完成后可以用 `qemu-system-riscv64 --version` 命令检查是否成功安装我们需要的 RISC-V 64 虚拟器。
 
