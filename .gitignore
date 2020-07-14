@@ -21,6 +21,7 @@ Cargo.lock
 ### rCore
 # Rust 编译文件
 os/target
+os/asm
 user/target
 user/build
 # GDB 临时文件

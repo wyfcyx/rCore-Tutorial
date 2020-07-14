@@ -1,25 +1,45 @@
+
 OUTPUT_ARCH(riscv)
 ENTRY(_start)
+
 BASE_ADDRESS = 0x80200000;
 
 SECTIONS
 {
+    /* Load the kernel at this address: "." means the current address */
     . = BASE_ADDRESS;
+    start = .;
 
-    kernel_start = .;
-    text_start = .;
     .text : {
+        stext = .;
         *(.text.entry)
         *(.text .text.*)
+        etext = .;
     }
 
-    rodata_start = .;
+    . = ALIGN(4K);
+
+    .rodata : {
+        srodata = .;
+        *(.rodata .rodata.*)
+        erodata = .;
+    }
+
+    . = ALIGN(4K);
+
     .data : {
+        sdata = .;
         *(.data .data.*)
+        edata = .;
     }
-    bss_start = .;
+
+    . = ALIGN(4K);
+
     .bss : {
-        *(.sbss .bss .bss.*)
+        sbss = .;
+        *(.bss .bss.*)
+        ebss = .;
     }
-    kernel_end = .;
+
+    PROVIDE(end = .);
 }
