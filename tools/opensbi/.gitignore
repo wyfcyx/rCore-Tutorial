@@ -1,0 +1,12 @@
+# Object files
+*.o
+*.a
+*.dep
+.ycm_extra_conf.py
+
+#Build & install directories
+build/
+install/
+
+# Development friendly files
+tags
