@@ -16,7 +16,7 @@ k210: image
 	dd if=$(image) of=$(k210) bs=2M seek=1
 
 run-k210: k210
-	python3 built/kflash.py -p $(k210-serialport) -b 600000 $(k210)
+	python3 built/kflash.py -p $(k210-serialport) -b 1500000 $(k210)
 	cu -l $(k210-serialport) -s 115200
 
 build: image
