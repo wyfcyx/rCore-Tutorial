@@ -46,11 +46,6 @@ static void sbi_boot_prints(struct sbi_scratch *scratch, u32 hartid)
 		   sbi_platform_hart_count(plat));
 	sbi_printf("Current Hart           : %u\n", hartid);
 
-	/*
-    csr_set(CSR_MIE, 1 << 11); // MIE.MEIE
-    csr_set(CSR_MSTATUS, MSTATUS_MIE);
-    */
-
 	/* Firmware details */
 	sbi_printf("Firmware Base          : 0x%lx\n", scratch->fw_start);
 	sbi_printf("Firmware Size          : %d KB\n",

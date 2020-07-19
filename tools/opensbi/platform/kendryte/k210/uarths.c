@@ -38,8 +38,8 @@ void uarths_init(u32 baud_rate, enum uarths_stopbit stopbit)
 	uarths->ip.txwm	     = 1;
 	uarths->ip.rxwm	     = 0;
 	uarths->ie.txwm	     = 1;
-	//uarths->ie.rxwm      = 0;
-	uarths->ie.rxwm	     = 1;
+	uarths->ie.rxwm      = 0;
+	//uarths->ie.rxwm	     = 1;
 
 	/* Clear input */
 	if (!uarths->rxdata.empty)
