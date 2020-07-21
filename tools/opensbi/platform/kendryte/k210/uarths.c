@@ -39,7 +39,7 @@ void uarths_init(u32 baud_rate, enum uarths_stopbit stopbit)
 	uarths->ip.rxwm	     = 0;
 	uarths->ie.txwm	     = 1;
 	uarths->ie.rxwm      = 0;
-	//uarths->ie.rxwm	     = 1;
+	uarths->ie.rxwm	     = 1;
 
 	/* Clear input */
 	if (!uarths->rxdata.empty)
@@ -52,6 +52,14 @@ void uarths_putc(char c)
 		;
 
 	uarths->txdata.data = (u8)c;
+
+	// wait for a period of time to ensure the data has been transferred
+	/*
+	int a = 3;
+	for (int i = 0; i < 100; i++) {
+		a *= a;
+	}
+	*/
 }
 
 int uarths_getc(void)

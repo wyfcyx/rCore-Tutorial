@@ -59,7 +59,8 @@ void sbi_timer_event_start(struct sbi_scratch *scratch, u64 next_event)
 void sbi_timer_process(struct sbi_scratch *scratch)
 {
 	csr_clear(CSR_MIE, MIP_MTIP);
-	csr_set(CSR_MIP, MIP_STIP);
+	//csr_set(CSR_MIP, MIP_STIP);
+	csr_set(CSR_MIP, MIP_SSIP);
 }
 
 int sbi_timer_init(struct sbi_scratch *scratch, bool cold_boot)

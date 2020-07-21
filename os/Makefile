@@ -4,6 +4,7 @@ kernel = target/$(target)/$(mode)/os
 image = target/$(target)/$(mode)/kernel.bin
 k210 = target/$(target)/$(mode)/k210.bin
 k210-serialport = /dev/ttyUSB0
+sbi ?= opensbi
 
 kernel:
 	cargo build
@@ -12,12 +13,11 @@ image: kernel
 	rust-objcopy $(kernel) --strip-all -O binary $(image)
 
 k210: image
-	\cp built/fw_payload.bin $(k210)
+	\cp built/$(sbi).bin $(k210)
 	dd if=$(image) of=$(k210) bs=2M seek=1
 
 run-k210: k210
-	python3 built/kflash.py -p $(k210-serialport) -b 1500000 $(k210)
-	cu -l $(k210-serialport) -s 115200
+	python3 built/kflash.py -p $(k210-serialport) -b 1500000 -t $(k210)
 
 build: image
 

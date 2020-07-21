@@ -1,27 +1,41 @@
-//! 预约和处理时钟中断
-
 use crate::sbi::set_timer;
-use riscv::register::{time, sie, sstatus};
+use riscv::register::{time, sie, sstatus, sip};
+use riscv::register::mcause::Trap::Interrupt;
 
 static INTERVAL: usize = 100000;
 pub static mut TICKS: usize = 0;
 
-/// 初始化时钟中断
-///
-/// 开启时钟中断使能，并且预约第一次时钟中断
 pub fn init() {
+    set_next_timeout();
     unsafe {
-        // 开启 STIE，允许时钟中断
-        sie::set_stimer();
-        // 开启 SIE（不是 sie 寄存器），允许内核态被中断打断
+        TICKS = 0;
+        //sie::set_stimer();
+        sie::set_ssoft();
         sstatus::set_sie();
     }
-    // 设置下一次时钟中断
-    set_next_timeout();
 }
 
-fn set_next_timeout() {
-    set_timer(time::read() + INTERVAL);
+unsafe fn read_time() -> usize {
+    let mtime = 0x200bff8 as *const usize;
+    mtime.read_volatile()
+}
+
+/*
+unsafe fn read_timecmp() -> usize {
+    let mtimecmp = 0x2004000 as *mut usize;
+    mtimecmp.read_volatile()
+}
+
+unsafe fn write_timecmp(t: usize) {
+    let mtimecmp = 0x2004000 as *mut usize;
+    mtimecmp.write_volatile(t)
+}
+*/
+
+pub fn set_next_timeout() {
+    unsafe {
+        set_timer(read_time() + INTERVAL);
+    }
 }
 
 pub fn tick() {
@@ -29,7 +43,14 @@ pub fn tick() {
     unsafe {
         TICKS += 1;
         if TICKS % 100 == 0 {
-            println!("{} tick", TICKS);
+            println!("{} ticks", TICKS);
+            TICKS = 0;
         }
+        //println!("{} ticks", TICKS);
+    }
+    //unsafe { sip::clear_ssoft(); }
+    unsafe {
+        let mut sip: usize = 0;
+        llvm_asm!("csrci sip, 1 << 1" : "=r"(sip) ::: "volatile");
     }
 }
