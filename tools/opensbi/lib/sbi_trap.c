@@ -150,6 +150,51 @@ void sbi_trap_handler(struct sbi_trap_regs *regs, struct sbi_scratch *scratch)
 		case IRQ_M_SOFT:
 			sbi_ipi_process(scratch);
 			break;
+		case IRQ_M_EXT:
+			sbi_printf("hart0_m ext triggered\r\n");
+			/*
+			sbi_printf("0x0c200004 intr id = %u\r\n", *(unsigned*)(0x0c200004));
+			sbi_printf("0x0c201004 intr id = %u\r\n", *(unsigned*)(0x0c201004));
+			sbi_printf("0x0c202004 intr id = %u\r\n", *(unsigned*)(0x0c202004));
+			 */
+
+			/*
+			// receive from uarths
+			unsigned *uarths_rxdata_ptr = (unsigned*)0x38000004;
+			unsigned uarths_rxdata = *uarths_rxdata_ptr;
+			sbi_printf("empty = %u, data = %d\r\n", uarths_rxdata >> 31, uarths_rxdata & 0xff);
+			 */
+
+			// deletage to SSI now
+			;
+			unsigned *irq_id_ptr = (unsigned*)0x0c200004;
+			unsigned irq_id = 0;
+			// claim by reading
+			irq_id = *irq_id_ptr;
+			sbi_printf("irq_id = %d\r\n", irq_id);
+
+			// read data from void realm
+			/*
+			if (irq_id == 33) {
+				for (int i = 0; i < 100; ++i) {
+					uint32_t tmp;
+					tmp = *((unsigned*)0x38000004);
+					sbi_printf("tmp=%u\n", tmp);
+				}
+			}
+			 */
+
+			// complete by writing
+			*irq_id_ptr = irq_id;
+
+			csr_set(CSR_MIP, MIP_SSIP);
+			csr_write(CSR_STVAL, irq_id);
+			break;
+
+			/*
+			msg = "unhandled external interrupt";
+			goto trap_error;
+			 */
 		default:
 			msg = "unhandled external interrupt";
 			goto trap_error;

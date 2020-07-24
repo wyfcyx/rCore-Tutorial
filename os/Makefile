@@ -1,4 +1,4 @@
-target = riscv64imac-unknown-none-elf
+target = riscv64gc-unknown-none-elf
 mode = debug
 kernel = target/$(target)/$(mode)/os
 image = target/$(target)/$(mode)/kernel.bin

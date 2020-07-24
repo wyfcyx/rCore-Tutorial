@@ -1,3 +1,4 @@
+
 #![no_std]
 #![no_main]
 #![feature(llvm_asm)]
@@ -7,11 +8,14 @@
 
 global_asm!(include_str!("entry.asm"));
 
+pub mod platform;
+
 #[macro_use]
 mod console;
 mod lang_item;
 mod sbi;
 mod interrupt;
+mod drivers;
 
 const LF: u8 = 0x0au8;
 const CR: u8 = 0x0du8;
@@ -19,31 +23,61 @@ const CR: u8 = 0x0du8;
 #[no_mangle]
 pub extern "C" fn rust_main(hartid: usize, sp: usize) -> ! {
     println!("Hello world #{}! sp = 0x{:x}", hartid, sp);
+    /*
+    unsafe {
+        let mut base = 0x0c20_0004 as u32;
+        for i in 0..4 {
+            println!("*{:#x} = {}", base, (base as *const u32).read_volatile());
+            base += 0x1000;
+        }
+    }
+     */
 
     interrupt::init();
 
     /*
-    let _hart0_m_int_enable: *mut u32 = 0x0c00_2000 as *mut u32;
-    let _hart0_s_int_enable: *mut u32 = 0x0c00_2080 as *mut u32;
-    let _hart1_m_int_enable: *mut u32 = 0x0c00_2100 as *mut u32;
-    let _hart1_s_int_enable: *mut u32 = 0x0c00_2180 as *mut u32;
+    let hart0_m_threshold: *mut u32 = 0x0c20_0000 as *mut u32;
     unsafe {
-        for i in 0xa..=0xd {
-            /*
-            _hart0_m_int_enable.write_volatile(1 << i);
-            _hart0_s_int_enable.write_volatile(1 << i);
-             */
-            /*
-            _hart1_m_int_enable.write_volatile(1 << i);
-            _hart1_s_int_enable.write_volatile(1 << i);
-             */
-        }
-        _hart0_m_int_enable.write_volatile(0);
-        _hart0_s_int_enable.write_volatile(0);
-        _hart1_m_int_enable.write_volatile(0);
-        _hart1_s_int_enable.write_volatile(0);
+        println!("hart0_m_threshold = {}", hart0_m_threshold.read_volatile());
     }
-     */
+    let hart1_m_threshold: *mut u32 = 0x0c20_2000 as *mut u32;
+    unsafe {
+        println!("hart1_m_threshold = {}", hart1_m_threshold.read_volatile());
+    }
+    let uarths_irq_priority: *mut u32 = (0x0c00_0000 + 33 * 4) as *mut u32;
+    unsafe {
+        println!("uarths_irq_priority = {}", uarths_irq_priority.read_volatile());
+        uarths_irq_priority.write_volatile(4);
+    }
+    println!("lets swap irq_threshold of hart0_m and hart1_m!");
+    unsafe {
+        hart0_m_threshold.write_volatile(0u32);
+        hart1_m_threshold.write_volatile(1u32);
+    }
+    */
+    drivers::plic::init();
+
+    let hart1_m_int_enable_hi: *mut u32 = 0x0c00_2104 as *mut u32;
+    unsafe {
+        hart1_m_int_enable_hi.write_volatile(0u32);
+    }
+    let hart0_m_int_enable_hi: *mut u32 = 0x0c00_2004 as *mut u32;
+    unsafe {
+        hart0_m_int_enable_hi.write_volatile(4294967295u32);
+    }
+
+    unsafe {
+        llvm_asm!("ebreak"::::"volatile");
+    }
+
+    println!("Hello world again!");
+
+    /*
+    let somewhere_you_cannot_write = 0x12345678 as *mut usize;
+    unsafe {
+        somewhere_you_cannot_write.write_volatile(0usize);
+    }
+    */
 
     /*
     loop {
@@ -65,19 +99,6 @@ pub extern "C" fn rust_main(hartid: usize, sp: usize) -> ! {
         }
     }
      */
-
-    unsafe {
-        llvm_asm!("ebreak"::::"volatile");
-    }
-
-    println!("Hello world again!");
-
-    /*
-    let somewhere_you_cannot_write = 0x12345678 as *mut usize;
-    unsafe {
-        somewhere_you_cannot_write.write_volatile(0usize);
-    }
-    */
 
     /*
     loop {

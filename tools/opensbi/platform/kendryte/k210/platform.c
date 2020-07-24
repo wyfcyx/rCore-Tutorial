@@ -21,7 +21,7 @@
 
 static int k210_console_init(void)
 {
-	uarths_init(K210_UART_BAUDRATE, UARTHS_STOP_1);
+	//uarths_init(K210_UART_BAUDRATE, UARTHS_STOP_1);
 
 	return 0;
 }

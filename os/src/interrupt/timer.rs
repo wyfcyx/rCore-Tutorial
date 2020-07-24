@@ -6,11 +6,12 @@ static INTERVAL: usize = 100000;
 pub static mut TICKS: usize = 0;
 
 pub fn init() {
-    set_next_timeout();
+    //set_next_timeout();
     unsafe {
         TICKS = 0;
         //sie::set_stimer();
         sie::set_ssoft();
+        //sie::set_sext();
         sstatus::set_sie();
     }
 }
@@ -48,9 +49,10 @@ pub fn tick() {
         }
         //println!("{} ticks", TICKS);
     }
-    //unsafe { sip::clear_ssoft(); }
+    /*
     unsafe {
-        let mut sip: usize = 0;
-        llvm_asm!("csrci sip, 1 << 1" : "=r"(sip) ::: "volatile");
+        let mut _sip: usize = 0;
+        llvm_asm!("csrci sip, 1 << 1" : "=r"(_sip) ::: "volatile");
     }
+     */
 }

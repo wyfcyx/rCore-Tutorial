@@ -1,0 +1,1 @@
+pub const PLIC_BASE_ADDR: usize = 0x0c00_0000;
