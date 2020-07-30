@@ -16,6 +16,8 @@ struct sbi_scratch;
 
 u64 sbi_timer_value(struct sbi_scratch *scratch);
 
+u64 read_time();
+
 void sbi_timer_event_stop(struct sbi_scratch *scratch);
 
 void sbi_timer_event_start(struct sbi_scratch *scratch, u64 next_event);

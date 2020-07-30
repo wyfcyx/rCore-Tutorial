@@ -1,9 +1,24 @@
 use crate::sbi::set_timer;
-use riscv::register::{time, sie, sstatus, sip};
-use riscv::register::mcause::Trap::Interrupt;
+use crate::platform::CLINT_BASE_ADDR;
+use riscv::register::{sie, sstatus};
+//use riscv::register::mcause::Trap::Interrupt;
 
-static INTERVAL: usize = 100000;
+const INTERVAL: usize = 100000;
 pub static mut TICKS: usize = 0;
+
+const CLINT_MTIME_OFFSET: usize = 0xbff8;
+pub fn read_time() -> usize {
+    unsafe {
+        ((CLINT_BASE_ADDR + CLINT_MTIME_OFFSET) as *const usize).read_volatile()
+    }
+}
+
+pub fn usleep(usec: usize) {
+    // 1e7 -> 1e6us
+    // 10  -> 1us
+    let future = read_time() + usec * 10;
+    while read_time() < future {}
+}
 
 pub fn init() {
     //set_next_timeout();
@@ -14,11 +29,6 @@ pub fn init() {
         //sie::set_sext();
         sstatus::set_sie();
     }
-}
-
-unsafe fn read_time() -> usize {
-    let mtime = 0x200bff8 as *const usize;
-    mtime.read_volatile()
 }
 
 /*
@@ -34,9 +44,7 @@ unsafe fn write_timecmp(t: usize) {
 */
 
 pub fn set_next_timeout() {
-    unsafe {
-        set_timer(read_time() + INTERVAL);
-    }
+    set_timer(read_time() + INTERVAL);
 }
 
 pub fn tick() {

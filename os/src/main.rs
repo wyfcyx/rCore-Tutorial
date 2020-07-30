@@ -17,8 +17,10 @@ mod sbi;
 mod interrupt;
 mod drivers;
 
+/*
 const LF: u8 = 0x0au8;
 const CR: u8 = 0x0du8;
+ */
 
 #[no_mangle]
 pub extern "C" fn rust_main(hartid: usize, sp: usize) -> ! {
@@ -35,7 +37,6 @@ pub extern "C" fn rust_main(hartid: usize, sp: usize) -> ! {
 
     interrupt::init();
 
-    /*
     let hart0_m_threshold: *mut u32 = 0x0c20_0000 as *mut u32;
     unsafe {
         println!("hart0_m_threshold = {}", hart0_m_threshold.read_volatile());
@@ -47,23 +48,31 @@ pub extern "C" fn rust_main(hartid: usize, sp: usize) -> ! {
     let uarths_irq_priority: *mut u32 = (0x0c00_0000 + 33 * 4) as *mut u32;
     unsafe {
         println!("uarths_irq_priority = {}", uarths_irq_priority.read_volatile());
-        uarths_irq_priority.write_volatile(4);
+        //uarths_irq_priority.write_volatile(4);
     }
     println!("lets swap irq_threshold of hart0_m and hart1_m!");
     unsafe {
         hart0_m_threshold.write_volatile(0u32);
         hart1_m_threshold.write_volatile(1u32);
     }
+    /*
+    let uart1_irq_priority: *mut u32 = (0x0c00_0000 + 13 * 4) as *mut u32;
+    unsafe {
+        println!("uarths_irq_priority = {}", uart1_irq_priority.read_volatile());
+        uart1_irq_priority.write_volatile(6);
+    }
     */
-    drivers::plic::init();
-
     let hart1_m_int_enable_hi: *mut u32 = 0x0c00_2104 as *mut u32;
     unsafe {
         hart1_m_int_enable_hi.write_volatile(0u32);
     }
+    let hart1_m_int_enable_lo: *mut u32 = 0x0c00_2100 as *mut u32;
+    unsafe {
+        hart1_m_int_enable_lo.write_volatile(0u32)
+    }
     let hart0_m_int_enable_hi: *mut u32 = 0x0c00_2004 as *mut u32;
     unsafe {
-        hart0_m_int_enable_hi.write_volatile(4294967295u32);
+        hart0_m_int_enable_hi.write_volatile(1 << 0x1);
     }
 
     unsafe {
@@ -71,6 +80,8 @@ pub extern "C" fn rust_main(hartid: usize, sp: usize) -> ! {
     }
 
     println!("Hello world again!");
+
+    //interrupt::timer::usleep(3000000);
 
     /*
     let somewhere_you_cannot_write = 0x12345678 as *mut usize;
@@ -83,18 +94,6 @@ pub extern "C" fn rust_main(hartid: usize, sp: usize) -> ! {
     loop {
         let getc = sbi::console_getchar() as i32;
         if getc != -1 {
-            /*
-            match getc as u8 {
-                LF | CR => {
-                    print!("{}", LF as char);
-                    print!("{}", CR as char);
-                }
-                _ => {
-                    print!("{}", getc as u8 as char);
-                }
-            }
-            */
-            //print!("{}", getc as u8 as char);
             sbi::console_putchar(getc as usize);
         }
     }
@@ -107,6 +106,18 @@ pub extern "C" fn rust_main(hartid: usize, sp: usize) -> ! {
         println!("mtime = {}", unsafe { mtime.read_volatile() });
     }
     */
+
+    //drivers::fpioa::init();
+    /*
+    drivers::uart::init(115_200);
+    drivers::fpioa::init();
+
+    unsafe {
+        drivers::uart::gpuart_putchar('O');
+        drivers::uart::gpuart_putchar('K');
+        drivers::uart::gpuart_putchar('\n');
+    }
+     */
 
     loop {}
     //panic!("end of rust_main!")

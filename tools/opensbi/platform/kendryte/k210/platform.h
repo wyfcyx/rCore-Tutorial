@@ -32,7 +32,6 @@
 /* Under Coreplex */
 #define CLINT_BASE_ADDR		(0x02000000U)
 #define PLIC_BASE_ADDR		(0x0C000000U)
-#define PLIC_NUM_CORES		(K210_HART_COUNT)
 
 /* Under TileLink */
 #define GPIOHS_BASE_ADDR	(0x38001000U)
@@ -96,10 +95,14 @@
 
 #define read_cycle()		csr_read(CSR_MCYCLE)
 
-/*
- * PLIC External Interrupt Numbers
- */
-enum plic_irq {
+/* IRQ number settings */
+#define PLIC_NUM_SOURCES    (IRQN_MAX - 1)
+#define PLIC_NUM_PRIORITIES (7)
+
+/* clang-format on */
+
+typedef enum _plic_irq
+{
 	IRQN_NO_INTERRUPT        = 0, /*!< The non-existent interrupt */
 	IRQN_SPI0_INTERRUPT      = 1, /*!< SPI0 interrupt */
 	IRQN_SPI1_INTERRUPT      = 2, /*!< SPI1 interrupt */
@@ -167,12 +170,6 @@ enum plic_irq {
 	IRQN_GPIOHS30_INTERRUPT  = 64, /*!< Hi-speed GPIO30 interrupt */
 	IRQN_GPIOHS31_INTERRUPT  = 65, /*!< Hi-speed GPIO31 interrupt */
 	IRQN_MAX
-};
-
-/* IRQ number settings */
-#define PLIC_NUM_SOURCES    (IRQN_MAX - 1)
-#define PLIC_NUM_PRIORITIES (7)
-
-/* clang-format on */
+} plic_irq_t;
 
 #endif /* _PLATFORM_H_ */

@@ -1,2 +1,3 @@
 pub mod uart;
-pub mod plic;
+pub mod sysctl;
+pub mod fpioa;

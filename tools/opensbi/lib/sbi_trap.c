@@ -173,6 +173,21 @@ void sbi_trap_handler(struct sbi_trap_regs *regs, struct sbi_scratch *scratch)
 			irq_id = *irq_id_ptr;
 			sbi_printf("irq_id = %d\r\n", irq_id);
 
+			/*
+			uint8_t int_status = *((unsigned*)(0x50230008));
+			sbi_printf("int_status = %d\r\n", int_status);
+			uint32_t lsr = *((unsigned*)(0x50230014));
+			if (lsr & 1) {
+				uint32_t rbr = *((unsigned*)(0x50230000));
+				csr_write(CSR_STVAL, rbr & 0xff);
+			}
+			 */
+
+			/*
+			while ((*(unsigned*)(0x50230014)) & 1) {
+				sbi_printf("%d\n", *((unsigned*)(0x50230000)) & 0xff);
+			}
+			 */
 			// read data from void realm
 			/*
 			if (irq_id == 33) {

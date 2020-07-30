@@ -104,7 +104,7 @@ struct sbi_platform {
 	int (*system_reboot)(u32 type);
 	/** Shutdown or poweroff the platform */
 	int (*system_shutdown)(u32 type);
-} __packed;
+} __attribute__((packed));
 
 /** Get pointer to sbi_platform for sbi_scratch pointer */
 #define sbi_platform_ptr(__s) \

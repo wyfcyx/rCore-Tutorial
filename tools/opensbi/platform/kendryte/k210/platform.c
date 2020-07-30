@@ -16,12 +16,24 @@
 #include <plat/sys/clint.h>
 #include "platform.h"
 #include "uarths.h"
+//#include "uart.h"
 
 #define K210_UART_BAUDRATE 115200
 
 static int k210_console_init(void)
 {
-	//uarths_init(K210_UART_BAUDRATE, UARTHS_STOP_1);
+	uarths_init(K210_UART_BAUDRATE, UARTHS_STOP_1);
+	/*
+	fpioa_set_function(4, FUNC_UART1_RX);
+	fpioa_set_function(5, FUNC_UART1_TX);
+	 */
+	/*
+	*((unsigned int*)(0x502b0010)) = 68 + (1 << 20) + (1 << 23);
+	*((unsigned int*)(0x502b0014)) = 69 + (0xf << 8) + (1 << 12);
+	uart_init(UART_DEVICE_3);
+	uart_configure(UART_DEVICE_3, 115200, 8, UART_STOP_1, UART_PARITY_NONE);
+	uart_set_receive_trigger(UART_DEVICE_3, UART_RECEIVE_FIFO_8);
+	 */
 
 	return 0;
 }
@@ -29,14 +41,16 @@ static int k210_console_init(void)
 static void k210_console_putc(char c)
 {
 	uarths_putc(c);
+	//uart_channel_putc(c, UART_DEVICE_3);
 }
 
 static int k210_console_getc(void)
 {
 	return uarths_getc();
+	//return uart_channel_getc(UART_DEVICE_3);
 }
 
-static int k210_irqchip_init(bool cold_boot)
+static int k210_irqchip_init(/*bool*/int cold_boot)
 {
 	int rc;
 	u32 hartid = sbi_current_hartid();
@@ -51,7 +65,7 @@ static int k210_irqchip_init(bool cold_boot)
 	return plic_warm_irqchip_init(hartid, (2 * hartid), (2 * hartid + 1));
 }
 
-static int k210_ipi_init(bool cold_boot)
+static int k210_ipi_init(/*bool*/int cold_boot)
 {
 	int rc;
 
@@ -64,7 +78,7 @@ static int k210_ipi_init(bool cold_boot)
 	return clint_warm_ipi_init();
 }
 
-static int k210_timer_init(bool cold_boot)
+static int k210_timer_init(/*bool*/int cold_boot)
 {
 	int rc;
 
@@ -100,8 +114,6 @@ const struct sbi_platform platform = {
 
 	.hart_count	    = K210_HART_COUNT,
 	.hart_stack_size    = K210_HART_STACK_SIZE,
-	.disabled_hart_mask = 0,
-
 	.console_init = k210_console_init,
 	.console_putc = k210_console_putc,
 	.console_getc = k210_console_getc,

@@ -42,8 +42,10 @@ void uarths_init(u32 baud_rate, enum uarths_stopbit stopbit)
 	uarths->ie.rxwm	     = 1;
 
 	/* Clear input */
+	/*
 	if (!uarths->rxdata.empty)
 		(void)uarths_getc();
+	 */
 }
 
 void uarths_putc(char c)

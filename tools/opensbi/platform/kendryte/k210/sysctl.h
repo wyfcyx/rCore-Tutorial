@@ -791,4 +791,6 @@ typedef struct _sysctl_general_pll {
  */
 u32 sysctl_get_cpu_freq(void);
 
+int sysctl_clock_enable(sysctl_clock_t clock);
+void sysctl_reset(sysctl_reset_t reset);
 #endif /* _K210_SYSCTL_H_ */

@@ -3,7 +3,7 @@ use super::timer;
 use riscv::register::stvec;
 use riscv::register::scause::Scause;
 use riscv::register::scause::{Exception, Trap, Interrupt};
-use crate::sbi;
+//use crate::sbi;
 
 global_asm!(include_str!("./interrupt.asm"));
 
@@ -48,15 +48,17 @@ fn supervisor_timer(_: &Context) {
     timer::tick();
 }
 
-fn supervisor_soft(context: &Context) {
-    println!("supervisor_soft triggered!");
+fn supervisor_soft(_context: &Context) {
+    //panic!("supervisor_soft triggered!");
     /*
     println!("supervisor_soft triggered!");
     println!("{:#x?}", context);
      */
-    //print!("{}", sbi::console_getchar());
+    //print!("{:#x}", crate::sbi::console_getchar());
     //println!("supervisor_soft triggered!");
 
+    let uart_ip: *const u32 = 0x3800_0014 as *const u32;
+    println!("ip = {}", unsafe { uart_ip.read_volatile() });
     let uart_rxdata: *const u32 = 0x3800_0004 as *const u32;
     /*
     loop {

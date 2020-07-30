@@ -67,3 +67,7 @@ int sbi_timer_init(struct sbi_scratch *scratch, bool cold_boot)
 {
 	return sbi_platform_timer_init(sbi_platform_ptr(scratch), cold_boot);
 }
+
+u64 read_time() {
+	return *((u64*)0x0200bff8);
+}
