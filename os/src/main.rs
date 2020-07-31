@@ -70,9 +70,16 @@ pub extern "C" fn rust_main(hartid: usize, sp: usize) -> ! {
     unsafe {
         hart1_m_int_enable_lo.write_volatile(0u32)
     }
+    /*
     let hart0_m_int_enable_hi: *mut u32 = 0x0c00_2004 as *mut u32;
     unsafe {
         hart0_m_int_enable_hi.write_volatile(1 << 0x1);
+    }
+
+     */
+    let hart0_m_int_enable_lo: *mut u32 = 0x0c00_2000 as *mut u32;
+    unsafe {
+        hart0_m_int_enable_lo.write_volatile(1 << 0xd);
     }
 
     unsafe {
@@ -119,7 +126,9 @@ pub extern "C" fn rust_main(hartid: usize, sp: usize) -> ! {
     }
      */
 
-    loop {}
+    loop {
+        //println!("---");
+    }
     //panic!("end of rust_main!")
 }
 

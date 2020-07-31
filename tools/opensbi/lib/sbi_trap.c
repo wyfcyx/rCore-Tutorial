@@ -151,7 +151,7 @@ void sbi_trap_handler(struct sbi_trap_regs *regs, struct sbi_scratch *scratch)
 			sbi_ipi_process(scratch);
 			break;
 		case IRQ_M_EXT:
-			sbi_printf("hart0_m ext triggered\r\n");
+			//sbi_printf("hart0_m ext triggered\r\n");
 			/*
 			sbi_printf("0x0c200004 intr id = %u\r\n", *(unsigned*)(0x0c200004));
 			sbi_printf("0x0c201004 intr id = %u\r\n", *(unsigned*)(0x0c201004));
@@ -171,7 +171,7 @@ void sbi_trap_handler(struct sbi_trap_regs *regs, struct sbi_scratch *scratch)
 			unsigned irq_id = 0;
 			// claim by reading
 			irq_id = *irq_id_ptr;
-			sbi_printf("irq_id = %d\r\n", irq_id);
+			//sbi_printf("irq_id = %d\r\n", irq_id);
 
 			/*
 			uint8_t int_status = *((unsigned*)(0x50230008));
@@ -201,6 +201,21 @@ void sbi_trap_handler(struct sbi_trap_regs *regs, struct sbi_scratch *scratch)
 
 			// complete by writing
 			*irq_id_ptr = irq_id;
+
+			uint8_t int_status = *((unsigned*)(0x50230008));
+			// now it is not an error!
+			int_status += 1;
+			//sbi_printf("int_status = %d\r\n", int_status);
+			/*
+			if (int_status & (0x04)) {
+				uint32_t lsr = *((unsigned *)(0x50230014));
+				if (lsr & 1) {
+					uint32_t rbr =
+						*((unsigned *)(0x50230000));
+					csr_write(CSR_STVAL, rbr & 0xff);
+				}
+			}
+			 */
 
 			csr_set(CSR_MIP, MIP_SSIP);
 			csr_write(CSR_STVAL, irq_id);

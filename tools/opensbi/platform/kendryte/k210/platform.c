@@ -15,39 +15,37 @@
 #include <plat/irqchip/plic.h>
 #include <plat/sys/clint.h>
 #include "platform.h"
-#include "uarths.h"
-//#include "uart.h"
+//#include "uarths.h"
+#include "uart.h"
 
 #define K210_UART_BAUDRATE 115200
 
 static int k210_console_init(void)
 {
-	uarths_init(K210_UART_BAUDRATE, UARTHS_STOP_1);
+	//uarths_init(K210_UART_BAUDRATE, UARTHS_STOP_1);
 	/*
 	fpioa_set_function(4, FUNC_UART1_RX);
 	fpioa_set_function(5, FUNC_UART1_TX);
 	 */
-	/*
-	*((unsigned int*)(0x502b0010)) = 68 + (1 << 20) + (1 << 23);
-	*((unsigned int*)(0x502b0014)) = 69 + (0xf << 8) + (1 << 12);
+	*((unsigned int*)(0x502b0010)) = (unsigned)(68 | (1 << 20) | (1 << 23));
+	*((unsigned int*)(0x502b0014)) = (unsigned)(69 | (0xf << 8) | (1 << 12));
 	uart_init(UART_DEVICE_3);
 	uart_configure(UART_DEVICE_3, 115200, 8, UART_STOP_1, UART_PARITY_NONE);
-	uart_set_receive_trigger(UART_DEVICE_3, UART_RECEIVE_FIFO_8);
-	 */
+	uart_set_receive_trigger(UART_DEVICE_3, UART_RECEIVE_FIFO_1);
 
 	return 0;
 }
 
 static void k210_console_putc(char c)
 {
-	uarths_putc(c);
-	//uart_channel_putc(c, UART_DEVICE_3);
+	//uarths_putc(c);
+	uart_channel_putc(c, UART_DEVICE_3);
 }
 
 static int k210_console_getc(void)
 {
-	return uarths_getc();
-	//return uart_channel_getc(UART_DEVICE_3);
+	//return uarths_getc();
+	return uart_channel_getc(UART_DEVICE_3);
 }
 
 static int k210_irqchip_init(/*bool*/int cold_boot)

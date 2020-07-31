@@ -31,7 +31,7 @@ pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) {
         Trap::Interrupt(Interrupt::SupervisorTimer) => supervisor_timer(context),
         Trap::Interrupt(Interrupt::SupervisorSoft) => {
             println!("stval = {}", stval);
-            supervisor_soft(context)
+            supervisor_soft(context, stval)
         },
         //Trap::Interrupt(Interrupt::SupervisorExternal) => supervisor_external(context),
         // 其他情况，终止当前线程
@@ -48,7 +48,7 @@ fn supervisor_timer(_: &Context) {
     timer::tick();
 }
 
-fn supervisor_soft(_context: &Context) {
+fn supervisor_soft(_context: &Context, stval: usize) {
     //panic!("supervisor_soft triggered!");
     /*
     println!("supervisor_soft triggered!");
@@ -57,6 +57,7 @@ fn supervisor_soft(_context: &Context) {
     //print!("{:#x}", crate::sbi::console_getchar());
     //println!("supervisor_soft triggered!");
 
+    /*
     let uart_ip: *const u32 = 0x3800_0014 as *const u32;
     println!("ip = {}", unsafe { uart_ip.read_volatile() });
     let uart_rxdata: *const u32 = 0x3800_0004 as *const u32;
@@ -71,6 +72,11 @@ fn supervisor_soft(_context: &Context) {
      */
     let rxdata = unsafe { uart_rxdata.read_volatile() };
     println!("empty = {}, data = {}", rxdata >> 31, rxdata & 0xff);
+    */
+
+    if stval == 13 {
+        print!("{}", crate::sbi::console_getchar() as u8 as char);
+    }
 
     // clear SSIP
     unsafe {
