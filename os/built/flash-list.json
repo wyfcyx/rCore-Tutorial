@@ -7,9 +7,9 @@
       "sha256Prefix": true
     },
     {
-      "address": 0x00200000,
+      "address": 2097152,
       "bin": "k210.bin",
-      "sha256Prefix": true
+      "sha256Prefix": true 
     }
   ]
 }

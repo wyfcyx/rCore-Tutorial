@@ -2,7 +2,7 @@ target = riscv64imac-unknown-none-elf
 mode = debug
 kernel = target/$(target)/$(mode)/os
 image = target/$(target)/$(mode)/kernel.bin
-k210 = target/$(target)/$(mode)/k210.kfpkg
+k210 = target/$(target)/$(mode)/k210.bin
 k210-serialport = /dev/ttyS4
 sbi ?= opensbi
 
@@ -13,14 +13,8 @@ image: kernel
 	rust-objcopy $(kernel) --strip-all -O binary $(image)
 
 k210: image
-	\mkdir built/temp
-	\cp built/$(sbi).bin built/temp/_sbi.bin
-	dd if=built/temp/_sbi.bin of=built/temp/sbi.bin bs=64K count=1
-	\cp $(image) built/temp/k210.bin
-	\cp built/flash-list.json built/temp/
-	cd built/temp && zip -r k210.zip . && cd ../..
-	mv built/temp/k210.zip $(k210)
-	rm -rf built/temp/
+	\cp built/$(sbi).bin $(k210)
+	dd if=$(image) of=$(k210) bs=2M seek=1
 
 run-k210: k210
 	python3 built/kflash.py -p $(k210-serialport) -b 1500000 -t $(k210)

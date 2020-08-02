@@ -14,7 +14,7 @@ impl Write for Stdout {
         }
         Ok(())
     }
-    */
+     */
     fn write_str(&mut self, s: &str) -> fmt::Result {
         for c in s.chars() {
             console_putchar(c as usize);

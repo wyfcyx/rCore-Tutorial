@@ -19,3 +19,21 @@ fn alloc_error_handler(_: alloc::alloc::Layout) -> ! {
     panic!("alloc error!");
 }
 
+#[allow(unused)]
+pub fn heap_test() {
+    use alloc::boxed::Box;
+    use alloc::vec::Vec;
+    let v = Box::new(10);
+    assert_eq!(*v, 10);
+    core::mem::drop(v);
+
+    let mut vec = Vec::new();
+    for i in 0..100 {
+        vec.push(i);
+    }
+    assert_eq!(vec.len(), 100);
+    for (i, val) in vec.iter().enumerate() {
+        assert_eq!(i, *val);
+    }
+    println!("**** memory test passed ****");
+}
