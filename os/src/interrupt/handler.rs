@@ -27,8 +27,8 @@ pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) {
         // 断点中断（ebreak）
         Trap::Exception(Exception::Breakpoint) => breakpoint(context),
         // 时钟中断
-        //Trap::Interrupt(Interrupt::SupervisorTimer) => supervisor_timer(context),
-        Trap::Interrupt(Interrupt::SupervisorSoft) => supervisor_timer(context),
+        Trap::Interrupt(Interrupt::SupervisorTimer) => supervisor_timer(context),
+        //Trap::Interrupt(Interrupt::SupervisorSoft) => supervisor_timer(context),
         // 其他情况，终止当前线程
         _ => fault(context, scause, stval),
     }

@@ -145,6 +145,7 @@ void sbi_trap_handler(struct sbi_trap_regs *regs, struct sbi_scratch *scratch)
 		mcause &= ~(1UL << (__riscv_xlen - 1));
 		switch (mcause) {
 		case IRQ_M_TIMER:
+			//sbi_printf("m_timer on hart%d\r\n", hartid);
 			sbi_timer_process(scratch);
 			break;
 		case IRQ_M_SOFT:

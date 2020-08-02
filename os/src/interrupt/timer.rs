@@ -9,8 +9,8 @@ pub fn init() {
     set_next_timeout();
     unsafe {
         TICKS = 0;
-        //sie::set_stimer();
-        sie::set_ssoft();
+        sie::set_stimer();
+        //sie::set_ssoft();
         sstatus::set_sie();
     }
 }
@@ -49,8 +49,10 @@ pub fn tick() {
         //println!("{} ticks", TICKS);
     }
     //unsafe { sip::clear_ssoft(); }
+    /*
     unsafe {
         let mut sip: usize = 0;
         llvm_asm!("csrci sip, 1 << 1" : "=r"(sip) ::: "volatile");
     }
+     */
 }
