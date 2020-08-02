@@ -20,18 +20,6 @@ unsafe fn read_time() -> usize {
     mtime.read_volatile()
 }
 
-/*
-unsafe fn read_timecmp() -> usize {
-    let mtimecmp = 0x2004000 as *mut usize;
-    mtimecmp.read_volatile()
-}
-
-unsafe fn write_timecmp(t: usize) {
-    let mtimecmp = 0x2004000 as *mut usize;
-    mtimecmp.write_volatile(t)
-}
-*/
-
 pub fn set_next_timeout() {
     unsafe {
         set_timer(read_time() + INTERVAL);
@@ -46,9 +34,7 @@ pub fn tick() {
             println!("{} ticks", TICKS);
             TICKS = 0;
         }
-        //println!("{} ticks", TICKS);
     }
-    //unsafe { sip::clear_ssoft(); }
     /*
     unsafe {
         let mut sip: usize = 0;
