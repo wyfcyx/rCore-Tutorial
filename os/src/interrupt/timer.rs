@@ -1,6 +1,5 @@
 use crate::sbi::set_timer;
-use riscv::register::{time, sie, sstatus, sip};
-use riscv::register::mcause::Trap::Interrupt;
+use riscv::register::{sie, sstatus};
 
 static INTERVAL: usize = 100000;
 pub static mut TICKS: usize = 0;
@@ -13,6 +12,7 @@ pub fn init() {
         //sie::set_ssoft();
         sstatus::set_sie();
     }
+    println!("++++ setup timer       ++++")
 }
 
 unsafe fn read_time() -> usize {
