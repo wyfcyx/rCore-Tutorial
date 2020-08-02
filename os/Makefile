@@ -3,6 +3,7 @@ mode = debug
 kernel = target/$(target)/$(mode)/os
 image = target/$(target)/$(mode)/kernel.bin
 k210 = target/$(target)/$(mode)/k210.bin
+_k210 = target/$(target)/$(mode)/k210.kfpkg
 k210-serialport = /dev/ttyS4
 sbi ?= opensbi
 
@@ -14,7 +15,17 @@ image: kernel
 
 k210: image
 	\cp built/$(sbi).bin $(k210)
-	dd if=$(image) of=$(k210) bs=2M seek=1
+	dd if=$(image) of=$(k210) bs=128K seek=1
+
+
+_k210: image
+	mkdir built/temp
+	dd if=built/$(sbi).bin of=built/temp/sbi.bin bs=512K count=1
+	cp $(image) built/temp/k210.bin
+	cp built/flash-list.json built/temp/flash-list.json
+	cd built/temp && zip -r k210.zip . && cd ../..
+	cp built/temp/k210.zip $(_k210)
+	rm -rf built/temp
 
 run-k210: k210
 	python3 built/kflash.py -p $(k210-serialport) -b 1500000 -t $(k210)
