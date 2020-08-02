@@ -8,7 +8,7 @@ SECTIONS
 {
     /* Load the kernel at this address: "." means the current address */
     . = BASE_ADDRESS;
-    start = .;
+    kernel_start = .;
 
     .text : {
         stext = .;
@@ -41,5 +41,5 @@ SECTIONS
         ebss = .;
     }
 
-    PROVIDE(end = .);
+    PROVIDE(kernel_end = .);
 }

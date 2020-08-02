@@ -1,5 +1,6 @@
 pub mod heap;
-mod config;
+pub mod config;
+pub mod address;
 
 pub fn init() {
     clear_bss();
@@ -8,7 +9,7 @@ pub fn init() {
 }
 
 fn clear_bss() {
-    extern {
+    extern "C" {
         fn sbss();
         fn ebss();
     }

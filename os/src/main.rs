@@ -27,7 +27,7 @@ pub extern "C" fn rust_main(hartid: usize, sp: usize) -> ! {
         llvm_asm!("ebreak"::::"volatile");
     }
 
-    memory::heap::heap_test();
+    println!("{}", *memory::config::KERNEL_END_ADDRESS);
 
     interrupt::timer::init();
 
