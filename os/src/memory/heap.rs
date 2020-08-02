@@ -35,5 +35,5 @@ pub fn heap_test() {
     for (i, val) in vec.iter().enumerate() {
         assert_eq!(i, *val);
     }
-    println!("**** memory test passed ****");
+    println!("**** memory test passed****");
 }

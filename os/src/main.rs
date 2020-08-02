@@ -19,6 +19,8 @@ mod memory;
 
 #[no_mangle]
 pub extern "C" fn rust_main(hartid: usize, sp: usize) -> ! {
+
+
     println!("Hello world #{}! sp = 0x{:x}", hartid, sp);
     interrupt::init();
     memory::init();
