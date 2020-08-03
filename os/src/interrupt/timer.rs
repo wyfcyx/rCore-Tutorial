@@ -1,13 +1,17 @@
 use crate::sbi::set_timer;
 use riscv::register::{sie, sstatus};
+use lazy_static::*;
+use spin::Mutex;
 
 static INTERVAL: usize = 100000;
-pub static mut TICKS: usize = 0;
+lazy_static! {
+    pub static ref TICKS: Mutex<usize> = Mutex::new(0);
+}
 
 pub fn init() {
     set_next_timeout();
     unsafe {
-        TICKS = 0;
+        //TICKS = 0;
         sie::set_stimer();
         //sie::set_ssoft();
         sstatus::set_sie();
@@ -28,12 +32,11 @@ pub fn set_next_timeout() {
 
 pub fn tick() {
     set_next_timeout();
-    unsafe {
-        TICKS += 1;
-        if TICKS % 100 == 0 {
-            println!("{} ticks", TICKS);
-            TICKS = 0;
-        }
+    let mut ticks = TICKS.lock();
+    *ticks += 1;
+    if *ticks % 100 == 0 {
+        println!("100 ticks");
+        *ticks = 0;
     }
     /*
     unsafe {

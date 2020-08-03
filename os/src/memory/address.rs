@@ -38,7 +38,7 @@ macro_rules! implement_address_to_page_number {
             // unaligned addr -> page number, policy = [ceil]
             pub fn ceil(addr: $addr_type) -> Self {
                 Self(
-                    addr.0 >> PAGE_SIZE_BITS + (addr.page_offset() != 0) as usize
+                    (addr.0 >> PAGE_SIZE_BITS) + (addr.page_offset() != 0) as usize
                 )
             }
         }
