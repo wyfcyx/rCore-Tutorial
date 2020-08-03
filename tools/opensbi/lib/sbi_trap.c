@@ -151,6 +151,18 @@ void sbi_trap_handler(struct sbi_trap_regs *regs, struct sbi_scratch *scratch)
 		case IRQ_M_SOFT:
 			sbi_ipi_process(scratch);
 			break;
+		case IRQ_M_EXT:
+			// handle keyboard intr on M mode
+			;
+			unsigned *irq_id_ptr = (unsigned*)(0x0c200004);
+			// claim
+			unsigned irq_id = *irq_id_ptr;
+			// putchar
+			char c = *(unsigned*)(0x38000004) & 0xff;
+			sbi_printf("%c", c);
+			// complete
+			*irq_id_ptr = irq_id;
+			break;
 		default:
 			msg = "unhandled external interrupt";
 			goto trap_error;
