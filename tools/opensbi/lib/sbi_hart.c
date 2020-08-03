@@ -49,6 +49,7 @@ static void mstatus_init(struct sbi_scratch *scratch, u32 hartid)
 	}
 	 */
 	csr_set(CSR_MIE, MIP_MTIP);
+	csr_set(CSR_MIE, MIP_MEIP);
 	csr_set(CSR_MSTATUS, MSTATUS_MIE);
 	/*
 	csr_set(CSR_MIE, MIP_MTIP);
