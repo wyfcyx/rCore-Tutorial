@@ -28,7 +28,7 @@ pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) {
         Trap::Exception(Exception::Breakpoint) => breakpoint(context),
         // 时钟中断
         Trap::Interrupt(Interrupt::SupervisorTimer) => supervisor_timer(context),
-        //Trap::Interrupt(Interrupt::SupervisorSoft) => supervisor_timer(context),
+        Trap::Interrupt(Interrupt::SupervisorSoft) => supervisor_soft(context),
         // 其他情况，终止当前线程
         _ => fault(context, scause, stval),
     }
@@ -41,6 +41,14 @@ fn breakpoint(context: &mut Context) {
 
 fn supervisor_timer(_: &Context) {
     timer::tick();
+}
+
+fn supervisor_soft(_: &Context) {
+    println!("soft");
+    unsafe {
+        let mut sip: usize = 0;
+        llvm_asm!("csrci sip, 1 << 1" : "=r"(sip) ::: "volatile");
+    }
 }
 
 fn fault(context: &mut Context, scause: Scause, stval: usize) {

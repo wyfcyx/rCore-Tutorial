@@ -162,6 +162,8 @@ void sbi_trap_handler(struct sbi_trap_regs *regs, struct sbi_scratch *scratch)
 			sbi_printf("%c", c);
 			// complete
 			*irq_id_ptr = irq_id;
+
+			csr_set(CSR_MIP, MIP_SSIP);
 			break;
 		default:
 			msg = "unhandled external interrupt";
