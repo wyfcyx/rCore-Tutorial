@@ -1,5 +1,5 @@
 use crate::sbi::set_timer;
-use riscv::register::{sie, sstatus};
+use riscv::register::sie;
 use lazy_static::*;
 use spin::Mutex;
 
@@ -11,10 +11,7 @@ lazy_static! {
 pub fn init() {
     set_next_timeout();
     unsafe {
-        //TICKS = 0;
         sie::set_stimer();
-        //sie::set_ssoft();
-        sstatus::set_sie();
     }
     println!("++++ setup timer       ++++")
 }
