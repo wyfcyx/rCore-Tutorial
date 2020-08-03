@@ -159,10 +159,12 @@ void sbi_trap_handler(struct sbi_trap_regs *regs, struct sbi_scratch *scratch)
 			unsigned irq_id = *irq_id_ptr;
 			// putchar
 			char c = *(unsigned*)(0x38000004) & 0xff;
-			sbi_printf("%c", c);
+			//sbi_printf("%c", c);
+			sbi_putc(0);
 			// complete
 			*irq_id_ptr = irq_id;
 
+			csr_write(CSR_STVAL, c);
 			csr_set(CSR_MIP, MIP_SSIP);
 			break;
 		default:
