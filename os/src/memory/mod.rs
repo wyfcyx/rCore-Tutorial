@@ -19,6 +19,7 @@ fn clear_bss() {
     }
     let bss_start = sbss as usize;
     let bss_end = ebss as usize;
+
     assert_eq!(bss_end & 7, 0);
     // clear bss section
     (bss_start..bss_end).step_by(8).for_each(|p| {

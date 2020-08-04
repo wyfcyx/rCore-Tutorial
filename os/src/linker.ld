@@ -36,6 +36,7 @@ SECTIONS
     . = ALIGN(4K);
 
     .bss : {
+	*(.bss.stack)
         sbss = .;
         *(.bss .bss.*)
         ebss = .;
