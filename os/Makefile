@@ -4,7 +4,7 @@ kernel = target/$(target)/$(mode)/os
 image = target/$(target)/$(mode)/kernel.bin
 k210 = target/$(target)/$(mode)/k210.bin
 _k210 = target/$(target)/$(mode)/k210.kfpkg
-k210-serialport = /dev/ttyUSB0
+k210-serialport = /dev/ttyS8
 sbi ?= opensbi
 
 kernel:
