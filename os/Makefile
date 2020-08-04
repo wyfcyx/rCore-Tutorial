@@ -1,10 +1,10 @@
-target = riscv64imac-unknown-none-elf
+target = riscv64gc-unknown-none-elf
 mode = debug
 kernel = target/$(target)/$(mode)/os
 image = target/$(target)/$(mode)/kernel.bin
 k210 = target/$(target)/$(mode)/k210.bin
 _k210 = target/$(target)/$(mode)/k210.kfpkg
-k210-serialport = /dev/ttyS5
+k210-serialport = /dev/ttyUSB0
 sbi ?= opensbi
 
 kernel:
