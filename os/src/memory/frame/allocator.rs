@@ -1,5 +1,5 @@
 use lazy_static::*;
-use super::super::address::PhysicalPageNumber;
+use super::super::address::{PhysicalPageNumber, PhysicalAddress};
 use super::super::config::{KERNEL_END_ADDRESS, MEMORY_END_ADDRESS};
 use super::super::range::Range;
 use super::frame_tracker::FrameTracker;
@@ -19,7 +19,7 @@ lazy_static! {
     pub static ref FRAME_ALLOCATOR: Mutex<FrameAllocator<AllocatorImpl>> = Mutex::new(
         FrameAllocator::new(
             Range::from(
-                PhysicalPageNumber::ceil(*KERNEL_END_ADDRESS)..
+                PhysicalPageNumber::ceil(PhysicalAddress::from(*KERNEL_END_ADDRESS))..
                 PhysicalPageNumber::floor(MEMORY_END_ADDRESS)
             )
         )

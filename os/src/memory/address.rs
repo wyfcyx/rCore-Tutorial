@@ -1,5 +1,11 @@
 use super::config::PAGE_SIZE;
 use super::config::PAGE_SIZE_BITS;
+use super::config::KERNEL_MAP_OFFSET;
+use bit_field::BitField;
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug, Default, Eq, Ord, PartialOrd, PartialEq, Hash)]
+pub struct VirtualAddress(pub usize);
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Default, Eq, Ord, PartialOrd, PartialEq, Hash)]
@@ -7,11 +13,83 @@ pub struct PhysicalAddress(pub usize);
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Default, Eq, Ord, PartialOrd, PartialEq, Hash)]
+pub struct VirtualPageNumber(pub usize);
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug, Default, Eq, Ord, PartialOrd, PartialEq, Hash)]
 pub struct PhysicalPageNumber(pub usize);
 
-impl PhysicalAddress {
+impl<T> From<*const T> for VirtualAddress {
+    fn from(pointer: *const T) -> Self {
+        Self(pointer as usize)
+    }
+}
+impl<T> From<*mut T> for VirtualAddress {
+    fn from(pointer: *mut T) -> Self {
+        Self(pointer as usize)
+    }
+}
+
+impl From<VirtualAddress> for PhysicalAddress {
+    fn from(va: VirtualAddress) -> Self {
+        Self(va.0 - KERNEL_MAP_OFFSET)
+    }
+}
+impl From<PhysicalAddress> for VirtualAddress {
+    fn from(pa: PhysicalAddress) -> Self {
+        Self(pa.0 + KERNEL_MAP_OFFSET)
+    }
+}
+impl From<VirtualPageNumber> for PhysicalPageNumber {
+    fn from(vpn: VirtualPageNumber) -> Self {
+        Self(vpn.0 - KERNEL_MAP_OFFSET / PAGE_SIZE)
+    }
+}
+impl From<PhysicalPageNumber> for VirtualPageNumber {
+    fn from(ppn: PhysicalPageNumber) -> Self {
+        Self(ppn.0 + KERNEL_MAP_OFFSET / PAGE_SIZE)
+    }
+}
+
+impl VirtualAddress {
+    pub fn deref<T>(self) -> &'static mut T {
+        unsafe { &mut *(self.0 as *mut T) }
+    }
     pub fn page_offset(&self) -> usize {
         self.0 & (PAGE_SIZE - 1)
+    }
+}
+
+impl PhysicalAddress {
+    pub fn deref_kernel<T>(self) -> &'static mut T {
+        VirtualAddress::from(self).deref()
+    }
+    pub fn page_offset(&self) -> usize {
+        self.0 & (PAGE_SIZE - 1)
+    }
+}
+
+impl VirtualPageNumber {
+    pub fn deref(self) -> &'static mut [u8; PAGE_SIZE] {
+        VirtualAddress::from(self).deref()
+        //let va: VirtualAddress = self.into();
+        //va.deref()
+    }
+}
+
+impl PhysicalPageNumber {
+    pub fn deref_kernel(self) -> &'static mut [u8; PAGE_SIZE] {
+        PhysicalAddress::from(self).deref_kernel()
+    }
+}
+
+impl VirtualPageNumber {
+    pub fn levels(self) -> [usize; 3] {
+        [
+            self.0.get_bits(18..27),
+            self.0.get_bits(9..18),
+            self.0.get_bits(0..9),
+        ]
     }
 }
 
@@ -46,6 +124,7 @@ macro_rules! implement_address_to_page_number {
 }
 
 implement_address_to_page_number!(PhysicalAddress, PhysicalPageNumber);
+implement_address_to_page_number!(VirtualAddress, VirtualPageNumber);
 
 macro_rules! implement_usize_operations {
     ($type_name: ty) => {
@@ -111,3 +190,5 @@ macro_rules! implement_usize_operations {
 
 implement_usize_operations!(PhysicalAddress);
 implement_usize_operations!(PhysicalPageNumber);
+implement_usize_operations!(VirtualAddress);
+implement_usize_operations!(VirtualPageNumber);

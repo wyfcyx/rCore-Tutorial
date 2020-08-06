@@ -58,8 +58,10 @@ pub extern "C" fn rust_main(hartid: usize, sp: usize) -> ! {
         println!("{} and {}", frame_0.address(), frame_1.address());
     }
 
-    interrupt::timer::init();
+    panic!("before setting timer");
 
-    loop {}
+    //interrupt::timer::init();
+
+    //loop {}
 }
 
