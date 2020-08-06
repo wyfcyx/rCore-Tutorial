@@ -2,13 +2,15 @@
 OUTPUT_ARCH(riscv)
 ENTRY(_start)
 
-BASE_ADDRESS = 0x80020000;
+BASE_ADDRESS = 0xffffffff80020000;
 
 SECTIONS
 {
     /* Load the kernel at this address: "." means the current address */
     . = BASE_ADDRESS;
     kernel_start = .;
+
+    . = ALIGN(4K);
 
     .text : {
         stext = .;
@@ -35,12 +37,19 @@ SECTIONS
 
     . = ALIGN(4K);
 
+    .stack : {
+        *(.bss.stack)
+    }
+
+    . = ALIGN(4K);
+
     .bss : {
-	*(.bss.stack)
         sbss = .;
-        *(.bss .bss.*)
+        *(.sbss .bss .bss.*)
         ebss = .;
     }
+
+    . = ALIGN(4K);
 
     PROVIDE(kernel_end = .);
 }

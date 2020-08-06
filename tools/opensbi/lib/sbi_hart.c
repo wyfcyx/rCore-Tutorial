@@ -65,6 +65,16 @@ static void mstatus_init(struct sbi_scratch *scratch, u32 hartid)
 	/* Disable S-mode paging */
 	if (misa_extension('S'))
 		csr_write(CSR_SATP, 0);
+	/*
+	// but we will enable it later in S Mode!
+	// spec 1.9.1: set paging mode in mstatus.vm
+	// read current mstatus
+	u64 mstatus = csr_read(CSR_MSTATUS);
+	// set mstatus.vm to sv39
+	mstatus |= (u64)9 << 24;
+	// write back
+	csr_write(CSR_MSTATUS, mstatus);
+	 */
 }
 
 static int fp_init(u32 hartid)
@@ -252,12 +262,13 @@ sbi_hart_switch_mode(unsigned long arg0, unsigned long arg1,
 
 	csr_write(CSR_MSTATUS, val);
 	csr_write(CSR_MEPC, next_addr);
+	//sbi_printf("mepc = 0x%lx\n", next_addr);
 
 	if (next_mode == PRV_S) {
 		csr_write(CSR_STVEC, next_addr);
 		csr_write(CSR_SSCRATCH, 0);
 		csr_write(CSR_SIE, 0);
-		csr_write(CSR_SATP, 0);
+		//csr_write(CSR_SATP, 0);
 	} else if (next_mode == PRV_U) {
 		csr_write(CSR_UTVEC, next_addr);
 		csr_write(CSR_USCRATCH, 0);

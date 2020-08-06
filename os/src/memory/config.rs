@@ -10,9 +10,11 @@ pub const MEMORY_START_ADDRESS: PhysicalAddress = PhysicalAddress(0x8000_0000);
 pub const MEMORY_END_ADDRESS: PhysicalAddress = PhysicalAddress(0x8060_0000);
 
 lazy_static! {
-    pub static ref KERNEL_END_ADDRESS: PhysicalAddress = PhysicalAddress(kernel_end as usize);
+    pub static ref KERNEL_END_ADDRESS: PhysicalAddress = PhysicalAddress(kernel_end as usize - 0xffff_ffff_0000_0000);
 }
 
 extern "C" {
     fn kernel_end();
 }
+
+pub const KERNEL_MAP_OFFSET: usize = 0xffff_ffff_0000_0000;

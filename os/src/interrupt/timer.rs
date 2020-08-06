@@ -20,7 +20,7 @@ pub fn init() {
 }
 
 unsafe fn read_time() -> usize {
-    let mtime = 0x200bff8 as *const usize;
+    let mtime = 0xffff_ffff_0200_bff8 as *const usize;
     mtime.read_volatile()
 }
 

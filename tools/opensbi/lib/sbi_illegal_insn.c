@@ -15,6 +15,7 @@
 #include <sbi/sbi_error.h>
 #include <sbi/sbi_illegal_insn.h>
 #include <sbi/sbi_trap.h>
+#include <sbi/sbi_console.h>
 
 typedef int (*illegal_insn_func)(ulong insn, u32 hartid, ulong mcause,
 				 struct sbi_trap_regs *regs,
@@ -116,6 +117,7 @@ int sbi_illegal_insn_handler(u32 hartid, ulong mcause,
 			     struct sbi_trap_regs *regs,
 			     struct sbi_scratch *scratch)
 {
+	sbi_printf("illegal instruction found!");
 	ulong insn = csr_read(mbadaddr);
 
 	if (unlikely((insn & 3) != 3)) {
