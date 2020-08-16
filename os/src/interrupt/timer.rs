@@ -2,9 +2,12 @@
 
 use crate::sbi::set_timer;
 use riscv::register::{sie, sstatus, time};
-
+use spin::Mutex;
+use lazy_static::*;
 /// 触发时钟中断计数
-pub static mut TICKS: usize = 0;
+lazy_static! {
+    pub static ref TICKS: Mutex<usize> = Mutex::new(0);
+}
 
 /// 时钟中断的间隔，单位是 CPU 指令
 static INTERVAL: usize = 100000;
@@ -40,10 +43,10 @@ fn set_next_timeout() {
 /// 设置下一次时钟中断，同时计数 +1
 pub fn tick() {
     set_next_timeout();
-    unsafe {
-        TICKS += 1;
-        if TICKS % 100 == 0 {
-            println!("{} tick", TICKS);
-        }
+    let mut ticks = TICKS.lock();
+    *ticks += 1;
+    if *ticks % 100 == 0 {
+        println!("100 ticks");
+        *ticks = 0;
     }
 }

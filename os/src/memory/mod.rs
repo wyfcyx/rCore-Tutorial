@@ -21,9 +21,25 @@ pub use {address::*, config::*, frame::FRAME_ALLOCATOR, range::Range};
 ///
 /// - [`heap::init`]
 pub fn init() {
+    clear_bss();
     heap::init();
     // 允许内核读写用户态内存
     unsafe { riscv::register::sstatus::set_sum() };
 
     println!("mod memory initialized");
+}
+
+fn clear_bss() {
+    extern "C" {
+        fn sbss();
+        fn ebss();
+    }
+    let bss_start = sbss as usize;
+    let bss_end = ebss as usize;
+
+    assert_eq!(bss_end & 7, 0);
+    // clear bss section
+    (bss_start..bss_end).step_by(8).for_each(|p| {
+        unsafe { (p as *mut u64).write_volatile(0) }
+    });
 }

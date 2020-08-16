@@ -2,7 +2,7 @@
 
 mod context;
 mod handler;
-mod timer;
+pub mod timer;
 
 pub use context::Context;
 
@@ -12,6 +12,6 @@ pub use context::Context;
 /// - [`timer::init`]
 pub fn init() {
     handler::init();
-    timer::init();
+    //timer::init();
     println!("mod interrupt initialized");
 }

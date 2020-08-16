@@ -78,6 +78,6 @@ pub extern "C" fn rust_main() -> ! {
     }
 
     //panic!("end of rust_main");
-
+    interrupt::timer::init();
     loop {}
 }
