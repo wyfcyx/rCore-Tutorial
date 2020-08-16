@@ -23,11 +23,16 @@ pub fn init() {
     set_next_timeout();
 }
 
+fn read_time() -> usize {
+    let mtime = 0x0200_bff8 as *mut usize;
+    unsafe { mtime.read_volatile() }
+}
+
 /// 设置下一次时钟中断
 ///
 /// 获取当前时间，加上中断间隔，通过 SBI 调用预约下一次中断
 fn set_next_timeout() {
-    set_timer(time::read() + INTERVAL);
+    set_timer(/* time::read() */ read_time() + INTERVAL);
 }
 
 /// 每一次时钟中断时调用
