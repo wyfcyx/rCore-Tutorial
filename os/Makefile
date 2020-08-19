@@ -27,6 +27,8 @@ $(BIN_FILE): kernel
 asm:
 	@$(OBJDUMP) -d $(KERNEL_FILE) | less
 
+asm-save:
+	@$(OBJDUMP) -d $(KERNEL_FILE) > asm 
 # 清理编译出的文件
 clean:
 	@cargo clean

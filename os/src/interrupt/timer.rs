@@ -2,6 +2,7 @@
 
 use crate::sbi::set_timer;
 use riscv::register::{sie, sstatus, time};
+use riscv::asm::sfence_vma;
 use spin::Mutex;
 use lazy_static::*;
 /// 触发时钟中断计数
@@ -27,7 +28,8 @@ pub fn init() {
 }
 
 fn read_time() -> usize {
-    let mtime = 0x0200_bff8 as *mut usize;
+    //unsafe { sfence_vma(0, 0xffff_ffff_0200_b000); }
+    let mtime = 0xffff_ffff_0200_bff8 as *mut usize;
     unsafe { mtime.read_volatile() }
 }
 
@@ -35,7 +37,7 @@ fn read_time() -> usize {
 ///
 /// 获取当前时间，加上中断间隔，通过 SBI 调用预约下一次中断
 fn set_next_timeout() {
-    set_timer(/* time::read() */ read_time() + INTERVAL);
+    set_timer(/*time::read()*/ read_time() + INTERVAL);
 }
 
 /// 每一次时钟中断时调用

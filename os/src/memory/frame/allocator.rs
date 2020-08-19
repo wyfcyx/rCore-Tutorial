@@ -11,7 +11,7 @@ use spin::Mutex;
 lazy_static! {
     /// 帧分配器
     pub static ref FRAME_ALLOCATOR: Mutex<FrameAllocator<AllocatorImpl>> = Mutex::new(FrameAllocator::new(Range::from(
-            PhysicalPageNumber::ceil(*KERNEL_END_ADDRESS)..PhysicalPageNumber::floor(MEMORY_END_ADDRESS),
+            PhysicalPageNumber::ceil(PhysicalAddress::from(*KERNEL_END_ADDRESS))..PhysicalPageNumber::floor(MEMORY_END_ADDRESS),
         )
     ));
 }
@@ -35,16 +35,18 @@ impl<T: Allocator> FrameAllocator<T> {
 
     /// 分配帧，如果没有剩余则返回 `Err`
     pub fn alloc(&mut self) -> MemoryResult<FrameTracker> {
-        self.allocator
+        let offset = self.allocator
             .alloc()
-            .ok_or("no available frame to allocate")
-            .map(|offset| FrameTracker(self.start_ppn + offset))
+            .ok_or("no available frame to allocate");
+        println!("alloc ppn = {}", self.start_ppn + offset.unwrap());
+        offset.map(|offset| FrameTracker(self.start_ppn + offset))
     }
 
     /// 将被释放的帧添加到空闲列表的尾部
     ///
     /// 这个函数会在 [`FrameTracker`] 被 drop 时自动调用，不应在其他地方调用
     pub(super) fn dealloc(&mut self, frame: &FrameTracker) {
+        println!("dealloc ppn = {}", frame.page_number());
         self.allocator.dealloc(frame.page_number() - self.start_ppn);
     }
 }
