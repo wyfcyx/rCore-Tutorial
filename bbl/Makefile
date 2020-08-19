@@ -133,6 +133,7 @@ bbl: vmlinux
 
 bbl_fpga: bbl_dtb_fpga
 	make -C ../os build
+	chmod a+x riscv-pk/configure
 	cd build && ../riscv-pk/configure --host=riscv64-unknown-elf --with-dtb=riscv_fpga.dtb --with-payload=$(rcore) --enable-logo --with-logo=../configs/logo.txt --enable-print-device-tree
 	make -C build
 	cp build/bbl bbl_fpga
@@ -164,6 +165,21 @@ bbl.bin: bbl
 bbl_fpga.bin: bbl_fpga
 	riscv64-unknown-elf-objcopy -S -O binary --change-addresses -0x80000000 $< $@
 	#cp $@ $(cygwin)
+
+burn: bbl_fpga.bin
+	sudo dd if=bbl_fpga.bin of=/dev/sdb1 status=progress oflag=sync bs=1M
+
+openocd:
+	openocd -f ariane.cfg
+gdb:
+	riscv64-unknown-elf-gdb \
+		-ex 'set remotetimeout 100' \
+		-ex 'file ../os/target/riscv64imac-unknown-none-elf/debug/os' \
+		-ex 'target remote localhost:3333' \
+		-ex 'b *0x80000000' \
+		-ex 'c' \
+		-ex 'b *0x80200000' \
+		-ex 'c'
 
 bbl_sim.bin: bbl_sim
 	riscv64-unknown-elf-objcopy -S -O binary --change-addresses -0x800000000 $< $@
