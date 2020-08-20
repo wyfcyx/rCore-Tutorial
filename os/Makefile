@@ -4,7 +4,7 @@ kernel = target/$(target)/$(mode)/os
 image = target/$(target)/$(mode)/kernel.bin
 k210 = target/$(target)/$(mode)/k210.bin
 _k210 = target/$(target)/$(mode)/k210.kfpkg
-k210-serialport = /dev/ttyS5
+k210-serialport = /dev/ttyUSB0
 sbi ?= opensbi
 
 kernel:
@@ -28,6 +28,9 @@ _k210: image
 	rm -rf built/temp
 
 run-k210: k210
+ifeq ($(k210-serialport),/dev/ttyUSB0)
+	sudo chmod -R 777 $(k210-serialport)
+endif
 	python3 built/kflash.py -p $(k210-serialport) -b 1500000 -t $(k210)
 
 build: image
