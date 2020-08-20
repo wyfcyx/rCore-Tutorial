@@ -9,12 +9,12 @@ use crate::driver::soc::gpio;
 use crate::driver::soc::gpiohs;
 use crate::driver::soc::spi::{aitm, frame_format, tmod, work_mode, SPI};
 
-pub struct SDCard<'a, SPI> {
+pub struct SDCard</*'a, */SPI> {
     spi: SPI,
     spi_cs: u32,
     cs_gpionum: u8,
-    dmac: &'a DMAC,
-    channel: dma_channel,
+    //dmac: &'a DMAC,
+    //channel: dma_channel,
 }
 
 /*
@@ -148,14 +148,16 @@ pub struct SD_CardInfo {
     pub CardBlockSize: u64, /* Card Block Size */
 }
 
-impl<'a, X: SPI> SDCard<'a, X> {
-    pub fn new(spi: X, spi_cs: u32, cs_gpionum: u8, dmac: &'a DMAC, channel: dma_channel) -> Self {
+impl</*'a, */X: SPI> SDCard</*'a, */X> {
+    pub fn new(spi: X, spi_cs: u32, cs_gpionum: u8/*, dmac: &'a DMAC, channel: dma_channel*/) -> Self {
         Self {
             spi,
             spi_cs,
             cs_gpionum,
+            /*
             dmac,
             channel,
+             */
         }
     }
 
@@ -191,6 +193,7 @@ impl<'a, X: SPI> SDCard<'a, X> {
         self.spi.send_data(self.spi_cs, data);
     }
 
+    /*
     fn write_data_dma(&self, data: &[u32]) {
         self.spi.configure(
             work_mode::MODE0,
@@ -206,6 +209,7 @@ impl<'a, X: SPI> SDCard<'a, X> {
         self.spi
             .send_data_dma(self.dmac, self.channel, self.spi_cs, data);
     }
+     */
 
     fn read_data(&self, data: &mut [u8]) {
         self.spi.configure(
@@ -222,6 +226,7 @@ impl<'a, X: SPI> SDCard<'a, X> {
         self.spi.recv_data(self.spi_cs, data);
     }
 
+    /*
     fn read_data_dma(&self, data: &mut [u32]) {
         self.spi.configure(
             work_mode::MODE0,
@@ -237,6 +242,7 @@ impl<'a, X: SPI> SDCard<'a, X> {
         self.spi
             .recv_data_dma(self.dmac, self.channel, self.spi_cs, data);
     }
+     */
 
     /*
      * Send 5 bytes command to the SD card.
@@ -685,15 +691,21 @@ const SD_CS_GPIONUM: u8 = 7;
 const SD_CS: u32 = 3;
 
 use super::io;
-use k210_pac::Peripherals;
+use k210_pac::{Peripherals, SPI0};
 use k210_hal::prelude::*;
 use crate::driver::soc::{
     fpioa,
     sysctl,
     sleep::usleep,
     dmac::DMACExt,
-    spi::SPIExt,
+    spi::{
+        SPIExt,
+        SPIImpl,
+    },
 };
+use spin::Mutex;
+use lazy_static::*;
+use bitflags::_core::ptr::null;
 
 /** Connect pins to internal functions */
 fn io_init() {
@@ -728,38 +740,56 @@ fn hexdump(buffer: &[u8], base: usize) {
     }
 }
 
+lazy_static! {
+    pub static ref PERIPHERALS: Mutex<Peripherals> = Mutex::new(Peripherals::take().unwrap());
+
+    /*
+    pub static ref SDCARD: Mutex<SDCard<SPIImpl<SPI0>>> = Mutex::new({
+        sysctl::pll_set_freq(sysctl::pll::PLL0, 800_000_000).unwrap();
+        sysctl::pll_set_freq(sysctl::pll::PLL1, 300_000_000).unwrap();
+        sysctl::pll_set_freq(sysctl::pll::PLL2, 45_158_400).unwrap();
+        let clocks = k210_hal::clock::Clocks::new();
+        PERIPHERALS.UARTHS.configure(115_200.bps(), &clocks);
+
+        usleep(200000);
+        println!("Hello world!");
+
+        io_init();
+
+        //let dmac = p.DMAC.configure();
+        let spi = PERIPHERALS.SPI0.constrain();
+
+        SDCard::new(spi, SD_CS, SD_CS_GPIONUM/*, &dmac, dma_channel::CHANNEL0*/)
+    });
+     */
+}
+
 pub fn init_sdcard() {
-    println!("init sdcard!");
-    let p = Peripherals::take().unwrap();
-    println!("checkpoint 0!");
+    let peripherals = Peripherals::take().unwrap();
     sysctl::pll_set_freq(sysctl::pll::PLL0, 800_000_000).unwrap();
     sysctl::pll_set_freq(sysctl::pll::PLL1, 300_000_000).unwrap();
     sysctl::pll_set_freq(sysctl::pll::PLL2, 45_158_400).unwrap();
     let clocks = k210_hal::clock::Clocks::new();
-    p.UARTHS.configure(115_200.bps(), &clocks);
-    println!("checkpoint 1!");
-    let clocks = k210_hal::clock::Clocks::new();
-
-    println!("start usleep!");
+    peripherals.UARTHS.configure(115_200.bps(), &clocks);
     usleep(200000);
-
-    println!("ready io_init!");
     io_init();
 
-    let dmac = p.DMAC.configure();
-    let spi = p.SPI0.constrain();
-
+    let spi = peripherals.SPI0.constrain();
     println!("sdcard: pre-init");
-    let sd = SDCard::new(spi, SD_CS, SD_CS_GPIONUM, &dmac, dma_channel::CHANNEL0);
+    let sd = SDCard::new(spi, SD_CS, SD_CS_GPIONUM);
     let info = sd.init().unwrap();
     println!("card info: {:?}", info);
     let num_sectors = info.CardCapacity / 512;
-    println!("number of sectors on card: {}", num_sectors);
-
     assert!(num_sectors > 0);
+    println!("number of sectors on card: {}", num_sectors);
+    println!("++++ setup sdcard      ++++");
+}
+
+pub fn sdcard_test() {
+    let num_sectors = get_sdcard_sectors();
     let sector: u32 = (num_sectors - 10).try_into().unwrap();
     let mut buffer = [0u8; 512];
-    sd.read_sector(&mut buffer, sector).unwrap();
+    sdcard_read_sector(&mut buffer, sector);
     println!("sector {} succesfully read", sector);
 
     hexdump(&buffer, 0);
@@ -768,11 +798,35 @@ pub fn init_sdcard() {
     let msg = b"Well! I've often seen a cat without a grin', thought Alice, 'but a grin without a cat! It's the most curious thing I ever saw in my life!'";
     let mut buffer = [0u8; 512];
     (&mut buffer[0..msg.len()]).copy_from_slice(msg);
-    sd.write_sector(&mut buffer, sector).unwrap();
+    sdcard_write_sector(&mut buffer, sector);
     println!("sector {} succesfully written", sector);
 
     let mut read_buffer = [0u8; 512];
-    sd.read_sector(&mut read_buffer, sector);
+    sdcard_read_sector(&mut read_buffer, sector);
     let string = core::str::from_utf8(&read_buffer).unwrap();
     println!("{}", string);
+
+    sdcard_write_sector(&mut buffer, sector);
+    println!("sdcard test passed!");
+}
+
+pub fn sdcard_read_sector(data_buf: &mut [u8], sector: u32) {
+    let peripherals = Peripherals::take().unwrap();
+    let spi = peripherals.SPI0.constrain();
+    let sd = SDCard::new(spi, SD_CS, SD_CS_GPIONUM/*, &dmac, dma_channel::CHANNEL0*/);
+    sd.read_sector(data_buf, sector).unwrap();
+}
+
+pub fn sdcard_write_sector(data_buf: &mut [u8], sector: u32) {
+    let peripherals = Peripherals::take().unwrap();
+    let spi = peripherals.SPI0.constrain();
+    let sd = SDCard::new(spi, SD_CS, SD_CS_GPIONUM/*, &dmac, dma_channel::CHANNEL0*/);
+    sd.write_sector(data_buf, sector).unwrap();
+}
+
+pub fn get_sdcard_sectors() -> u64 {
+    let peripherals = Peripherals::take().unwrap();
+    let spi = peripherals.SPI0.constrain();
+    let sd = SDCard::new(spi, SD_CS, SD_CS_GPIONUM/*, &dmac, dma_channel::CHANNEL0*/);
+    sd.get_cardinfo().unwrap().CardCapacity / 512
 }

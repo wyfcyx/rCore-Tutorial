@@ -46018,11 +46018,14 @@ impl Peripherals {
             }
         })
         */
+        /*
         if unsafe { DEVICE_PERIPHERALS } {
             None
         } else {
             Some(unsafe { Peripherals::steal() })
         }
+        */
+        Some(unsafe { Peripherals::steal() })
     }
     #[doc = r"Unchecked version of `Peripherals::take`"]
     #[inline]
