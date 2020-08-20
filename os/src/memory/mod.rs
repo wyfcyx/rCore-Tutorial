@@ -19,12 +19,17 @@ fn clear_bss() {
     }
     let bss_start = sbss as usize;
     let bss_end = ebss as usize;
+    let bss_aligned = bss_end - bss_end % 8;
 
-    assert_eq!(bss_end & 7, 0);
     // clear bss section
-    (bss_start..bss_end).step_by(8).for_each(|p| {
+    (bss_start..bss_aligned).step_by(8).for_each(|p| {
         unsafe { (p as *mut u64).write_volatile(0) }
     });
+    if bss_aligned < bss_end {
+        (bss_aligned..bss_end).step_by(1).for_each(|p| {
+            unsafe { (p as *mut u8).write_volatile(0) }
+        });
+    }
 }
 
 

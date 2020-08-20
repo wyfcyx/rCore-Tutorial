@@ -61,6 +61,10 @@ pub extern "C" fn rust_main(hartid: usize, sp: usize) -> ! {
 
     //panic!("before setting timer");
 
+    driver::other::sdcard::init_sdcard();
+
+    loop {}
+
     interrupt::timer::init();
 
     loop {}

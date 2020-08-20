@@ -3,7 +3,8 @@
 #![allow(unused)]
 #![allow(non_camel_case_types)]
 
-use k210_hal::pac;
+//use k210_hal::pac;
+use k210_pac as pac;
 
 #[derive(Copy, Clone)]
 pub enum function {

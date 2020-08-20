@@ -2,7 +2,8 @@
 use core::cmp;
 use core::convert::TryInto;
 use core::ops::Deref;
-use k210_hal::pac;
+//use k210_hal::pac;
+use k210_pac as pac;
 use pac::{SPI0,SPI1,spi0};
 use pac::spi0::ctrlr0;
 use pac::spi0::spi_ctrlr0;

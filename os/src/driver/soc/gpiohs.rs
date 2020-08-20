@@ -1,7 +1,8 @@
 #![allow(unused)]
 
 //! GPIOHS peripheral
-use k210_hal::pac;
+//use k210_hal::pac;
+use k210_pac as pac;
 
 use super::gpio;
 use super::utils::{set_bit,get_bit};

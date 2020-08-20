@@ -2,7 +2,8 @@
 #![allow(non_camel_case_types)]
 
 //! DMAC peripheral
-use k210_hal::pac;
+//use k210_hal::pac;
+use k210_pac as pac;
 use pac::dmac::channel::cfg::{TT_FC_A,HS_SEL_SRC_A};
 use pac::dmac::channel::ctl::{SMS_A};
 

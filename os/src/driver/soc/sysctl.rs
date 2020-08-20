@@ -3,7 +3,8 @@
 #![allow(non_camel_case_types)]
 
 //! SYSCTL peripheral
-use k210_hal::pac;
+//use k210_hal::pac;
+use k210_pac as pac;
 
 use core::convert::TryInto;
 
@@ -764,6 +765,7 @@ fn pll_source_set_freq(pll: pll, source: clock_source, freq: u32) -> Result<u32,
 
  */
 pub fn pll_set_freq(pll: pll, freq: u32) -> Result<u32,()> {
+    println!("into pll_set_freq");
     assert!(freq != 0);
     let ptr = pac::SYSCTL::ptr();
     use pll::*;

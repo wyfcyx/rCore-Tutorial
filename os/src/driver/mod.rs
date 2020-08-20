@@ -1,2 +1,2 @@
-mod other;
+pub mod other;
 pub mod soc;

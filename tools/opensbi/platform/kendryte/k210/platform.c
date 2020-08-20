@@ -24,6 +24,8 @@ static void k210_paging_init()
 	static uintptr_t BOOT_PAGE_TABLE[1 << RISCV_PGLEVEL_BITS]
 		__attribute__((aligned(RISCV_PGSIZE)));
 
+    BOOT_PAGE_TABLE[   0] = (0x00000000u >> 12 << 10) | PTE_V | PTE_R | PTE_W | PTE_X | PTE_A | PTE_D;
+    BOOT_PAGE_TABLE[   1] = (0x40000000u >> 12 << 10) | PTE_V | PTE_R | PTE_W | PTE_X | PTE_A | PTE_D;
 	BOOT_PAGE_TABLE[   2] = (0x80000000u >> 12 << 10) | PTE_V | PTE_R | PTE_W | PTE_X | PTE_A | PTE_D;
     BOOT_PAGE_TABLE[0774] = (0x00000000u >> 12 << 10) | PTE_V | PTE_R | PTE_W | PTE_X | PTE_A | PTE_D;
     BOOT_PAGE_TABLE[0775] = (0x40000000u >> 12 << 10) | PTE_V | PTE_R | PTE_W | PTE_X | PTE_A | PTE_D;
