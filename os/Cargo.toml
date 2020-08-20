@@ -13,6 +13,7 @@ lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
 spin = "0.5.2"
 bitflags = "1.2.1"
 bit_field = "0.10.0"
+k210-hal = "0.2.0"
 
 [profile.dev]
 panic = "abort"

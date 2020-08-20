@@ -14,9 +14,10 @@ extern crate alloc;
 mod console;
 mod lang_item;
 mod sbi;
-mod interrupt;
+pub mod interrupt;
 mod memory;
 mod algorithm;
+mod driver;
 
 #[no_mangle]
 pub extern "C" fn rust_main(hartid: usize, sp: usize) -> ! {

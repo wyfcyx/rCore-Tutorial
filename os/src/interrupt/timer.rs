@@ -19,15 +19,13 @@ pub fn init() {
     println!("++++ setup timer       ++++")
 }
 
-unsafe fn read_time() -> usize {
+pub fn read_time() -> usize {
     let mtime = 0xffff_ffff_0200_bff8 as *const usize;
-    mtime.read_volatile()
+    unsafe { mtime.read_volatile() }
 }
 
 pub fn set_next_timeout() {
-    unsafe {
-        set_timer(read_time() + INTERVAL);
-    }
+    set_timer(read_time() + INTERVAL);
 }
 
 pub fn tick() {
