@@ -15,7 +15,7 @@ mod console;
 mod lang_item;
 mod sbi;
 mod interrupt;
-mod memory;
+pub mod memory;
 mod algorithm;
 
 #[no_mangle]
@@ -23,6 +23,10 @@ pub extern "C" fn rust_main(hartid: usize, sp: usize) -> ! {
     println!("Hello world #{}! sp = 0x{:x}", hartid, sp);
     interrupt::init();
     memory::init();
+
+    let remap = memory::mapping::memory_set::MemorySet::new_kernel().unwrap();
+    remap.activate();
+    println!("++++ kernel remapped   ++++");
 
     unsafe {
         llvm_asm!("ebreak"::::"volatile");

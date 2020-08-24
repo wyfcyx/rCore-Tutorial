@@ -32,6 +32,17 @@ static int system_opcode_insn(ulong insn, u32 hartid, ulong mcause,
 			      struct sbi_trap_regs *regs,
 			      struct sbi_scratch *scratch)
 {
+    if(insn == 0x12000073) { // sfence.vma
+        __asm__ volatile (".word 0x10400073");	// sfence.vm
+        regs->mepc += 4;
+        return 0;
+    } else if(insn == 0x12a00073) {	// sfence.vma a0
+        register unsigned long a0 asm ("a0") = regs->a0;
+        __asm__ volatile (".word 0x10450073" :: "r"(a0));	// sfence.vm a0
+        regs->mepc += 4;
+        return 0;
+    }
+
 	int do_write, rs1_num = (insn >> 15) & 0x1f;
 	ulong rs1_val = GET_RS1(insn, regs);
 	int csr_num   = (u32)insn >> 20;
@@ -117,8 +128,8 @@ int sbi_illegal_insn_handler(u32 hartid, ulong mcause,
 			     struct sbi_trap_regs *regs,
 			     struct sbi_scratch *scratch)
 {
-	sbi_printf("illegal instruction found!");
-	ulong insn = csr_read(mbadaddr);
+    uintptr_t epc = csr_read(CSR_MEPC) - 0xffffffff80000000u + 0x80000000u;
+    ulong insn = *(uint32_t*)epc;
 
 	if (unlikely((insn & 3) != 3)) {
 		if (insn == 0)

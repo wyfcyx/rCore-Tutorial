@@ -16,7 +16,7 @@ pub fn init() {
         //sie::set_ssoft();
         sstatus::set_sie();
     }
-    println!("++++ setup timer       ++++")
+    println!("++++ setup timer       ++++");
 }
 
 unsafe fn read_time() -> usize {

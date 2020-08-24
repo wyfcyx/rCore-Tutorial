@@ -11,6 +11,7 @@ SECTIONS
     kernel_start = .;
 
     . = ALIGN(4K);
+    text_start = .;
 
     .text : {
         stext = .;
@@ -20,6 +21,7 @@ SECTIONS
     }
 
     . = ALIGN(4K);
+    rodata_start = .;
 
     .rodata : {
         srodata = .;
@@ -28,6 +30,7 @@ SECTIONS
     }
 
     . = ALIGN(4K);
+    data_start = .;
 
     .data : {
         sdata = .;
@@ -36,6 +39,7 @@ SECTIONS
     }
 
     . = ALIGN(4K);
+    bss_start = .;
 
     .stack : {
         *(.bss.stack)
