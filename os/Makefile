@@ -5,7 +5,7 @@ image = target/$(target)/$(mode)/kernel.bin
 k210 = target/$(target)/$(mode)/k210.bin
 _k210 = target/$(target)/$(mode)/k210.kfpkg
 k210-serialport = /dev/ttyUSB0
-sbi ?= opensbi
+sbi ?= rustsbi
 
 kernel:
 	cargo build
