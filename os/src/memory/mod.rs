@@ -2,7 +2,7 @@ pub mod heap;
 pub mod config;
 pub mod address;
 pub mod frame;
-mod range;
+pub mod range;
 pub mod mapping;
 
 pub type MemoryResult<T> = Result<T, &'static str>;

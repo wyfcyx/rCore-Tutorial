@@ -3,6 +3,7 @@ use super::timer;
 use riscv::register::stvec;
 use riscv::register::scause::Scause;
 use riscv::register::scause::{Exception, Trap, Interrupt};
+use crate::process::PROCESSOR;
 
 global_asm!(include_str!("./interrupt.asm"));
 
@@ -21,7 +22,17 @@ pub fn init() {
 }
 
 #[no_mangle]
-pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) {
+pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) -> *mut Context {
+    {
+        let mut processor = PROCESSOR.lock();
+        let current_thread = processor.current_thread();
+        if current_thread.as_ref().inner().dead {
+            println!("thread {} exit", current_thread.id);
+            processor.kill_current_thread();
+            return processor.prepare_next_thread();
+        }
+    }
+
     //panic!("Interrupted: {:?}", scause.cause());
     match scause.cause() {
         // 断点中断（ebreak）
@@ -30,24 +41,29 @@ pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) {
         Trap::Interrupt(Interrupt::SupervisorTimer) => supervisor_timer(context),
         //Trap::Interrupt(Interrupt::SupervisorSoft) => supervisor_timer(context),
         // 其他情况，终止当前线程
-        _ => fault(context, scause, stval),
+        _ => fault("unimplemented interrupt type", scause, stval),
     }
 }
 
-fn breakpoint(context: &mut Context) {
+fn breakpoint(context: &mut Context) -> *mut Context {
     println!("Breakpoint at 0x{:x}", context.sepc);
     context.sepc += 2;
+    context
 }
 
-fn supervisor_timer(_: &Context) {
+fn supervisor_timer(context: &Context) -> *mut Context {
     timer::tick();
+    PROCESSOR.lock().park_current_thread(context);
+    PROCESSOR.lock().prepare_next_thread()
 }
 
-fn fault(context: &mut Context, scause: Scause, stval: usize) {
-    panic!(
-        "Unresolved interrupt: {:?}\n{:x?}\nstval: {:x}",
-        scause.cause(),
-        context,
-        stval
+fn fault(msg: &'static str, scause: Scause, stval: usize) -> *mut Context {
+    println!(
+        "{:#x?} terminated: {}",
+        PROCESSOR.lock().current_thread(),
+        msg
     );
+    println!("cause: {:?}, stval: {:x}", scause.cause(), stval);
+    PROCESSOR.lock().kill_current_thread();
+    PROCESSOR.lock().prepare_next_thread()
 }

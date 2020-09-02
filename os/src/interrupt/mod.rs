@@ -1,5 +1,5 @@
 mod handler;
-mod context;
+pub mod context;
 pub mod timer;
 
 pub fn init() {

@@ -7,7 +7,7 @@ use crate::memory::mapping::segment::MapType;
 use crate::memory::range::Range;
 use crate::memory::mapping::page_table_entry::Flags;
 use crate::memory::config::{KERNEL_END_ADDRESS, MEMORY_END_ADDRESS};
-use crate::memory::address::VirtualAddress;
+use crate::memory::address::{VirtualAddress, VirtualPageNumber};
 
 /// Contains everything about a virtual memory space
 /// that a process should know.
@@ -70,6 +70,7 @@ impl MemorySet {
 
         let mut mapping = Mapping::new()?;
         for segment in segments.iter() {
+            println!("mapping segment [{}, {})", segment.range.start, segment.range.end);
             mapping.map(segment, None)?;
         }
         Ok(MemorySet{ mapping, segments })
@@ -77,5 +78,25 @@ impl MemorySet {
 
     pub fn activate(&self) {
         self.mapping.activate();
+    }
+
+    pub fn add_segment(&mut self, segment: Segment, init_data: Option<&[u8]>) -> MemoryResult<()> {
+        assert!(!self.overlap_with(segment.page_range()));
+        self.mapping.map(&segment, init_data)?;
+        self.segments.push(segment);
+        Ok(())
+    }
+
+    pub fn remove_segment(&mut self, segment: &Segment) -> MemoryResult<()> {
+        unimplemented!();
+    }
+
+    pub fn overlap_with(&self, range: Range<VirtualPageNumber>) -> bool {
+        for seg in self.segments.iter() {
+            if range.overlap_with(&seg.page_range()) {
+                return true;
+            }
+        }
+        false
     }
 }
