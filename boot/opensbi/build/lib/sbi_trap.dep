@@ -1,0 +1,15 @@
+/home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/build/lib/sbi_trap.o: \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/lib/sbi_trap.c \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_asm.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_encoding.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_const.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_console.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_types.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_ecall.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_error.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_hart.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_illegal_insn.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_ipi.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_misaligned_ldst.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_timer.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_trap.h

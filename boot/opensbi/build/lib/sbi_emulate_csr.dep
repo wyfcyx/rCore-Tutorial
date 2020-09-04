@@ -1,0 +1,11 @@
+/home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/build/lib/sbi_emulate_csr.o: \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/lib/sbi_emulate_csr.c \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_asm.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_encoding.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_const.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_bits.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_console.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_types.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_emulate_csr.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_error.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_timer.h

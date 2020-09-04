@@ -1,0 +1,4 @@
+/home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/build/platform/kendryte/k210/firmware/payloads/test_head.o: \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/firmware/payloads/test_head.S \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_encoding.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_const.h

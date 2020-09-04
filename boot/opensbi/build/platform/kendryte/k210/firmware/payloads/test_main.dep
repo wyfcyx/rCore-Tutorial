@@ -1,0 +1,3 @@
+/home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/build/platform/kendryte/k210/firmware/payloads/test_main.o: \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/firmware/payloads/test_main.c \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_ecall_interface.h

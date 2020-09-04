@@ -1,0 +1,4 @@
+/home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/build/lib/riscv_locks.o: \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/lib/riscv_locks.c \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_barrier.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_locks.h

@@ -1,0 +1,8 @@
+/home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/build/platform/common/sys/clint.o: \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/platform/common/sys/clint.c \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_io.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_barrier.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_types.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_atomic.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_hart.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/platform/common/include/plat/sys/clint.h

@@ -1,0 +1,1 @@
+{"rustc":4002074349584840482,"features":"","target":0,"profile":0,"path":0,"deps":[[11468453244979112866,"build_script_build",false,826683866941263741]],"local":[{"RerunIfChanged":{"output":"riscv64gc-unknown-none-elf/debug/build/rustsbi-k210-df61e357493a1da9/output","paths":["build.rs","link-k210.ld"]}}],"rustflags":[],"metadata":0,"config":0}

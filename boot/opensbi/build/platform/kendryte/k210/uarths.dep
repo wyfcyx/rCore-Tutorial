@@ -1,0 +1,9 @@
+/home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/build/platform/kendryte/k210/uarths.o: \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/platform/kendryte/k210/uarths.c \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/platform/kendryte/k210/sysctl.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_types.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/platform/kendryte/k210/platform.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_asm.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_encoding.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_const.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/platform/kendryte/k210/uarths.h

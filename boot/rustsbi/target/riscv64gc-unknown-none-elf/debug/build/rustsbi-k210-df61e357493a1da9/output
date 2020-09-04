@@ -1,0 +1,3 @@
+cargo:rustc-link-search=/home/shinbokuow/workspace/rCore-Tutorial/boot/rustsbi/target/riscv64gc-unknown-none-elf/debug/build/rustsbi-k210-df61e357493a1da9/out
+cargo:rerun-if-changed=build.rs
+cargo:rerun-if-changed=link-k210.ld

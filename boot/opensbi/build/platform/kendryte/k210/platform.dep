@@ -1,0 +1,15 @@
+/home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/build/platform/kendryte/k210/platform.o: \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/platform/kendryte/k210/platform.c \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_encoding.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_const.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_hart.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_types.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_platform.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_scratch.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_asm.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_ipi.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_console.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/platform/common/include/plat/irqchip/plic.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/platform/common/include/plat/sys/clint.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/platform/kendryte/k210/platform.h \
+ /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/platform/kendryte/k210/uarths.h
