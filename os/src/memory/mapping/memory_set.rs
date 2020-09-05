@@ -36,14 +36,12 @@ impl MemorySet {
 
         // 建立字段
         let mut segments = vec![
-            /*
             // DEVICE 段，rw-
             Segment {
                 map_type: MapType::Linear,
                 range: Range::from(DEVICE_START_ADDRESS..DEVICE_END_ADDRESS),
                 flags: Flags::READABLE | Flags::WRITABLE,
             },
-             */
             // .text 段，r-x
             Segment {
                 map_type: MapType::Linear,

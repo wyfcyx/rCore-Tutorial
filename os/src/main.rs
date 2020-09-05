@@ -91,7 +91,7 @@ pub extern "C" fn rust_main(_hart_id: usize, dtb_pa: PhysicalAddress) -> ! {
 
     PROCESSOR
         .lock()
-        .add_thread(create_user_process("notebook"));
+        .add_thread(create_user_process("user_shell"));
 
     extern "C" {
         fn __restore(context: usize);
