@@ -1,4 +1,5 @@
 pub mod config;
+pub mod interrupt;
 
 use crate::drivers::init;
 use crate::memory::address::PhysicalAddress;
