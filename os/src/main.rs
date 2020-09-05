@@ -49,6 +49,8 @@ mod memory;
 mod panic;
 mod process;
 mod sbi;
+mod board;
+
 extern crate alloc;
 
 use alloc::sync::Arc;
@@ -65,6 +67,7 @@ global_asm!(include_str!("entry.asm"));
 /// 在 `_start` 为我们进行了一系列准备之后，这是第一个被调用的 Rust 函数
 #[no_mangle]
 pub extern "C" fn rust_main(_hart_id: usize, dtb_pa: PhysicalAddress) -> ! {
+    memory::clear_bss();
     memory::init();
     interrupt::init();
     drivers::init(dtb_pa);

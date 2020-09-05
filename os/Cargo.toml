@@ -21,6 +21,10 @@ rcore-fs = { git = "https://github.com/rcore-os/rcore-fs"}
 rcore-fs-sfs = { git = "https://github.com/rcore-os/rcore-fs"}
 xmas-elf = "0.7.0"
 
+[features]
+board_qemu = []
+board_k210 = []
+
 # panic 时直接终止，因为我们没有实现堆栈展开的功能
 [profile.dev]
 panic = "abort"
