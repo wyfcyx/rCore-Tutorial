@@ -1,5 +1,5 @@
 TARGET      := riscv64imac-unknown-none-elf
-MODE        := debug
+MODE        := release
 
 # 用户程序目录
 SRC_DIR		:= src/bin
@@ -14,6 +14,8 @@ OUT_DIR		:= build/disk
 IMG_FILE	:= build/raw.img
 QCOW_FILE	:= build/disk.img
 
+SDCARD		?= /dev/sdb
+
 .PHONY: dependency build clean
 
 # 安装 rcore-fs-fuse 工具
@@ -25,7 +27,12 @@ endif
 
 # 编译、打包、格式转换、预留空间
 build: dependency
+ifeq ($(MODE),release)
+	@cargo build --release
+else
 	@cargo build
+endif
+	$(foreach bin_file,$(BIN_FILES),riscv64-unknown-elf-objcopy --strip-debug $(bin_file) $(bin_file);)
 	@echo Targets: $(patsubst $(SRC_DIR)/%.rs, %, $(SRC_FILES))
 	@rm -rf $(OUT_DIR)
 	@mkdir -p $(OUT_DIR)
@@ -33,6 +40,10 @@ build: dependency
 	@rcore-fs-fuse --fs sfs $(IMG_FILE) $(OUT_DIR) zip
 	@qemu-img convert -f raw $(IMG_FILE) -O qcow2 $(QCOW_FILE)
 	@qemu-img resize $(QCOW_FILE) +1G
+
+sdcard: build
+	@sudo dd if=/dev/zero of=$(SDCARD) bs=1M count=50
+	@sudo dd if=$(IMG_FILE) of=$(SDCARD)
 
 clean:
 	@cargo clean

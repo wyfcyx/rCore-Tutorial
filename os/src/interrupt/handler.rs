@@ -24,6 +24,7 @@ pub fn init() {
         // 使用 Direct 模式，将中断入口设置为 `__interrupt`
         stvec::write(__interrupt as usize, stvec::TrapMode::Direct);
 
+        /*
         // 开启外部中断使能
         sie::set_sext();
 
@@ -35,6 +36,7 @@ pub fn init() {
         // 其他一些外部中断相关魔数
         *PhysicalAddress(0x0C00_0028).deref_kernel() = 0x07u32;
         *PhysicalAddress(0x0C20_1000).deref_kernel() = 0u32;
+         */
     }
 }
 

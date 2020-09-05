@@ -1,6 +1,7 @@
 //! 一个线程中关于内存空间的所有信息 [`MemorySet`]
 //!
 
+use crate::board::config::MMIO_INTERVALS;
 use crate::memory::{
     address::*,
     config::*,
@@ -34,7 +35,7 @@ impl MemorySet {
         }
 
         // 建立字段
-        let segments = vec![
+        let mut segments = vec![
             // DEVICE 段，rw-
             Segment {
                 map_type: MapType::Linear,
@@ -72,6 +73,15 @@ impl MemorySet {
                 flags: Flags::READABLE | Flags::WRITABLE,
             },
         ];
+        for mmio_pair in MMIO_INTERVALS.iter() {
+            segments.push(
+                Segment {
+                    map_type: MapType::Device,
+                    range: Range::from(VirtualAddress(mmio_pair.0)..VirtualAddress(mmio_pair.0 + mmio_pair.1)),
+                    flags: Flags::READABLE | Flags::WRITABLE,
+                }
+            );
+        }
         let mut mapping = Mapping::new()?;
 
         // 每个字段在页表中进行映射

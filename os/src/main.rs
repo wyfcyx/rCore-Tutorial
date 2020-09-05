@@ -43,7 +43,7 @@
 mod console;
 mod drivers;
 mod fs;
-mod interrupt;
+pub mod interrupt;
 mod kernel;
 mod memory;
 mod panic;
@@ -70,10 +70,10 @@ pub extern "C" fn rust_main(_hart_id: usize, dtb_pa: PhysicalAddress) -> ! {
     memory::clear_bss();
     memory::init();
     interrupt::init();
-    drivers::init(dtb_pa);
+    //drivers::init(dtb_pa);
+    crate::drivers::soc::sleep::usleep(1000000);
     fs::init();
 
-    /*
     {
         let mut processor = PROCESSOR.lock();
         // 创建一个内核进程
@@ -87,10 +87,10 @@ pub extern "C" fn rust_main(_hart_id: usize, dtb_pa: PhysicalAddress) -> ! {
             ));
         }
     }
-     */
+
     PROCESSOR
         .lock()
-        .add_thread(create_user_process("notebook"));
+        .add_thread(create_user_process("hello_world"));
 
     extern "C" {
         fn __restore(context: usize);
@@ -98,7 +98,10 @@ pub extern "C" fn rust_main(_hart_id: usize, dtb_pa: PhysicalAddress) -> ! {
     // 获取第一个线程的 Context
     let context = PROCESSOR.lock().prepare_next_thread();
     // 启动第一个线程
-    unsafe { __restore(context as usize) };
+    unsafe {
+        llvm_asm!("fence.i" :::: "volatile");
+        __restore(context as usize);
+    }
     unreachable!()
 }
 

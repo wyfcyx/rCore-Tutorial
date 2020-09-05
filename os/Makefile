@@ -12,7 +12,7 @@ K210-SERIALPORT	= /dev/ttyUSB0
 K210-BURNER		= ../tools/kflash.py	
 
 # Disassembly
-DISASM-ARGS		= -d
+DISASM		?= -d
 
 USER_DIR    := ../user
 USER_BUILD  := $(USER_DIR)/build
@@ -42,7 +42,7 @@ $(BIN_FILE): kernel
 
 # 查看反汇编结果
 asm:
-	@$(OBJDUMP) $(DISASM-ARGS) $(KERNEL_FILE) | less
+	@$(OBJDUMP) $(DISASM) $(KERNEL_FILE) | less
 
 # 清理编译出的文件
 clean:
