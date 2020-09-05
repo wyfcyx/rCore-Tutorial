@@ -6,6 +6,8 @@
 // 所以在模块范围内不提示「未使用的函数」等警告
 #![allow(dead_code)]
 
+use crate::board::config::RISCV_SPEC_MINOR;
+
 pub mod address;
 pub mod config;
 pub mod frame;
@@ -30,7 +32,10 @@ pub use {
 pub fn init() {
     heap::init();
     // 允许内核读写用户态内存
-    //unsafe { riscv::register::sstatus::set_sum() };
+    if RISCV_SPEC_MINOR >= 10 {
+        println!("riscv spec version >= 1.10!");
+        unsafe { riscv::register::sstatus::set_sum() };
+    }
 
     println!("mod memory initialized");
 }

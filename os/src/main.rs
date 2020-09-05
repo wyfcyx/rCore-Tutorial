@@ -70,10 +70,10 @@ pub extern "C" fn rust_main(_hart_id: usize, dtb_pa: PhysicalAddress) -> ! {
     memory::clear_bss();
     memory::init();
     interrupt::init();
-    //drivers::init(dtb_pa);
-    crate::drivers::soc::sleep::usleep(1000000);
+    crate::board::device_init(dtb_pa);
     fs::init();
 
+    /*
     {
         let mut processor = PROCESSOR.lock();
         // 创建一个内核进程
@@ -87,6 +87,7 @@ pub extern "C" fn rust_main(_hart_id: usize, dtb_pa: PhysicalAddress) -> ! {
             ));
         }
     }
+     */
 
     PROCESSOR
         .lock()
@@ -97,6 +98,7 @@ pub extern "C" fn rust_main(_hart_id: usize, dtb_pa: PhysicalAddress) -> ! {
     }
     // 获取第一个线程的 Context
     let context = PROCESSOR.lock().prepare_next_thread();
+
     // 启动第一个线程
     unsafe {
         llvm_asm!("fence.i" :::: "volatile");

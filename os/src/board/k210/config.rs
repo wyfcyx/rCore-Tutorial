@@ -21,3 +21,7 @@ pub const MMIO_INTERVALS: &[(usize, usize)] = &[
     (0x5300_0000, 0x1000), /* SPI1      */
     (0x5400_0000, 0x1000), /* SPI2      */
 ];
+
+pub const RISCV_SPEC_MAJOR: usize = 1;
+pub const RISCV_SPEC_MINOR: usize = 9;
+pub const RISCV_SPEC_PATCH: usize = 1;
