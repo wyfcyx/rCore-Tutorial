@@ -70,6 +70,7 @@ pub extern "C" fn rust_main(_hart_id: usize, dtb_pa: PhysicalAddress) -> ! {
     drivers::init(dtb_pa);
     fs::init();
 
+    /*
     {
         let mut processor = PROCESSOR.lock();
         // 创建一个内核进程
@@ -83,6 +84,10 @@ pub extern "C" fn rust_main(_hart_id: usize, dtb_pa: PhysicalAddress) -> ! {
             ));
         }
     }
+     */
+    PROCESSOR
+        .lock()
+        .add_thread(create_user_process("notebook"));
 
     extern "C" {
         fn __restore(context: usize);
