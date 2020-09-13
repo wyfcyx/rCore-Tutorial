@@ -50,3 +50,7 @@ pub fn shutdown() -> ! {
 pub fn set_timer(time: usize) {
     sbi_call(SBI_SET_TIMER, time, 0, 0);
 }
+
+pub fn send_ipi(ptr: usize) {
+    sbi_call(SBI_SEND_IPI, ptr, 0, 0);
+}

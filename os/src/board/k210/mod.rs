@@ -24,5 +24,5 @@ pub fn device_init(_: PhysicalAddress) {
     }
     // now, we can receive UARTHS interrupt on hart0!
 
-    crate::drivers::soc::sleep::usleep(1000000);
+    crate::drivers::soc::sleep::usleep(50000);
 }

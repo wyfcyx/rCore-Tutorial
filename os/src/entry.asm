@@ -10,6 +10,11 @@
     .globl _start
 # 目前 _start 的功能：将预留的栈空间写入 $sp，然后跳转至 rust_main
 _start:
+    mv tp, a0
+    add t0, a0, 1
+    slli t0, t0, 16
+    lui sp, %hi(boot_stack)
+    add sp, sp, t0
     # 通过线性映射关系计算 boot_page_table 的物理页号
     lui t0, %hi(boot_page_table)
     li t1, 0xffffffff00000000
@@ -22,9 +27,6 @@ _start:
     csrw satp, t0
     sfence.vma
 
-    # 加载栈的虚拟地址
-    lui sp, %hi(boot_stack_top)
-    addi sp, sp, %lo(boot_stack_top)
     # 跳转至 rust_main
     # 这里同时伴随 hart 和 dtb_pa 两个指针的传入（是 OpenSBI 帮我们完成的）
     lui t0, %hi(rust_main)
@@ -36,8 +38,8 @@ _start:
     .section .bss.stack
     .global boot_stack
 boot_stack:
-    # 16K 启动栈大小
-    .space 4096 * 16
+    # 64K 启动栈大小
+    .space 4096 * 16 * 4
     .global boot_stack_top
 boot_stack_top:
     # 栈结尾

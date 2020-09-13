@@ -66,13 +66,22 @@ global_asm!(include_str!("entry.asm"));
 ///
 /// 在 `_start` 为我们进行了一系列准备之后，这是第一个被调用的 Rust 函数
 #[no_mangle]
-pub extern "C" fn rust_main(_hart_id: usize, dtb_pa: PhysicalAddress) -> ! {
-    memory::clear_bss();
-    memory::init();
-    interrupt::init();
-    crate::board::device_init(dtb_pa);
-    fs::init();
+pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
+    if hartid == 0 {
+        memory::clear_bss();
+        memory::init();
+        interrupt::init();
+        crate::board::device_init(dtb_pa);
+        //fs::init();
 
+        println!("wake other cores after initialization!");
+        let mask: usize = 0b10;
+        let ptr = &mask as *const _ as usize;
+        sbi::send_ipi(ptr);
+    }
+
+    println!("Hello rCore hartid = {}, dtb_pa = {}", hartid, dtb_pa);
+    loop {}
     /*
     {
         let mut processor = PROCESSOR.lock();

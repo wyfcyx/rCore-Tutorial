@@ -13,6 +13,8 @@
 
 use crate::sbi::*;
 use core::fmt::{self, Write};
+use spin::Mutex;
+use lazy_static::*;
 
 /// 一个 [Zero-Sized Type]，实现 [`core::fmt::Write`] trait 来进行格式化输出
 ///
@@ -20,6 +22,10 @@ use core::fmt::{self, Write};
 ///
 /// [Zero-Sized Type]: https://doc.rust-lang.org/nomicon/exotic-sizes.html#zero-sized-types-zsts
 struct Stdout;
+
+lazy_static! {
+    static ref STDOUT: Mutex<Stdout> = Mutex::new(Stdout);
+}
 
 impl Write for Stdout {
     /// 打印一个字符串
@@ -43,7 +49,7 @@ impl Write for Stdout {
 ///
 /// [`core::format_args!`]: https://doc.rust-lang.org/nightly/core/macro.format_args.html
 pub fn print(args: fmt::Arguments) {
-    Stdout.write_fmt(args).unwrap();
+    STDOUT.lock().write_fmt(args).unwrap();
 }
 
 /// 实现类似于标准库中的 `print!` 宏
