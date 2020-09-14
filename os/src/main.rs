@@ -58,10 +58,12 @@ use fs::{INodeExt, ROOT_INODE};
 use memory::PhysicalAddress;
 use process::*;
 use xmas_elf::ElfFile;
+use core::sync::atomic::{AtomicBool, spin_loop_hint, Ordering};
 
 // 汇编编写的程序入口，具体见该文件
 global_asm!(include_str!("entry.asm"));
 
+static AP_CAN_INIT: AtomicBool = AtomicBool::new(false);
 /// Rust 的入口函数
 ///
 /// 在 `_start` 为我们进行了一系列准备之后，这是第一个被调用的 Rust 函数
@@ -74,14 +76,15 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
         crate::board::device_init(dtb_pa);
         //fs::init();
 
-        println!("wake other cores after initialization!");
-        let mask: usize = 0b10;
-        let ptr = &mask as *const _ as usize;
-        sbi::send_ipi(ptr);
+        AP_CAN_INIT.store(true, Ordering::Relaxed);
+    } else {
+        while !AP_CAN_INIT.load(Ordering::Relaxed) {
+            spin_loop_hint();
+        }
     }
-
-    println!("Hello rCore hartid = {}, dtb_pa = {}", hartid, dtb_pa);
+    println!("Hello rCore hartid = {}, dtp_pa = {}", hartid, dtb_pa);
     loop {}
+
     /*
     {
         let mut processor = PROCESSOR.lock();
