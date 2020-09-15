@@ -25,3 +25,5 @@ pub const MMIO_INTERVALS: &[(usize, usize)] = &[
 pub const RISCV_SPEC_MAJOR: usize = 1;
 pub const RISCV_SPEC_MINOR: usize = 9;
 pub const RISCV_SPEC_PATCH: usize = 1;
+
+pub const CPU_NUM: usize = 2;

@@ -1,7 +1,14 @@
 //! 条件变量
 
-use super::*;
 use alloc::collections::VecDeque;
+use spin::Mutex;
+use alloc::sync::Arc;
+use crate::process::{
+    Thread,
+    THREAD_POOL,
+    current_thread,
+    sleep_current_thread,
+};
 
 #[derive(Default)]
 pub struct Condvar {
@@ -14,14 +21,14 @@ impl Condvar {
     pub fn wait(&self) {
         self.watchers
             .lock()
-            .push_back(PROCESSOR.lock().current_thread());
-        PROCESSOR.lock().sleep_current_thread();
+            .push_back(current_thread());
+        sleep_current_thread();
     }
 
     /// 唤起一个等待此条件变量的线程
     pub fn notify_one(&self) {
         if let Some(thread) = self.watchers.lock().pop_front() {
-            PROCESSOR.lock().wake_thread(thread);
+            THREAD_POOL.lock().wake_thread(thread);
         }
     }
 }

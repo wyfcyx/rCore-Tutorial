@@ -4,11 +4,17 @@ use super::*;
 use xmas_elf::ElfFile;
 use crate::fs::ROOT_INODE;
 use crate::fs::INodeExt;
-
+use crate::process::{
+    current_thread,
+    sleep_current_thread,
+    park_current_thread,
+    prepare_next_thread,
+    THREAD_POOL,
+};
 pub(super) fn sys_exit(code: usize) -> SyscallResult {
     println!(
         "thread {} exit with code {}",
-        PROCESSOR.lock().current_thread().id,
+        current_thread().id,
         code
     );
     SyscallResult::Kill
@@ -24,10 +30,10 @@ pub (super) fn sys_exec(path:*const u8,context:Context)->SyscallResult{
             let elf = ElfFile::new(data.as_slice()).unwrap();
             let process = Process::from_elf(&elf, true).unwrap();
             let thread=Thread::new(process, elf.header.pt2.entry_point() as usize, None).unwrap();
-            PROCESSOR.lock().add_thread(thread);
-            PROCESSOR.lock().sleep_current_thread();
-            PROCESSOR.lock().park_current_thread(&context);
-            PROCESSOR.lock().prepare_next_thread();
+            THREAD_POOL.lock().add_thread(thread);
+            sleep_current_thread();
+            park_current_thread(&context);
+            prepare_next_thread();
         },
         Err(_)=>{
             println!("");

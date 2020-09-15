@@ -44,21 +44,22 @@ mod console;
 mod drivers;
 mod fs;
 pub mod interrupt;
-mod kernel;
+mod syscall;
 mod memory;
 mod panic;
 mod process;
 mod sbi;
 mod board;
+mod sync;
 
 extern crate alloc;
 
 use alloc::sync::Arc;
 use fs::{INodeExt, ROOT_INODE};
 use memory::PhysicalAddress;
-use process::*;
 use xmas_elf::ElfFile;
 use core::sync::atomic::{AtomicBool, spin_loop_hint, Ordering};
+use process::*;
 
 // 汇编编写的程序入口，具体见该文件
 global_asm!(include_str!("entry.asm"));
@@ -70,11 +71,9 @@ static AP_CAN_INIT: AtomicBool = AtomicBool::new(false);
 #[no_mangle]
 pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
     if hartid == 0 {
-        memory::clear_bss();
-        memory::init();
-        interrupt::init();
+        memory::global_init();
         crate::board::device_init(dtb_pa);
-        //fs::init();
+        fs::init();
 
         AP_CAN_INIT.store(true, Ordering::Relaxed);
     } else {
@@ -82,9 +81,14 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
             spin_loop_hint();
         }
     }
-    println!("Hello rCore hartid = {}, dtp_pa = {}", hartid, dtb_pa);
-    loop {}
+    memory::thread_local_init();
+    interrupt::init();
+    println!("Hello rCore hartid = {}, dtp_pa = {}", hart_id(), dtb_pa);
+    if hartid > 0 {
+        loop {}
+    }
 
+    println!("I am hart {}, and i can go forward!", hart_id());
     /*
     {
         let mut processor = PROCESSOR.lock();
@@ -101,16 +105,19 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
     }
      */
 
-    PROCESSOR
+    println!("adding new thread!");
+    THREAD_POOL
         .lock()
         .add_thread(create_user_process("user_shell"));
 
     extern "C" {
         fn __restore(context: usize);
     }
+    println!("getting context!");
     // 获取第一个线程的 Context
-    let context = PROCESSOR.lock().prepare_next_thread();
+    let context = processor_main();
 
+    println!("switch to idle!");
     // 启动第一个线程
     unsafe {
         llvm_asm!("fence.i" :::: "volatile");
@@ -160,7 +167,7 @@ pub fn create_user_process(name: &str) -> Arc<Thread> {
 /// 内核线程需要调用这个函数来退出
 fn kernel_thread_exit() {
     // 当前线程标记为结束
-    PROCESSOR.lock().current_thread().as_ref().inner().dead = true;
+    current_thread().as_ref().inner().dead = true;
     // 制造一个中断来交给操作系统处理
     unsafe { llvm_asm!("ebreak" :::: "volatile") };
 }

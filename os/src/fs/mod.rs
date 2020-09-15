@@ -7,7 +7,6 @@ use crate::drivers::{
     driver::{DeviceType, DRIVERS},
     block::sdcard::Sd_card,
 };
-use crate::kernel::Condvar;
 use alloc::{sync::Arc, vec::Vec};
 use core::any::Any;
 use lazy_static::lazy_static;

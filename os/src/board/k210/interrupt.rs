@@ -1,6 +1,11 @@
 use crate::interrupt::{Context, timer};
 use riscv::register::{scause::Scause, stval};
-use crate::PROCESSOR;
+use crate::process::{
+    current_thread,
+    park_current_thread,
+    prepare_next_thread,
+    kill_current_thread,
+};
 use crate::fs::STDIN;
 
 /// 处理 ebreak 断点
@@ -15,8 +20,8 @@ pub fn breakpoint(context: &mut Context) -> *mut Context {
 /// 处理时钟中断
 pub fn supervisor_timer(context: &mut Context) -> *mut Context {
     timer::tick();
-    PROCESSOR.lock().park_current_thread(context);
-    PROCESSOR.lock().prepare_next_thread()
+    park_current_thread(context);
+    prepare_next_thread()
 }
 
 /// 处理外部中断，只实现了键盘输入
@@ -42,12 +47,12 @@ pub fn supervisor_soft(context: &mut Context) -> *mut Context {
 pub fn fault(msg: &str, scause: Scause, stval: usize) -> *mut Context {
     println!(
         "{:#x?} terminated: {}",
-        PROCESSOR.lock().current_thread(),
+        current_thread(),
         msg
     );
     println!("cause: {:?}, stval: {:x}", scause.cause(), stval);
 
-    PROCESSOR.lock().kill_current_thread();
+    kill_current_thread();
     // 跳转到 PROCESSOR 调度的下一个线程
-    PROCESSOR.lock().prepare_next_thread()
+    prepare_next_thread()
 }

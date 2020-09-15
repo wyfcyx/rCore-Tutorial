@@ -2,6 +2,7 @@ TARGET      := riscv64imac-unknown-none-elf
 MODE        := debug
 KERNEL_FILE := target/$(TARGET)/$(MODE)/os
 BIN_FILE    := target/$(TARGET)/$(MODE)/kernel.bin
+DISASM_FILE := target/$(TARGET)/$(MODE)/os.asm
 
 BOARD		?= qemu
 SBI			?= rustsbi
@@ -42,7 +43,11 @@ $(BIN_FILE): kernel
 
 # 查看反汇编结果
 asm:
-	@$(OBJDUMP) $(DISASM) $(KERNEL_FILE) | less
+	@$(OBJDUMP) $(DISASM) $(KERNEL_FILE) | less 
+
+vim-asm:
+	@$(OBJDUMP) $(DISASM) $(KERNEL_FILE) > $(DISASM_FILE)
+	@vim $(DISASM_FILE)
 
 # 清理编译出的文件
 clean:

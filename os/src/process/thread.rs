@@ -37,17 +37,17 @@ impl Thread {
     /// 准备执行一个线程
     ///
     /// 激活对应进程的页表，并返回其 Context
-    pub fn prepare(&self) -> *mut Context {
+    pub fn retrieve_context(&self) -> Context {
         // 激活页表
         self.process.inner().memory_set.activate();
         // 取出 Context
-        let parked_frame = self.inner().context.take().unwrap();
+        self.inner().context.take().unwrap()
         // 将 Context 放至内核栈顶
-        unsafe { KERNEL_STACK.push_context(parked_frame) }
+        //unsafe { KERNEL_STACK.push_context(parked_frame) }
     }
 
     /// 发生时钟中断后暂停线程，保存状态
-    pub fn park(&self, context: Context) {
+    pub fn store_context(&self, context: Context) {
         // 检查目前线程内的 context 应当为 None
         assert!(self.inner().context.is_none());
         // 将 Context 保存到线程中

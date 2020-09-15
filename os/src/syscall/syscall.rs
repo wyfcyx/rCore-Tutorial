@@ -1,6 +1,11 @@
 //! 实现各种系统调用
 
 use super::*;
+use crate::process::{
+    park_current_thread,
+    kill_current_thread,
+    prepare_next_thread,
+};
 
 pub const SYS_READ: usize = 63;
 pub const SYS_WRITE: usize = 64;
@@ -46,13 +51,13 @@ pub fn syscall_handler(context: &mut Context) -> *mut Context {
             // 将返回值放入 context 中
             context.x[10] = ret as usize;
             // 保存 context，准备下一个线程
-            PROCESSOR.lock().park_current_thread(context);
-            PROCESSOR.lock().prepare_next_thread()
+            park_current_thread(context);
+            prepare_next_thread()
         }
         SyscallResult::Kill => {
             // 终止，跳转到 PROCESSOR 调度的下一个线程
-            PROCESSOR.lock().kill_current_thread();
-            PROCESSOR.lock().prepare_next_thread()
+            kill_current_thread();
+            prepare_next_thread()
         }
     }
 }

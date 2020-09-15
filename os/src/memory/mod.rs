@@ -29,18 +29,20 @@ pub use {
 /// 初始化内存相关的子模块
 ///
 /// - [`heap::init`]
-pub fn init() {
+pub fn global_init() {
+    clear_bss();
     heap::init();
-    // 允许内核读写用户态内存
-    if RISCV_SPEC_MINOR >= 10 {
-        println!("riscv spec version >= 1.10!");
-        unsafe { riscv::register::sstatus::set_sum() };
-    }
-
     println!("mod memory initialized");
 }
 
-pub fn clear_bss() {
+pub fn thread_local_init() {
+    // 允许内核读写用户态内存
+    if RISCV_SPEC_MINOR >= 10 {
+        unsafe { riscv::register::sstatus::set_sum(); }
+    }
+}
+
+fn clear_bss() {
     extern "C" {
         fn sbss_clear();
         fn ebss_clear();

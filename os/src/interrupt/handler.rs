@@ -1,10 +1,5 @@
 use super::context::Context;
-use super::timer;
-use crate::fs::STDIN;
-use crate::kernel::syscall_handler;
-use crate::memory::*;
-use crate::process::PROCESSOR;
-use crate::sbi::console_getchar;
+use crate::syscall::syscall_handler;
 use riscv::register::{
     scause::{Exception, Interrupt, Scause, Trap},
     sie, stvec,
@@ -15,6 +10,7 @@ use crate::board::interrupt::{
     supervisor_soft,
     supervisor_external,
 };
+use crate::process::{current_thread, kill_current_thread, prepare_next_thread, hart_id};
 
 global_asm!(include_str!("./interrupt.asm"));
 
@@ -42,14 +38,14 @@ pub fn init() {
 /// 具体的中断类型需要根据 scause 来推断，然后分别处理
 #[no_mangle]
 pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) -> *mut Context {
+    println!("triggered interrupt {:?} on hart {}", scause.cause(), hart_id());
     // 首先检查线程是否已经结束（内核线程会自己设置标记来结束自己）
     {
-        let mut processor = PROCESSOR.lock();
-        let current_thread = processor.current_thread();
+        let current_thread = current_thread();
         if current_thread.as_ref().inner().dead {
             println!("thread {} exit", current_thread.id);
-            processor.kill_current_thread();
-            return processor.prepare_next_thread();
+            kill_current_thread();
+            return prepare_next_thread();
         }
     }
     // 根据中断类型来处理，返回的 Context 必须位于放在内核栈顶
@@ -72,12 +68,12 @@ pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) -> 
 fn fault(msg: &str, scause: Scause, stval: usize) -> *mut Context {
     println!(
         "{:#x?} terminated: {}",
-        PROCESSOR.lock().current_thread(),
+        current_thread(),
         msg
     );
     println!("cause: {:?}, stval: {:x}", scause.cause(), stval);
 
-    PROCESSOR.lock().kill_current_thread();
+    kill_current_thread();
     // 跳转到 PROCESSOR 调度的下一个线程
-    PROCESSOR.lock().prepare_next_thread()
+    prepare_next_thread()
 }

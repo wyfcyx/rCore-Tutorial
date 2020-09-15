@@ -2,6 +2,7 @@
 
 use super::*;
 use alloc::collections::VecDeque;
+use crate::sync::Condvar;
 
 lazy_static! {
     pub static ref STDIN: Arc<Stdin> = Default::default();
