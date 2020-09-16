@@ -2,12 +2,16 @@
 
 use super::*;
 use core::hash::{Hash, Hasher};
+use spin::Mutex;
+use lazy_static::*;
 
 /// 线程 ID 使用 `isize`，可以用负数表示错误
 pub type ThreadID = isize;
 
 /// 线程计数，用于设置线程 ID
-static mut THREAD_COUNTER: ThreadID = 0;
+lazy_static! {
+    static ref THREAD_COUNTER: Mutex<ThreadID> = Mutex::new(0);
+}
 
 /// 线程的信息
 pub struct Thread {
@@ -71,8 +75,9 @@ impl Thread {
         // 打包成线程
         let thread = Arc::new(Thread {
             id: unsafe {
-                THREAD_COUNTER += 1;
-                THREAD_COUNTER
+                let mut thread_counter = THREAD_COUNTER.lock();
+                *thread_counter += 1;
+                *thread_counter
             },
             stack,
             process,

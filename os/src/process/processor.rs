@@ -29,19 +29,16 @@ lazy_static! {
             processors.push(Lock::new(
                 Processor {
                     current_thread: None,
+                    idle_thread: Thread::new(
+                        Process::new_kernel().unwrap(),
+                        busy_loop as usize,
+                        None
+                    ).unwrap(),
                 }
             ));
         }
         processors
     };
-}
-lazy_static! {
-    /// 空闲线程：当所有线程进入休眠时，切换到这个线程——它什么都不做，只会等待下一次中断
-    static ref IDLE_THREAD: Arc<Thread> = Thread::new(
-        Process::new_kernel().unwrap(),
-        busy_loop as usize,
-        None,
-    ).unwrap();
 }
 
 /// 不断让 CPU 进入休眠等待下一次中断
@@ -88,6 +85,7 @@ fn busy_loop() -> ! {
 pub struct Processor {
     /// 当前正在执行的线程
     current_thread: Option<Arc<Thread>>,
+    idle_thread: Arc<Thread>,
 }
 
 impl Processor {
@@ -137,8 +135,7 @@ impl Processor {
 
     pub fn processor_main(&mut self) -> *mut Context {
         //println!("into processor_main!");
-        self.current_thread = Some(IDLE_THREAD.clone());
-        self.prepare_thread(IDLE_THREAD.clone())
+        self.prepare_thread(self.idle_thread.clone())
     }
 
     /// 激活下一个线程的 `Context`
@@ -164,8 +161,8 @@ impl Processor {
             } else {
                 //println!("prepare IDLE_THREAD!");
                 // 有休眠线程，则等待中断
-                let context = self.prepare_thread(IDLE_THREAD.clone());
-                assert!(IDLE_THREAD.clone().inner().context.is_none());
+                let context = self.prepare_thread(self.idle_thread.clone());
+                assert!(self.idle_thread.clone().inner().context.is_none());
                 context
             }
         }
