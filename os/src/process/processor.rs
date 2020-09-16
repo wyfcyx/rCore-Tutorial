@@ -4,12 +4,13 @@ use super::*;
 use algorithm::*;
 use hashbrown::HashSet;
 use lazy_static::*;
-use crate::process::kernel_stack::KernelStack;
+use crate::process::kernel_stack::{KernelStack, KERNEL_STACK};
 use crate::board::config::CPU_NUM;
 use crate::process::thread_pool::THREAD_POOL;
 use alloc::vec;
 use alloc::vec::Vec;
-
+use core::cell::RefCell;
+/*
 lazy_static! {
     /// 全局的 [`Processor`]
     pub static ref PROCESSORS: [Lock<Processor>; 4] = [
@@ -19,7 +20,21 @@ lazy_static! {
         Processor::new(),
     ];
 }
+ */
 
+lazy_static! {
+    pub static ref PROCESSORS: Vec<Lock<Processor>> = {
+        let mut processors = Vec::new();
+        for i in 0..CPU_NUM {
+            processors.push(Lock::new(
+                Processor {
+                    current_thread: None,
+                }
+            ));
+        }
+        processors
+    };
+}
 lazy_static! {
     /// 空闲线程：当所有线程进入休眠时，切换到这个线程——它什么都不做，只会等待下一次中断
     static ref IDLE_THREAD: Arc<Thread> = Thread::new(
@@ -73,10 +88,10 @@ fn busy_loop() -> ! {
 pub struct Processor {
     /// 当前正在执行的线程
     current_thread: Option<Arc<Thread>>,
-    kernel_stack: KernelStack,
 }
 
 impl Processor {
+    /*
     pub fn new() -> Lock<Self> {
         println!("Processor::new()");
         Lock::new(
@@ -86,37 +101,72 @@ impl Processor {
             }
         )
     }
+     */
+
     /// 获取一个当前线程的 `Arc` 引用
     pub fn current_thread(&self) -> Arc<Thread> {
-        self.current_thread.as_ref().unwrap().clone()
+        //println!("into processor::current_thread!");
+        //crate::memory::heap::debug_heap();
+        /*
+        let mut sp: usize;
+        unsafe { llvm_asm!("mv $0, sp" : "=r"(sp) ::: "volatile"); }
+        println!("sp = {:#x}", sp);
+         */
+        let thread = self.current_thread.as_ref().unwrap().clone();
+        //println!("exit processor::current_thread");
+        //crate::memory::heap::debug_heap();
+        thread
     }
 
     pub fn prepare_thread(&mut self, thread: Arc<Thread>) -> *mut Context {
-        self.kernel_stack.push_context(thread.retrieve_context())
+        unsafe {
+            self.current_thread = Some(thread.clone());
+            //println!("into processor::prepare_thread");
+            //crate::memory::heap::debug_heap();
+            //self.kernel_stack.push_context(thread.retrieve_context())
+            //println!("getting raw context!");
+            //crate::memory::heap::debug_heap();
+            let raw_context = thread.retrieve_context();
+            //println!("push raw context onto kernel stack, hartid = {}", hart_id());
+            //crate::memory::heap::debug_heap();
+            let context = KERNEL_STACK[hart_id()].push_context(raw_context);
+            //println!("exit processor::prepare_thread!");
+            context
+        }
     }
 
     pub fn processor_main(&mut self) -> *mut Context {
-        println!("into processor_main!");
+        //println!("into processor_main!");
         self.current_thread = Some(IDLE_THREAD.clone());
         self.prepare_thread(IDLE_THREAD.clone())
     }
 
     /// 激活下一个线程的 `Context`
     pub fn prepare_next_thread(&mut self) -> *mut Context {
+        //println!("into processor::prepare_next_thread");
+        //crate::memory::heap::debug_heap();
         // 向调度器询问下一个线程
         let mut thread_pool = THREAD_POOL.lock();
+        //println!("thread_pool lock acquired!");
+        //crate::memory::heap::debug_heap();
         if let Some(next_thread) = thread_pool.scheduler.get_next() {
+            //println!("get a thread from thread_pool");
+            //crate::memory::heap::debug_heap();
             // 准备下一个线程
-            self.current_thread = Some(next_thread);
-            self.prepare_thread(self.current_thread())
+            //println!("replace current_thread!");
+            //crate::memory::heap::debug_heap();
+            self.prepare_thread(next_thread.clone())
         } else {
             // 没有活跃线程
             if thread_pool.sleeping_threads.is_empty() {
                 // 也没有休眠线程，则退出
                 panic!("all threads terminated, shutting down");
             } else {
+                //println!("prepare IDLE_THREAD!");
                 // 有休眠线程，则等待中断
-                self.prepare_thread(IDLE_THREAD.clone())
+                let context = self.prepare_thread(IDLE_THREAD.clone());
+                assert!(IDLE_THREAD.clone().inner().context.is_none());
+                context
             }
         }
     }
@@ -128,9 +178,11 @@ impl Processor {
 
     /// 令当前线程进入休眠
     pub fn sleep_current_thread(&mut self) {
+        //println!("into inner sleep_current_thread!");
         // 从 current_thread 中取出
         let current_thread = self.current_thread();
         THREAD_POOL.lock().sleep_thread(current_thread);
+        //println!("leave inner sleep_current_thread!");
     }
 
     /// 终止当前的线程
@@ -153,20 +205,25 @@ pub fn current_thread() -> Arc<Thread> {
     PROCESSORS[hart_id()].lock().current_thread()
 }
 pub fn prepare_next_thread() -> *mut Context {
+    //println!("into outer prepare_next_thread!");
+    //crate::memory::heap::debug_heap();
     PROCESSORS[hart_id()].lock().prepare_next_thread()
 }
 pub fn park_current_thread(context: &Context) {
+    //println!("into outer park_current_thread!");
+    //crate::memory::heap::debug_heap();
     PROCESSORS[hart_id()].lock().park_current_thread(context)
 }
 pub fn sleep_current_thread() {
+    //println!("into outer sleep_current_thread on hart {}", hart_id());
     PROCESSORS[hart_id()].lock().sleep_current_thread()
 }
 pub fn kill_current_thread() {
     PROCESSORS[hart_id()].lock().kill_current_thread()
 }
 pub fn processor_main() -> *mut Context {
-    println!("ready into processor_main on hart {}", hart_id());
+    //println!("ready into processor_main on hart {}", hart_id());
     let mut processor = PROCESSORS[hart_id()].lock();
-    println!("lock acquired!");
+    //println!("lock acquired!");
     processor.processor_main()
 }

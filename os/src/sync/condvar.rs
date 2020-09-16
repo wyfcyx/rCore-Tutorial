@@ -19,9 +19,11 @@ pub struct Condvar {
 impl Condvar {
     /// 令当前线程休眠，等待此条件变量
     pub fn wait(&self) {
+        //println!("ready push current_thread into condvar queue!");
         self.watchers
             .lock()
             .push_back(current_thread());
+        //println!("sleep_current_thread!");
         sleep_current_thread();
     }
 

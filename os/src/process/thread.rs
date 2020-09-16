@@ -38,6 +38,8 @@ impl Thread {
     ///
     /// 激活对应进程的页表，并返回其 Context
     pub fn retrieve_context(&self) -> Context {
+        //println!("into thread::retrieve_context");
+        //crate::memory::heap::debug_heap();
         // 激活页表
         self.process.inner().memory_set.activate();
         // 取出 Context

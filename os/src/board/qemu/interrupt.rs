@@ -20,8 +20,12 @@ pub fn breakpoint(context: &mut Context) -> *mut Context {
 
 /// 处理时钟中断
 pub fn supervisor_timer(context: &mut Context) -> *mut Context {
+    //println!("into qemu::supervisor_timer!");
+    //crate::memory::heap::debug_heap();
     timer::tick();
+    //println!("park_current_thread in supervisor_timer!");
     park_current_thread(context);
+    //println!("prepare_next_thread in supervisor_timer");
     prepare_next_thread()
 }
 
@@ -39,16 +43,3 @@ pub fn supervisor_external(context: &mut Context) -> *mut Context {
 
 pub fn supervisor_soft(context: &mut Context) -> *mut Context { context }
 
-/// 出现未能解决的异常，终止当前线程
-pub fn fault(msg: &str, scause: Scause, stval: usize) -> *mut Context {
-    println!(
-        "{:#x?} terminated: {}",
-        current_thread(),
-        msg
-    );
-    println!("cause: {:?}, stval: {:x}", scause.cause(), stval);
-
-    kill_current_thread();
-    // 跳转到 PROCESSOR 调度的下一个线程
-    prepare_next_thread()
-}

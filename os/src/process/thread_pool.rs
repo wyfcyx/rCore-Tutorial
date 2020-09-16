@@ -31,8 +31,11 @@ impl ThreadPool {
     }
 
     pub fn sleep_thread(&mut self, thread: Arc<Thread>) {
+        //println!("into thread_pool::sleep_thread!");
         thread.inner().sleeping = true;
+        //println!("ready remove thread from scheduler!");
         self.scheduler.remove_thread(&thread);
+        //println!("ready insert thread into sleeping_threads!");
         self.sleeping_threads.insert(thread);
     }
 }

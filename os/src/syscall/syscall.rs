@@ -28,6 +28,7 @@ pub fn syscall_handler(context: &mut Context) -> *mut Context {
     context.sepc += 4;
 
     let syscall_id = context.x[17];
+    //println!("syscall_id = {}", syscall_id);
     let args = [context.x[10], context.x[11], context.x[12]];
 
     let result = match syscall_id {
@@ -48,10 +49,13 @@ pub fn syscall_handler(context: &mut Context) -> *mut Context {
             context
         }
         SyscallResult::Park(ret) => {
+            //println!("SyscallResult::Park");
             // 将返回值放入 context 中
             context.x[10] = ret as usize;
             // 保存 context，准备下一个线程
+            //println!("ready park_current_thread!");
             park_current_thread(context);
+            //println!("return prepare_next_thread!");
             prepare_next_thread()
         }
         SyscallResult::Kill => {

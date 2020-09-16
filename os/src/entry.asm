@@ -12,7 +12,7 @@
 _start:
     mv tp, a0
     add t0, a0, 1
-    slli t0, t0, 16
+    slli t0, t0, 18
     lui sp, %hi(boot_stack)
     add sp, sp, t0
     # 通过线性映射关系计算 boot_page_table 的物理页号
@@ -38,8 +38,8 @@ _start:
     .section .bss.stack
     .global boot_stack
 boot_stack:
-    # 64K 启动栈大小
-    .space 4096 * 16 * 4
+    # 256K 启动栈大小 * 4 Cores
+    .space 4096 * 64 * 4
     .global boot_stack_top
 boot_stack_top:
     # 栈结尾

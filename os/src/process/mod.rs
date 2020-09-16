@@ -19,6 +19,7 @@ pub use lock::Lock;
 pub use process::Process;
 pub use thread::Thread;
 pub use thread_pool::THREAD_POOL;
+pub use kernel_stack::KERNEL_STACK;
 pub use processor::{
     hart_id,
     prepare_next_thread,

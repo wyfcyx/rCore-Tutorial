@@ -9,18 +9,24 @@ use crate::process::{
 ///
 /// 如果缓冲区暂无数据，返回 0；出现错误返回 -1
 pub(super) fn sys_read(fd: usize, buffer: *mut u8, size: usize) -> SyscallResult {
+    //println!("into sys_read!");
     // 从进程中获取 inode
     let process = current_thread().process.clone();
     if let Some(inode) = process.inner().descriptors.get(fd) {
+        //println!("inode got!");
         // 从系统调用传入的参数生成缓冲区
         let buffer = unsafe { from_raw_parts_mut(buffer, size) };
         // 尝试读取
+        //println!("try read into buffer!");
         if let Ok(ret) = inode.read_at(0, buffer) {
+            //println!("inode.read_at returned!");
             let ret = ret as isize;
             if ret > 0 {
+                //println!("SyscallResult::Proceed!");
                 return SyscallResult::Proceed(ret);
             }
             if ret == 0 {
+                //println!("SyscallResult::Park!");
                 return SyscallResult::Park(ret);
             }
         }

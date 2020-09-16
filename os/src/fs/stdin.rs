@@ -20,10 +20,12 @@ pub struct Stdin {
 impl INode for Stdin {
     /// Read bytes at `offset` into `buf`, return the number of bytes read.
     fn read_at(&self, offset: usize, buf: &mut [u8]) -> Result<usize> {
+        //println!("into stdin::read_at!");
         if offset != 0 {
             // 不支持 offset
             Err(FsError::NotSupported)
         } else if self.buffer.lock().len() == 0 {
+            //println!("no data ready in buffer!");
             // 缓冲区没有数据，将当前线程休眠
             self.condvar.wait();
             Ok(0)

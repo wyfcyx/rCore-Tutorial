@@ -75,6 +75,15 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
         crate::board::device_init(dtb_pa);
         fs::init();
 
+        extern "C" {
+            fn boot_stack();
+            fn boot_stack_top();
+        }
+        println!("boot_stack = {:#x}, boot_stack_top = {:#x}", boot_stack as usize, boot_stack_top as usize);
+        use crate::process::KERNEL_STACK;
+        for i in 0..4 {
+            println!("kernel stack #{} = {:p}", i, unsafe { KERNEL_STACK[i].0.as_ptr() });
+        }
         AP_CAN_INIT.store(true, Ordering::Relaxed);
     } else {
         while !AP_CAN_INIT.load(Ordering::Relaxed) {
@@ -84,6 +93,7 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
     memory::thread_local_init();
     interrupt::init();
     println!("Hello rCore hartid = {}, dtp_pa = {}", hart_id(), dtb_pa);
+    println!("sp = {:#x}", unsafe { let mut sp: usize = 0; llvm_asm!("mv $0, sp" : "=r"(sp) ::: "volatile"); sp });
     if hartid > 0 {
         loop {}
     }

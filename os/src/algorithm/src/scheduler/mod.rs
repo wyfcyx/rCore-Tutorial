@@ -28,4 +28,5 @@ pub trait Scheduler<ThreadType: Clone + Eq>: Default {
 pub use fifo_scheduler::FifoScheduler;
 pub use hrrn_scheduler::HrrnScheduler;
 
-pub type SchedulerImpl<T> = HrrnScheduler<T>;
+//pub type SchedulerImpl<T> = HrrnScheduler<T>;
+pub type SchedulerImpl<T> = FifoScheduler<T>;

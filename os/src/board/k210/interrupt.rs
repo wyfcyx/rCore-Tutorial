@@ -43,16 +43,4 @@ pub fn supervisor_soft(context: &mut Context) -> *mut Context {
     }
     context
 }
-/// 出现未能解决的异常，终止当前线程
-pub fn fault(msg: &str, scause: Scause, stval: usize) -> *mut Context {
-    println!(
-        "{:#x?} terminated: {}",
-        current_thread(),
-        msg
-    );
-    println!("cause: {:?}, stval: {:x}", scause.cause(), stval);
 
-    kill_current_thread();
-    // 跳转到 PROCESSOR 调度的下一个线程
-    prepare_next_thread()
-}
