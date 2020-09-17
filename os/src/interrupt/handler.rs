@@ -41,6 +41,7 @@ pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) -> 
     //println!("triggered interrupt {:?} on hart {}", scause.cause(), hart_id());
     // 首先检查线程是否已经结束（内核线程会自己设置标记来结束自己）
     {
+        // only for kernel threads
         let current_thread = current_thread();
         if current_thread.as_ref().inner().dead {
             println!("thread {} exit", current_thread.id);

@@ -12,7 +12,7 @@ const DL: u8 = 0x7fu8;
 const BS: u8 = 0x08u8;
 
 use alloc::string::String;
-use user_lib::syscall::sys_exec;
+use user_lib::syscall::{sys_exec, sys_wait};
 use user_lib::console::getchar;
 
 #[no_mangle]
@@ -28,7 +28,8 @@ pub fn main(){
                 if !line.is_empty() {
                     println!("searching for program {}", line);
                     line.push('\0');
-                    sys_exec(line.as_ptr());
+                    let program_pid = sys_exec(line.as_ptr());
+                    sys_wait(program_pid as usize);
                     line.clear();
                 }
                 print!(">> ");

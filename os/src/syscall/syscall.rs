@@ -11,6 +11,7 @@ pub const SYS_READ: usize = 63;
 pub const SYS_WRITE: usize = 64;
 pub const SYS_EXIT: usize = 93;
 pub const SYS_EXEC: usize = 221;
+pub const SYS_WAIT: usize = 260;
 
 /// 系统调用在内核之内的返回值
 pub(super) enum SyscallResult {
@@ -36,6 +37,7 @@ pub fn syscall_handler(context: &mut Context) -> *mut Context {
         SYS_WRITE => sys_write(args[0], args[1] as *mut u8, args[2]),
         SYS_EXIT => sys_exit(args[0]),
         SYS_EXEC => sys_exec(args[0] as *const u8, *context),
+        SYS_WAIT => sys_wait(args[0]),
         _ => {
             println!("unimplemented syscall: {}", syscall_id);
             SyscallResult::Kill
@@ -60,7 +62,9 @@ pub fn syscall_handler(context: &mut Context) -> *mut Context {
         }
         SyscallResult::Kill => {
             // 终止，跳转到 PROCESSOR 调度的下一个线程
+            //println!("SysRes::Kill -> kill_current_thread");
             kill_current_thread();
+            //println!("SysRes::Kill -> prepare_next_thread");
             prepare_next_thread()
         }
     }

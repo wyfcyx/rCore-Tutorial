@@ -34,7 +34,7 @@ lazy_static! {
                     idle_thread: Thread::new(
                         KERNEL_PROCRSS.clone(),
                         busy_loop as usize,
-                        None
+                        None,
                     ).unwrap(),
                 }
             ));
@@ -187,8 +187,9 @@ impl Processor {
     /// 终止当前的线程
     pub fn kill_current_thread(&mut self) {
         // 从调度器中移除
-        let current_thread = self.current_thread.take().unwrap();
-        THREAD_POOL.lock().kill_thread(current_thread);
+        //let current_thread = self.current_thread.take().unwrap();
+        THREAD_POOL.lock().kill_thread(self.current_thread.as_ref().unwrap().clone());
+        self.current_thread.take();
     }
 }
 

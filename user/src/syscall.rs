@@ -7,6 +7,7 @@ const SYSCALL_READ: usize = 63;
 const SYSCALL_WRITE: usize = 64;
 const SYSCALL_EXIT: usize = 93;
 const SYSCALL_EXEC: usize = 221;
+const SYSCALL_WAIT: usize = 260;
 
 /// 将参数放在对应寄存器中，并执行 `ecall`
 fn syscall(id: usize, arg0: usize, arg1: usize, arg2: usize) -> isize {
@@ -53,6 +54,10 @@ pub fn sys_exit(code: isize) -> ! {
     unreachable!()
 }
 
-pub fn sys_exec(path:*const u8)->isize{
+pub fn sys_exec(path: *const u8) -> isize {
     syscall(SYSCALL_EXEC,path as usize,0,0)
+}
+
+pub fn sys_wait(pid: usize) {
+    syscall(SYSCALL_WAIT, pid, 0, 0);
 }

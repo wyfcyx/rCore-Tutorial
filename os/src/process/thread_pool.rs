@@ -25,6 +25,7 @@ impl ThreadPool {
     }
 
     pub fn wake_thread(&mut self, thread: Arc<Thread>) {
+        //println!("into ThreadPool::wake_thread!");
         thread.inner().sleeping = false;
         self.sleeping_threads.remove(&thread);
         self.scheduler.add_thread(thread);

@@ -29,3 +29,4 @@ pub use processor::{
     current_thread,
     processor_main,
 };
+pub use process::WAIT_MAP;

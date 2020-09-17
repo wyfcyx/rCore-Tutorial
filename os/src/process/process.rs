@@ -5,7 +5,10 @@ use crate::fs::*;
 use xmas_elf::ElfFile;
 use alloc::vec;
 use alloc::vec::Vec;
+use alloc::collections::BTreeMap;
+use alloc::sync::{Arc, Weak};
 use lazy_static::*;
+use hashbrown::HashMap;
 
 pub struct PidAllocator {
     max_id: usize,
@@ -39,6 +42,7 @@ impl PidAllocator {
 lazy_static! {
     pub static ref PID_ALLOCATOR: Mutex<PidAllocator> = Mutex::new(PidAllocator::new());
     pub static ref KERNEL_PROCRSS: Arc<Process> = Process::new_kernel().unwrap();
+    pub static ref WAIT_MAP: Mutex<HashMap<usize, Weak<Thread>>> = Mutex::new(HashMap::new());
 }
 
 /// 进程的信息
@@ -53,6 +57,16 @@ pub struct Process {
 impl Drop for Process {
     fn drop(&mut self) {
         println!("Process {} exited", self.pid);
+        PID_ALLOCATOR.lock().dealloc(self.pid);
+        //println!("ready waking up waiting thread!");
+        if let Some(thread) = WAIT_MAP.lock().get(&self.pid) {
+            //println!("found a thread!");
+            THREAD_POOL.lock()
+                .wake_thread(thread.upgrade().unwrap());
+            //println!("ok wake_thread in Process::drop");
+        } else {
+            //println!("no threads found!");
+        }
     }
 }
 
