@@ -27,3 +27,5 @@ pub const RISCV_SPEC_MINOR: usize = 9;
 pub const RISCV_SPEC_PATCH: usize = 1;
 
 pub const CPU_NUM: usize = 2;
+
+pub const CPU_FREQUENCY: usize = 390000000;

@@ -146,7 +146,7 @@ impl Processor {
         //crate::memory::heap::debug_heap();
         // 向调度器询问下一个线程
         let mut thread_pool = THREAD_POOL.lock();
-        //println!("thread_pool lock acquired!");
+        println!("thread_pool lock acquired! on hart {}", hart_id());
         //crate::memory::heap::debug_heap();
         if let Some(next_thread) = thread_pool.scheduler.get_next() {
             //println!("get a thread from thread_pool");

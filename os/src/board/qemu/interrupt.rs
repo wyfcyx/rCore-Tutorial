@@ -22,6 +22,7 @@ pub fn breakpoint(context: &mut Context) -> *mut Context {
 pub fn supervisor_timer(context: &mut Context) -> *mut Context {
     //println!("into qemu::supervisor_timer!");
     //crate::memory::heap::debug_heap();
+    //unsafe { riscv::register::sie::clear_stimer(); }
     timer::tick();
     //println!("park_current_thread in supervisor_timer!");
     park_current_thread(context);

@@ -29,10 +29,15 @@ pub use {
 /// 初始化内存相关的子模块
 ///
 /// - [`heap::init`]
-pub fn global_init() {
+fn global_init() {
     clear_bss();
     heap::init();
     println!("mod memory initialized");
+}
+
+pub fn bsp_init() {
+    global_init();
+    thread_local_init();
 }
 
 pub fn thread_local_init() {

@@ -44,9 +44,9 @@ __interrupt:
     # 将本来的栈地址 sp（即 x2）保存
     csrr    x1, sscratch
     SAVE    x1, 2
-    # 保存 x3 至 x31
-    .set    n, 3
-    .rept   29
+    # 保存 x5 至 x31
+    .set    n, 5
+    .rept   27
         SAVE_N  %n
         .set    n, n + 1
     .endr
@@ -85,9 +85,9 @@ __restore:
 
     # 恢复通用寄存器
     LOAD    x1, 1
-    # 恢复 x3 至 x31
-    .set    n, 3
-    .rept   29
+    # 恢复 x5 至 x31
+    .set    n, 5
+    .rept   27
         LOAD_N  %n
         .set    n, n + 1
     .endr

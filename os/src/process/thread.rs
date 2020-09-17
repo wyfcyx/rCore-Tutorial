@@ -4,6 +4,7 @@ use super::*;
 use core::hash::{Hash, Hasher};
 use spin::Mutex;
 use lazy_static::*;
+use alloc::vec::Vec;
 
 /// 线程 ID 使用 `isize`，可以用负数表示错误
 pub type ThreadID = isize;
@@ -35,6 +36,7 @@ pub struct ThreadInner {
     pub sleeping: bool,
     /// 是否已经结束
     pub dead: bool,
+    pub core_trace: Vec<usize>,
 }
 
 impl Thread {
@@ -85,6 +87,7 @@ impl Thread {
                 context: Some(context),
                 sleeping: false,
                 dead: false,
+                core_trace: Vec::new(),
             }),
         });
 

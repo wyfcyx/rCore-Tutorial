@@ -71,7 +71,7 @@ static AP_CAN_INIT: AtomicBool = AtomicBool::new(false);
 #[no_mangle]
 pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
     if hartid == 0 {
-        memory::global_init();
+        memory::bsp_init();
         crate::board::device_init(dtb_pa);
         fs::init();
 
@@ -85,6 +85,10 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
             println!("kernel stack #{} = {:p}", i, unsafe { KERNEL_STACK[i].0.as_ptr() });
         }
 
+        THREAD_POOL
+            .lock()
+            .add_thread(create_user_process("user_shell"));
+
         AP_CAN_INIT.store(true, Ordering::Relaxed);
     } else {
         while !AP_CAN_INIT.load(Ordering::Relaxed) {
@@ -95,13 +99,6 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
     interrupt::init();
     println!("Hello rCore hartid = {}, dtp_pa = {}", hart_id(), dtb_pa);
     println!("sp = {:#x}", unsafe { let mut sp: usize = 0; llvm_asm!("mv $0, sp" : "=r"(sp) ::: "volatile"); sp });
-    if hartid > 0 {
-        loop {}
-    } else {
-        THREAD_POOL
-            .lock()
-            .add_thread(create_user_process("user_shell"));
-    }
 
     println!("I am hart {}, and i can go forward!", hart_id());
     /*
@@ -126,7 +123,7 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
     //println!("getting context!");
     // 获取第一个线程的 Context
     let context = processor_main();
-
+    println!("context = {:p} on hart {}", context, hartid);
     //println!("switch to idle!");
     // 启动第一个线程
     unsafe {
