@@ -38,7 +38,7 @@ pub fn init() {
 /// 具体的中断类型需要根据 scause 来推断，然后分别处理
 #[no_mangle]
 pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) -> *mut Context {
-    println!("triggered interrupt {:?} on hart {}", scause.cause(), hart_id());
+    //println!("triggered interrupt {:?} on hart {}", scause.cause(), hart_id());
     // 首先检查线程是否已经结束（内核线程会自己设置标记来结束自己）
     {
         // only for kernel threads

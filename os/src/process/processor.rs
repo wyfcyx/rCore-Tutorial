@@ -146,7 +146,7 @@ impl Processor {
         //crate::memory::heap::debug_heap();
         // 向调度器询问下一个线程
         let mut thread_pool = THREAD_POOL.lock();
-        println!("thread_pool lock acquired! on hart {}", hart_id());
+        //println!("thread_pool lock acquired! on hart {}", hart_id());
         //crate::memory::heap::debug_heap();
         if let Some(next_thread) = thread_pool.scheduler.get_next() {
             //println!("get a thread from thread_pool");
@@ -154,8 +154,13 @@ impl Processor {
             // 准备下一个线程
             //println!("replace current_thread!");
             //crate::memory::heap::debug_heap();
+            let current_thread = self.current_thread.take().unwrap();
+            if *current_thread != *self.idle_thread {
+                thread_pool.scheduler.add_thread(current_thread);
+            }
             self.prepare_thread(next_thread.clone())
         } else {
+            /*
             // 没有活跃线程
             if thread_pool.sleeping_threads.is_empty() {
                 // 也没有休眠线程，则退出
@@ -167,6 +172,10 @@ impl Processor {
                 assert!(self.idle_thread.clone().inner().context.is_none());
                 context
             }
+             */
+            let context = self.prepare_thread(self.idle_thread.clone());
+            assert!(self.idle_thread.clone().inner().context.is_none());
+            context
         }
     }
 

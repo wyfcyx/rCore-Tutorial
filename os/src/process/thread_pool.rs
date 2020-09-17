@@ -35,7 +35,7 @@ impl ThreadPool {
         //println!("into thread_pool::sleep_thread!");
         thread.inner().sleeping = true;
         //println!("ready remove thread from scheduler!");
-        self.scheduler.remove_thread(&thread);
+        //self.scheduler.remove_thread(&thread);
         //println!("ready insert thread into sleeping_threads!");
         self.sleeping_threads.insert(thread);
     }

@@ -30,7 +30,7 @@ impl<ThreadType: Clone + Eq> Scheduler<ThreadType> for FifoScheduler<ThreadType>
     fn get_next(&mut self) -> Option<ThreadType> {
         // 从头部取出放回尾部，同时将其返回
         if let Some(thread) = self.pool.pop_front() {
-            self.pool.push_back(thread.clone());
+            //self.pool.push_back(thread.clone());
             Some(thread)
         } else {
             None
