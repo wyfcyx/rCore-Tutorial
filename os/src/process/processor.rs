@@ -10,6 +10,8 @@ use crate::process::thread_pool::THREAD_POOL;
 use alloc::vec;
 use alloc::vec::Vec;
 use core::cell::RefCell;
+use super::process::KERNEL_PROCRSS;
+
 /*
 lazy_static! {
     /// 全局的 [`Processor`]
@@ -30,7 +32,7 @@ lazy_static! {
                 Processor {
                     current_thread: None,
                     idle_thread: Thread::new(
-                        Process::new_kernel().unwrap(),
+                        KERNEL_PROCRSS.clone(),
                         busy_loop as usize,
                         None
                     ).unwrap(),

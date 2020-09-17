@@ -3,13 +3,57 @@
 use super::*;
 use crate::fs::*;
 use xmas_elf::ElfFile;
+use alloc::vec;
+use alloc::vec::Vec;
+use lazy_static::*;
+
+pub struct PidAllocator {
+    max_id: usize,
+    recycled: Vec<usize>,
+}
+
+impl PidAllocator {
+    pub fn new() -> Self {
+        Self {
+            max_id: 0,
+            recycled: Vec::new(),
+        }
+    }
+    pub fn alloc(&mut self) -> usize {
+        if let Some(pid) = self.recycled.pop() {
+            pid
+        } else {
+            self.max_id += 1;
+            self.max_id
+        }
+    }
+    pub fn dealloc(&mut self, pid: usize) {
+        assert!(pid <= self.max_id);
+        assert!(
+            self.recycled.iter().filter(|p| **p == pid).next().is_none()
+        );
+        self.recycled.push(pid);
+    }
+}
+
+lazy_static! {
+    pub static ref PID_ALLOCATOR: Mutex<PidAllocator> = Mutex::new(PidAllocator::new());
+    pub static ref KERNEL_PROCRSS: Arc<Process> = Process::new_kernel().unwrap();
+}
 
 /// 进程的信息
 pub struct Process {
+    pub pid: usize,
     /// 是否属于用户态
     pub is_user: bool,
     /// 用 `Mutex` 包装一些可变的变量
     pub inner: Mutex<ProcessInner>,
+}
+
+impl Drop for Process {
+    fn drop(&mut self) {
+        println!("Process {} exited", self.pid);
+    }
 }
 
 pub struct ProcessInner {
@@ -24,6 +68,7 @@ impl Process {
     /// 创建一个内核进程
     pub fn new_kernel() -> MemoryResult<Arc<Self>> {
         Ok(Arc::new(Self {
+            pid: PID_ALLOCATOR.lock().alloc(),
             is_user: false,
             inner: Mutex::new(ProcessInner {
                 memory_set: MemorySet::new_kernel()?,
@@ -35,6 +80,7 @@ impl Process {
     /// 创建进程，从文件中读取代码
     pub fn from_elf(file: &ElfFile, is_user: bool) -> MemoryResult<Arc<Self>> {
         Ok(Arc::new(Self {
+            pid: PID_ALLOCATOR.lock().alloc(),
             is_user,
             inner: Mutex::new(ProcessInner {
                 memory_set: MemorySet::from_elf(file, is_user)?,
@@ -81,3 +127,4 @@ impl Process {
         Ok(Range::from(range.start..(range.start + size)))
     }
 }
+
