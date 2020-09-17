@@ -28,8 +28,7 @@ pub fn main(){
                 if !line.is_empty() {
                     println!("searching for program {}", line);
                     line.push('\0');
-                    let program_pid = sys_exec(line.as_ptr());
-                    sys_wait(program_pid as usize);
+                    sys_exec(line.as_ptr());
                     line.clear();
                 }
                 print!(">> ");

@@ -140,6 +140,14 @@ impl Processor {
         self.prepare_thread(self.idle_thread.clone())
     }
 
+    pub fn run_current_thread_later(&mut self) {
+        if **self.current_thread.as_ref().unwrap() != *self.idle_thread {
+            THREAD_POOL.lock()
+                .scheduler
+                .add_thread(self.current_thread());
+        }
+    }
+
     /// 激活下一个线程的 `Context`
     pub fn prepare_next_thread(&mut self) -> *mut Context {
         //println!("into processor::prepare_next_thread");
@@ -154,10 +162,6 @@ impl Processor {
             // 准备下一个线程
             //println!("replace current_thread!");
             //crate::memory::heap::debug_heap();
-            let current_thread = self.current_thread.take().unwrap();
-            if *current_thread != *self.idle_thread {
-                thread_pool.scheduler.add_thread(current_thread);
-            }
             self.prepare_thread(next_thread.clone())
         } else {
             /*
@@ -222,6 +226,9 @@ pub fn park_current_thread(context: &Context) {
     //println!("into outer park_current_thread!");
     //crate::memory::heap::debug_heap();
     PROCESSORS[hart_id()].lock().park_current_thread(context)
+}
+pub fn run_current_thread_later() {
+    PROCESSORS[hart_id()].lock().run_current_thread_later();
 }
 pub fn sleep_current_thread() {
     //println!("into outer sleep_current_thread on hart {}", hart_id());

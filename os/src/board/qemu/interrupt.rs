@@ -3,6 +3,7 @@ use crate::sbi::console_getchar;
 use riscv::register::scause::Scause;
 use crate::process::{
     park_current_thread,
+    run_current_thread_later,
     prepare_next_thread,
     kill_current_thread,
     current_thread,
@@ -26,6 +27,7 @@ pub fn supervisor_timer(context: &mut Context) -> *mut Context {
     timer::tick();
     //println!("park_current_thread in supervisor_timer!");
     park_current_thread(context);
+    run_current_thread_later();
     //println!("prepare_next_thread in supervisor_timer");
     prepare_next_thread()
 }

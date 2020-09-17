@@ -25,6 +25,7 @@ pub(super) fn sys_exit(code: usize) -> SyscallResult {
 
 pub(super) fn sys_wait(pid: usize) -> SyscallResult {
     // TODO: check given process is a child process of current process
+    //println!("insert pid = {} in sys_wait", pid);
     WAIT_MAP.lock().insert(pid, Arc::downgrade(&current_thread()));
     sleep_current_thread();
     SyscallResult::Park(0)
@@ -41,15 +42,11 @@ pub (super) fn sys_exec(path: *const u8, context: Context) -> SyscallResult {
             let thread=Thread::new(process, elf.header.pt2.entry_point() as usize, None).unwrap();
             let pid = thread.process.pid as isize;
             THREAD_POOL.lock().add_thread(thread);
-            /*
+            WAIT_MAP.lock().insert(pid as usize, Arc::downgrade(&current_thread()));
             sleep_current_thread();
-            park_current_thread(&context);
-            prepare_next_thread();
-             */
-            SyscallResult::Proceed(pid)
+            SyscallResult::Park(0)
         },
         Err(_) => {
-            //println!("");
             println!("command not found");
             SyscallResult::Proceed(0)
         }

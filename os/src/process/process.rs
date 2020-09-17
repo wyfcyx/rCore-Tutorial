@@ -60,12 +60,9 @@ impl Drop for Process {
         PID_ALLOCATOR.lock().dealloc(self.pid);
         //println!("ready waking up waiting thread!");
         if let Some(thread) = WAIT_MAP.lock().get(&self.pid) {
-            //println!("found a thread!");
             THREAD_POOL.lock()
                 .wake_thread(thread.upgrade().unwrap());
-            //println!("ok wake_thread in Process::drop");
         } else {
-            //println!("no threads found!");
         }
     }
 }
