@@ -11,6 +11,7 @@ use crate::board::interrupt::{
     supervisor_external,
 };
 use crate::process::{current_thread, kill_current_thread, prepare_next_thread, hart_id};
+use crate::interrupt::timer::read_time;
 
 global_asm!(include_str!("./interrupt.asm"));
 
@@ -40,17 +41,26 @@ pub fn init() {
 pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) -> *mut Context {
     //println!("triggered interrupt {:?} on hart {}", scause.cause(), hart_id());
     // 首先检查线程是否已经结束（内核线程会自己设置标记来结束自己）
+    let start_thread = current_thread().clone();
+    let is_user = start_thread.process.is_user;
+    start_thread.as_ref()
+        .inner()
+        .thread_trace
+        .into_kernel(hart_id(), read_time(), is_user);
     {
         // only for kernel threads
         let current_thread = current_thread();
-        if current_thread.as_ref().inner().dead {
-            println!("thread {} exit", current_thread.id);
+        let dead = current_thread.as_ref().inner().dead;
+        if dead {
+            println!("thread {} exit", current_thread.as_ref().id);
+            current_thread.as_ref().inner().thread_trace.exit_kernel(hart_id(), read_time());
+            current_thread.as_ref().inner().thread_trace.print_trace();
             kill_current_thread();
             return prepare_next_thread();
         }
     }
     // 根据中断类型来处理，返回的 Context 必须位于放在内核栈顶
-    match scause.cause() {
+    let context = match scause.cause() {
         // 断点中断（ebreak）
         Trap::Exception(Exception::Breakpoint) => breakpoint(context),
         // 系统调用
@@ -62,7 +72,13 @@ pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) -> 
         Trap::Interrupt(Interrupt::SupervisorSoft) => supervisor_soft(context),
         // 其他情况，无法处理
         _ => fault("unimplemented interrupt type", scause, stval),
+    };
+
+    if *current_thread() == *start_thread {
+        start_thread.as_ref().inner().thread_trace.exit_kernel(hart_id(), read_time());
     }
+
+    context
 }
 
 /// 出现未能解决的异常，终止当前线程

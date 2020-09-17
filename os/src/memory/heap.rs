@@ -40,9 +40,7 @@ unsafe impl alloc::alloc::GlobalAlloc for HeapAllocator {
         assert_eq!(user_before + alloc_size, self.0.lock().stats_alloc_user());
         assert!(ptr as usize <= HEAP_SPACE.0.as_ptr().add(KERNEL_HEAP_SIZE) as usize);
         assert!(ptr as usize + alloc_size <= HEAP_SPACE.0.as_ptr().add(KERNEL_HEAP_SIZE) as usize);
-        if ptr as usize == 0xffff_ffff_8037_55e0 {
-            println!("------------------------------------------found!-------------------------------------");
-        }
+
         ptr
     }
 

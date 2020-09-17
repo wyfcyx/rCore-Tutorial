@@ -41,7 +41,7 @@ impl PidAllocator {
 
 lazy_static! {
     pub static ref PID_ALLOCATOR: Mutex<PidAllocator> = Mutex::new(PidAllocator::new());
-    pub static ref KERNEL_PROCRSS: Arc<Process> = Process::new_kernel().unwrap();
+    pub static ref KERNEL_PROCESS: Arc<Process> = Process::new_kernel().unwrap();
     pub static ref WAIT_MAP: Mutex<HashMap<usize, Weak<Thread>>> = Mutex::new(HashMap::new());
 }
 
@@ -62,7 +62,6 @@ impl Drop for Process {
         if let Some(thread) = WAIT_MAP.lock().get(&self.pid) {
             THREAD_POOL.lock()
                 .wake_thread(thread.upgrade().unwrap());
-        } else {
         }
     }
 }

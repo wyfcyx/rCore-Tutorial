@@ -6,6 +6,7 @@ use crate::process::{
     kill_current_thread,
     prepare_next_thread,
 };
+use crate::interrupt::timer::read_time;
 
 pub const SYS_READ: usize = 63;
 pub const SYS_WRITE: usize = 64;
@@ -61,6 +62,9 @@ pub fn syscall_handler(context: &mut Context) -> *mut Context {
             prepare_next_thread()
         }
         SyscallResult::Kill => {
+            let current_thread = current_thread();
+            current_thread.as_ref().inner().thread_trace.exit_kernel(hart_id(), read_time());
+            current_thread.as_ref().inner().thread_trace.print_trace();
             // 终止，跳转到 PROCESSOR 调度的下一个线程
             //println!("SysRes::Kill -> kill_current_thread");
             kill_current_thread();

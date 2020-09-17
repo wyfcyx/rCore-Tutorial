@@ -5,6 +5,7 @@ use core::hash::{Hash, Hasher};
 use spin::Mutex;
 use lazy_static::*;
 use alloc::vec::Vec;
+use hashbrown::HashMap;
 
 /// 线程 ID 使用 `isize`，可以用负数表示错误
 pub type ThreadID = isize;
@@ -36,7 +37,7 @@ pub struct ThreadInner {
     pub sleeping: bool,
     /// 是否已经结束
     pub dead: bool,
-    pub core_trace: Vec<usize>,
+    pub thread_trace: ThreadTrace,
 }
 
 impl Thread {
@@ -87,7 +88,7 @@ impl Thread {
                 context: Some(context),
                 sleeping: false,
                 dead: false,
-                core_trace: Vec::new(),
+                thread_trace: ThreadTrace::new(),
             }),
         });
 
@@ -130,5 +131,67 @@ impl core::fmt::Debug for Thread {
             .field("stack", &self.stack)
             .field("context", &self.inner().context)
             .finish()
+    }
+}
+
+pub struct ThreadTrace {
+    hart_time: HashMap<usize, (usize, usize)>,
+    current_hart: usize,
+    time_clock: usize,
+}
+
+impl ThreadTrace {
+    pub fn new() -> Self {
+        Self {
+            hart_time: HashMap::new(),
+            current_hart: 0,
+            time_clock: 0,
+        }
+    }
+    pub fn prologue(&mut self, hart: usize, time_clock: usize) {
+        //println!("[prologue] hart = {}, time_clock = {}", hart, time_clock);
+        self.current_hart = hart;
+        self.time_clock = time_clock;
+    }
+    pub fn into_kernel(&mut self, hart: usize, time_clock: usize, is_user: bool) {
+        //println!("[into_kernel] hart = {} time_clock = {}", hart, time_clock);
+        //assert_eq!(hart, self.current_hart);
+        let delta_time = time_clock - self.time_clock;
+        if let Some(time_pair) = self.hart_time.get(&hart) {
+            if is_user {
+                self.hart_time.insert(hart, (time_pair.0 + delta_time, time_pair.1));
+            } else {
+                self.hart_time.insert(hart, (time_pair.0, time_pair.1 + delta_time));
+            }
+        } else {
+            if is_user {
+                self.hart_time.insert(hart, (delta_time, 0));
+            } else {
+                self.hart_time.insert(hart, (0, delta_time));
+            }
+        }
+        self.time_clock = time_clock;
+    }
+    pub fn exit_kernel(&mut self, hart: usize, time_clock: usize) {
+        //println!("[exit_kernel] hart = {} time_clock = {}", hart, time_clock);
+        //assert_eq!(hart, self.current_hart);
+        let delta_time = time_clock - self.time_clock;
+        if let Some(time_pair) = self.hart_time.get(&hart) {
+            self.hart_time.insert(hart, (time_pair.0, time_pair.1 + delta_time));
+        } else {
+            panic!("had not executed on current hart before!");
+        }
+        self.time_clock = time_clock;
+    }
+    pub fn print_trace(&self) {
+        println!("into print_trace!");
+        let mut total_user: usize = 0;
+        let mut total_kernel: usize = 0;
+        for (hart_id, time_pair) in self.hart_time.iter() {
+            println!("on Core #{}, user time = {}, kernel time = {}", hart_id, time_pair.0, time_pair.1);
+            total_user += time_pair.0;
+            total_kernel += time_pair.1;
+        }
+        println!("total user = {}, kernel = {}, sum = {}", total_user, total_kernel, total_user + total_kernel);
     }
 }

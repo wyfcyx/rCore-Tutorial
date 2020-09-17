@@ -10,8 +10,8 @@ use crate::process::thread_pool::THREAD_POOL;
 use alloc::vec;
 use alloc::vec::Vec;
 use core::cell::RefCell;
-use super::process::KERNEL_PROCRSS;
-
+use super::process::KERNEL_PROCESS;
+use crate::interrupt::timer::read_time;
 /*
 lazy_static! {
     /// 全局的 [`Processor`]
@@ -32,7 +32,7 @@ lazy_static! {
                 Processor {
                     current_thread: None,
                     idle_thread: Thread::new(
-                        KERNEL_PROCRSS.clone(),
+                        KERNEL_PROCESS.clone(),
                         busy_loop as usize,
                         None,
                     ).unwrap(),
@@ -162,6 +162,14 @@ impl Processor {
             // 准备下一个线程
             //println!("replace current_thread!");
             //crate::memory::heap::debug_heap();
+            next_thread.as_ref().inner().thread_trace.prologue(hart_id(), read_time());
+            if self.current_thread.is_some() {
+                self.current_thread()
+                    .as_ref()
+                    .inner()
+                    .thread_trace
+                    .exit_kernel(hart_id(), read_time());
+            }
             self.prepare_thread(next_thread.clone())
         } else {
             /*

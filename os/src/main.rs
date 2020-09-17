@@ -89,6 +89,17 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
             .lock()
             .add_thread(create_user_process("user_shell"));
 
+        /*
+        for i in 1..9usize {
+            THREAD_POOL.lock()
+                .add_thread(create_kernel_thread(
+                KERNEL_PROCESS.clone(),
+                sample_process as usize,
+                Some(&[i]),
+            ));
+        }
+         */
+
         AP_CAN_INIT.store(true, Ordering::Relaxed);
     } else {
         while !AP_CAN_INIT.load(Ordering::Relaxed) {
