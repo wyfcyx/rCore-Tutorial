@@ -3,15 +3,22 @@
 [![Actions Status](https://github.com/rcore-os/rCore-Tutorial/workflows/CI/badge.svg?branch=master)](https://github.com/rcore-os/rCore-Tutorial/actions)
 
 ## Quick Run
+### For K210 platform
 ```sh
 # Prepare sdcard if you want to run on k210 platform
 # Use SDCARD to configure sdcard location, it is /dev/sdb by default
 cd user && make sdcard
-# Run tutorial on qemu platform
-make run
-# Run tutorial on k210 platform
+# plug the sdcard in the k210 board and then run tutorial on k210 platform
 make run BOARD=k210
 ```
+### For Qemu platform
+```sh
+# prepare user program
+cd user && make build
+# Run tutorial on qemu platform
+make run
+```
+### User programs
 There are three simple user programs now, they are:
 * hello_world;
 * fantastic_text;
