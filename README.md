@@ -23,6 +23,7 @@ There are three simple user programs now, they are:
 * hello_world;
 * fantastic_text;
 * notebook[user Ctrl + C to exit].
+
 To execute a program, type in its name in the shell and press enter.
 After it finishes, some statistics will be showed on the screen as well, which indicates that the program uses multicores.
 
