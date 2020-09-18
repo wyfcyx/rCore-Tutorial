@@ -85,11 +85,12 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
             println!("kernel stack #{} = {:p}", i, unsafe { KERNEL_STACK[i].0.as_ptr() });
         }
 
+        /*
         THREAD_POOL
             .lock()
             .add_thread(create_user_process("user_shell"));
+         */
 
-        /*
         for i in 1..9usize {
             THREAD_POOL.lock()
                 .add_thread(create_kernel_thread(
@@ -98,7 +99,6 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
                 Some(&[i]),
             ));
         }
-         */
 
         AP_CAN_INIT.store(true, Ordering::Relaxed);
     } else {

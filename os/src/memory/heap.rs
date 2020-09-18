@@ -37,8 +37,10 @@ unsafe impl alloc::alloc::GlobalAlloc for HeapAllocator {
         let alloc_size = layout.size();
         let ptr = self.0.alloc(layout);
         //println!("alloc ok ptr = {:p}, heap = {:?}", ptr, *self.0.lock());
+
         // the below assertion do not work when multicore!
         //assert_eq!(user_before + alloc_size, self.0.lock().stats_alloc_user());
+
         assert!(ptr as usize <= HEAP_SPACE.0.as_ptr().add(KERNEL_HEAP_SIZE) as usize);
         assert!(ptr as usize + alloc_size <= HEAP_SPACE.0.as_ptr().add(KERNEL_HEAP_SIZE) as usize);
 
@@ -51,7 +53,9 @@ unsafe impl alloc::alloc::GlobalAlloc for HeapAllocator {
         let dealloc_size = layout.size();
         self.0.dealloc(ptr, layout);
         //println!("dealloc OK, heap = {:?}!", *self.0.lock());
-        assert_eq!(user_before, self.0.lock().stats_alloc_user() + dealloc_size);
+
+        // the below assertion do not work when multicore!
+        //assert_eq!(user_before, self.0.lock().stats_alloc_user() + dealloc_size);
     }
 }
 
