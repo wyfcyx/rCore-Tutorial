@@ -184,7 +184,7 @@ impl ThreadTrace {
         self.time_clock = time_clock;
     }
     pub fn print_trace(&self) {
-        println!("into print_trace!");
+        //println!("into print_trace!");
         let mut total_user: usize = 0;
         let mut total_kernel: usize = 0;
         for (hart_id, time_pair) in self.hart_time.iter() {
