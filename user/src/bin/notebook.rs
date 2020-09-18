@@ -15,8 +15,8 @@ pub fn main() -> isize {
         print!("{}", string);
          */
         let ch = getchar();
-        if ch == 29 {
-            // Ctrl + ]
+        if ch == 3 {
+            // Ctrl + C
             return 0;
         }
         print!("{}", ch as char);

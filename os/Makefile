@@ -34,6 +34,7 @@ doc:
 # 编译 kernel
 kernel:
 	@cp src/board/$(BOARD)/linker.ld src/linker.ld
+	@cp src/board/$(BOARD)/entry.asm src/entry.asm
 	@cargo build --features "board_$(BOARD)"
 
 # 生成 kernel 的二进制文件

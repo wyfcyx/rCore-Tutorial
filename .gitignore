@@ -23,5 +23,7 @@ Cargo.lock
 os/target
 user/target
 user/build
+os/src/linker.ld
+os/src/entry.asm
 # GDB 临时文件
 .gdb_history
