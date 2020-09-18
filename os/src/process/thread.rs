@@ -6,6 +6,8 @@ use spin::Mutex;
 use lazy_static::*;
 use alloc::vec::Vec;
 use hashbrown::HashMap;
+use alloc::string::String;
+use alloc::format;
 
 /// 线程 ID 使用 `isize`，可以用负数表示错误
 pub type ThreadID = isize;
@@ -187,11 +189,13 @@ impl ThreadTrace {
         //println!("into print_trace!");
         let mut total_user: usize = 0;
         let mut total_kernel: usize = 0;
+        let mut str = String::new();
         for (hart_id, time_pair) in self.hart_time.iter() {
-            println!("on Core #{}, user time = {}, kernel time = {}", hart_id, time_pair.0, time_pair.1);
+            str += format!("on Core #{}, user time = {}, kernel time = {}\n", hart_id, time_pair.0, time_pair.1).as_str();
             total_user += time_pair.0;
             total_kernel += time_pair.1;
         }
-        println!("total user = {}, kernel = {}, sum = {}", total_user, total_kernel, total_user + total_kernel);
+        str += format!("total user = {}, kernel = {}, sum = {}", total_user, total_kernel, total_user + total_kernel).as_str();
+        println!("{}", str);
     }
 }
