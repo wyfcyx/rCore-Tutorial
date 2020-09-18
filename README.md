@@ -24,7 +24,7 @@ There are three simple user programs now, they are:
 * fantastic_text;
 * notebook[user Ctrl + C to exit].
 
-To execute a program, type in its name in the shell and press enter.
+To execute a program, type its name in the shell and press enter.
 After it finishes, some statistics will be showed on the screen as well, which indicates that the program uses multicores.
 
 [本教学仓库](https://github.com/rcore-os/rCore-Tutorial)是继 [rCore_tutorial V2](https://rcore-os.github.io/rCore_tutorial_doc/) 后重构的 V3 版本。
