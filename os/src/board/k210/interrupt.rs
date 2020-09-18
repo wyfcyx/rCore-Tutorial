@@ -20,11 +20,8 @@ pub fn breakpoint(context: &mut Context) -> *mut Context {
 /// 处理时钟中断
 pub fn supervisor_timer(context: &mut Context) -> *mut Context {
     timer::tick();
-    /*
     park_current_thread(context);
     prepare_next_thread()
-     */
-    context
 }
 
 /// 处理外部中断，只实现了键盘输入

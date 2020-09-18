@@ -22,9 +22,16 @@ use core::mem::size_of;
 #[repr(C)]
 pub struct KernelStack(pub [u8; KERNEL_STACK_SIZE]);
 
+#[cfg(feature = "board_qemu")]
 pub static mut KERNEL_STACK: [KernelStack; 4] = [
     KernelStack([0u8; KERNEL_STACK_SIZE]),
     KernelStack([0u8; KERNEL_STACK_SIZE]),
+    KernelStack([0u8; KERNEL_STACK_SIZE]),
+    KernelStack([0u8; KERNEL_STACK_SIZE]),
+];
+
+#[cfg(feature = "board_k210")]
+pub static mut KERNEL_STACK: [KernelStack; 2] = [
     KernelStack([0u8; KERNEL_STACK_SIZE]),
     KernelStack([0u8; KERNEL_STACK_SIZE]),
 ];

@@ -60,6 +60,7 @@ use memory::PhysicalAddress;
 use xmas_elf::ElfFile;
 use core::sync::atomic::{AtomicBool, spin_loop_hint, Ordering};
 use process::*;
+use crate::board::config::CPU_NUM;
 
 // 汇编编写的程序入口，具体见该文件
 global_asm!(include_str!("entry.asm"));
@@ -81,16 +82,15 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
         }
         println!("boot_stack = {:#x}, boot_stack_top = {:#x}", boot_stack as usize, boot_stack_top as usize);
         use crate::process::KERNEL_STACK;
-        for i in 0..4 {
+        for i in 0..CPU_NUM {
             println!("kernel stack #{} = {:p}", i, unsafe { KERNEL_STACK[i].0.as_ptr() });
         }
 
-        /*
         THREAD_POOL
             .lock()
             .add_thread(create_user_process("user_shell"));
-         */
 
+        /*
         for i in 1..9usize {
             THREAD_POOL.lock()
                 .add_thread(create_kernel_thread(
@@ -99,6 +99,7 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
                 Some(&[i]),
             ));
         }
+         */
 
         AP_CAN_INIT.store(true, Ordering::Relaxed);
     } else {
