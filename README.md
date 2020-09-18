@@ -2,6 +2,23 @@
 
 [![Actions Status](https://github.com/rcore-os/rCore-Tutorial/workflows/CI/badge.svg?branch=master)](https://github.com/rcore-os/rCore-Tutorial/actions)
 
+## Quick Run
+```sh
+# Prepare sdcard if you want to run on k210 platform
+# Use SDCARD to configure sdcard location, it is /dev/sdb by default
+cd user && make sdcard
+# Run tutorial on qemu platform
+make run
+# Run tutorial on k210 platform
+make run BOARD=k210
+```
+There are three simple user programs now, they are:
+* hello_world;
+* fantastic_text;
+* notebook[user Ctrl + C to exit].
+To execute a program, type in its name in the shell and press enter.
+After it finishes, some statistics will be showed on the screen as well, which indicates that the program uses multicores.
+
 [本教学仓库](https://github.com/rcore-os/rCore-Tutorial)是继 [rCore_tutorial V2](https://rcore-os.github.io/rCore_tutorial_doc/) 后重构的 V3 版本。
 
 本文档的目标主要针对「做实验的同学」，我们会对每章结束后提供完成的代码，你的练习题只需要基于我们给出的版本上增量实现即可，不需要重新按照教程写一遍。
