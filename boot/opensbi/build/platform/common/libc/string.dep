@@ -1,4 +1,0 @@
-/home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/build/platform/common/libc/string.o: \
- /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/platform/common/libc/string.c \
- /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/platform/common/include/plat/string.h \
- /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_types.h

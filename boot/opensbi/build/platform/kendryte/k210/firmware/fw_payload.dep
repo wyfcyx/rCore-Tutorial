@@ -1,9 +1,0 @@
-/home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/build/platform/kendryte/k210/firmware/fw_payload.o: \
- /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/firmware/fw_payload.S \
- /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/firmware/fw_base.S \
- /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_asm.h \
- /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_encoding.h \
- /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_const.h \
- /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_platform.h \
- /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_scratch.h \
- /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_trap.h

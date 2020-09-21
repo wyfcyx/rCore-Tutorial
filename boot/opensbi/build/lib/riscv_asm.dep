@@ -1,6 +1,0 @@
-/home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/build/lib/riscv_asm.o: \
- /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/lib/riscv_asm.c \
- /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_asm.h \
- /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/riscv_encoding.h \
- /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_const.h \
- /home/shinbokuow/workspace/rCore-Tutorial/tools/opensbi/include/sbi/sbi_error.h

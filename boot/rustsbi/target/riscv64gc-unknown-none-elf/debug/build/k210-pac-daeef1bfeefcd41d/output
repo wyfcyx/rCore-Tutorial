@@ -1,2 +1,0 @@
-cargo:rustc-link-search=/home/shinbokuow/workspace/rCore-Tutorial/boot/rustsbi/target/riscv64gc-unknown-none-elf/debug/build/k210-pac-daeef1bfeefcd41d/out
-cargo:rerun-if-changed=memory-k210.x
