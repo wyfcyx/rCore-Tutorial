@@ -61,11 +61,22 @@ use xmas_elf::ElfFile;
 use core::sync::atomic::{AtomicBool, spin_loop_hint, Ordering};
 use process::*;
 use crate::board::config::CPU_NUM;
+use lazy_static::*;
+use spin::Mutex;
 
 // 汇编编写的程序入口，具体见该文件
 global_asm!(include_str!("entry.asm"));
 
-static AP_CAN_INIT: AtomicBool = AtomicBool::new(false);
+lazy_static! {
+    static ref AP_CAN_INIT: AtomicBool = AtomicBool::new(false);
+}
+
+/*
+lazy_static! {
+    pub static ref AP_CAN_INIT: Mutex<bool> = Mutex::new(false);
+}
+ */
+
 /// Rust 的入口函数
 ///
 /// 在 `_start` 为我们进行了一系列准备之后，这是第一个被调用的 Rust 函数
@@ -101,33 +112,16 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
         }
          */
 
-        AP_CAN_INIT.store(true, Ordering::Relaxed);
-    } else {
-        while !AP_CAN_INIT.load(Ordering::Relaxed) {
-            spin_loop_hint();
+        for i in 1..CPU_NUM {
+            let mask: usize = 1 << i;
+            sbi::send_ipi(&mask as *const _ as usize);
         }
     }
     memory::thread_local_init();
     interrupt::init();
     println!("Hello rCore hartid = {}, dtp_pa = {}", hart_id(), dtb_pa);
     println!("sp = {:#x}", unsafe { let mut sp: usize = 0; llvm_asm!("mv $0, sp" : "=r"(sp) ::: "volatile"); sp });
-
     println!("I am hart {}, and i can go forward!", hart_id());
-    /*
-    {
-        let mut processor = PROCESSOR.lock();
-        // 创建一个内核进程
-        let kernel_process = Process::new_kernel().unwrap();
-        // 为这个进程创建多个线程，并设置入口均为 sample_process，而参数不同
-        for i in 1..9usize {
-            processor.add_thread(create_kernel_thread(
-                kernel_process.clone(),
-                sample_process as usize,
-                Some(&[i]),
-            ));
-        }
-    }
-     */
 
     extern "C" {
         fn __restore(context: usize);
