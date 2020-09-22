@@ -56,6 +56,7 @@ pub fn syscall_handler(context: &mut Context) -> *mut Context {
             // 将返回值放入 context 中
             context.x[10] = ret as usize;
             // 保存 context，准备下一个线程
+            current_thread().as_ref().inner().thread_trace.exit_kernel(hart_id(), read_time());
             //println!("ready park_current_thread!");
             park_current_thread(context);
             //println!("return prepare_next_thread!");
