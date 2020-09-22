@@ -1,11 +1,6 @@
 use crate::interrupt::{Context, timer};
 use riscv::register::{scause::Scause, stval};
-use crate::process::{
-    current_thread,
-    park_current_thread,
-    prepare_next_thread,
-    kill_current_thread,
-};
+use crate::process::{current_thread, park_current_thread, prepare_next_thread, kill_current_thread, run_current_thread_later};
 use crate::fs::STDIN;
 
 /// 处理 ebreak 断点
@@ -21,6 +16,7 @@ pub fn breakpoint(context: &mut Context) -> *mut Context {
 pub fn supervisor_timer(context: &mut Context) -> *mut Context {
     timer::tick();
     park_current_thread(context);
+    run_current_thread_later();
     prepare_next_thread()
 }
 
