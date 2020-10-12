@@ -1,7 +1,7 @@
 use crate::memory::address::PhysicalAddress;
-
+use crate::interrupt::dummy;
+use crate::interrupt::devintr;
 pub mod config;
-pub mod interrupt;
 
 pub fn device_init(_: PhysicalAddress) {
     // after RustSBI, txen = rxen = 1, rxie = 1, rxcnt = 0
@@ -24,5 +24,7 @@ pub fn device_init(_: PhysicalAddress) {
     }
     // now, we can receive UARTHS interrupt on hart0!
 
+    println!("into sbi::register_devintr!");
+    crate::sbi::register_devintr(devintr as usize - 0xffff_ffff_0000_0000);
     crate::drivers::soc::sleep::usleep(50000);
 }

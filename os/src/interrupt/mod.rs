@@ -7,7 +7,8 @@ mod handler;
 pub mod timer;
 
 pub use context::Context;
-
+pub use handler::devintr;
+pub use handler::dummy;
 /// 初始化中断相关的子模块
 ///
 /// - [`handler::init`]

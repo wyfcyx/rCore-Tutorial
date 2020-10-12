@@ -70,7 +70,8 @@ else
 	@dd if=$(BIN_FILE) of=$(BOOTLOADER).copy bs=128K seek=1
 	@mv $(BOOTLOADER).copy $(BIN_FILE)
 	@sudo chmod 777 $(K210-SERIALPORT)
-	python3 $(K210-BURNER) -p $(K210-SERIALPORT) -b 1500000 -t $(BIN_FILE)
+	python3 $(K210-BURNER) -p $(K210-SERIALPORT) -b 1500000 $(BIN_FILE)
+	miniterm --eol LF --dtr 0 --rts 0 --filter direct $(K210-SERIALPORT) 115200
 endif
 
 # 一键运行

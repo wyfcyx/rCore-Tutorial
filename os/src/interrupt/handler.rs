@@ -4,14 +4,17 @@ use riscv::register::{
     scause::{Exception, Interrupt, Scause, Trap},
     sie, stvec,
 };
-use crate::board::interrupt::{
-    breakpoint,
-    supervisor_timer,
-    supervisor_soft,
-    supervisor_external,
+use crate::process::{
+    park_current_thread,
+    run_current_thread_later,
+    prepare_next_thread,
+    kill_current_thread,
+    current_thread,
+    hart_id,
 };
-use crate::process::{current_thread, kill_current_thread, prepare_next_thread, hart_id};
-use crate::interrupt::timer::read_time;
+use crate::interrupt::timer::{self, read_time};
+use crate::sbi::console_getchar;
+use crate::fs::STDIN;
 
 global_asm!(include_str!("./interrupt.asm"));
 
@@ -93,4 +96,65 @@ fn fault(msg: &str, scause: Scause, stval: usize) -> *mut Context {
     kill_current_thread();
     // 跳转到 PROCESSOR 调度的下一个线程
     prepare_next_thread()
+}
+
+/// 处理 ebreak 断点
+///
+/// 继续执行，其中 `sepc` 增加 2 字节，以跳过当前这条 `ebreak` 指令
+pub fn breakpoint(context: &mut Context) -> *mut Context {
+    println!("Breakpoint at 0x{:x}", context.sepc);
+    context.sepc += 2;
+    context
+}
+
+/// 处理时钟中断
+pub fn supervisor_timer(context: &mut Context) -> *mut Context {
+    //println!("into qemu::supervisor_timer!");
+    //crate::memory::heap::debug_heap();
+    //unsafe { riscv::register::sie::clear_stimer(); }
+    timer::tick();
+    //println!("park_current_thread in supervisor_timer!");
+    park_current_thread(context);
+    run_current_thread_later();
+    //println!("prepare_next_thread in supervisor_timer");
+    prepare_next_thread()
+}
+
+/// 处理外部中断，只实现了键盘输入
+pub fn supervisor_external(context: &mut Context) -> *mut Context {
+    let mut c = console_getchar();
+    if c <= 255 {
+        if c == '\r' as usize {
+            c = '\n' as usize;
+        }
+        STDIN.push(c as u8);
+    }
+    context
+}
+
+pub fn supervisor_soft(context: &mut Context) -> *mut Context { context }
+
+/// It will be executed in M mode, and it can access kernel address space
+/// after setting mstatus.mprv.
+pub unsafe fn devintr() {
+    // on k210, we only allow M mode devintr to be received on
+    // hart0-M target after configuring PLIC.
+    let hart0m_claim = 0x0C20_0004 as *mut u32;
+    let irq = hart0m_claim.read_volatile();
+    match irq {
+        33 => {
+            // UARTHS
+            let mut c = (0x3800_0004 as *const u32).read_volatile();
+            if c <= 255 {
+                STDIN.push(c as u8);
+            }
+        }
+        _ => {
+            panic!("unsupported device interrupt!");
+        }
+    }
+    hart0m_claim.write_volatile(irq);
+}
+
+pub unsafe fn dummy() {
 }

@@ -101,6 +101,7 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
             .lock()
             .add_thread(create_user_process("user_shell"));
 
+        //interrupt::init();
         /*
         for i in 1..9usize {
             THREAD_POOL.lock()
