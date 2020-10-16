@@ -112,12 +112,13 @@ pub fn supervisor_timer(context: &mut Context) -> *mut Context {
     //println!("into qemu::supervisor_timer!");
     //crate::memory::heap::debug_heap();
     //unsafe { riscv::register::sie::clear_stimer(); }
-    timer::tick();
     //println!("park_current_thread in supervisor_timer!");
     park_current_thread(context);
     run_current_thread_later();
     //println!("prepare_next_thread in supervisor_timer");
-    prepare_next_thread()
+    let context = prepare_next_thread();
+    timer::tick();
+    context
 }
 
 /// 处理外部中断，只实现了键盘输入

@@ -7,7 +7,7 @@ use crate::board::config::CPU_FREQUENCY;
 pub static mut TICKS: usize = 0;
 
 /// 时钟中断的间隔，单位是 CPU 指令
-static INTERVAL: usize = CPU_FREQUENCY / 200;
+static INTERVAL: usize = CPU_FREQUENCY / 1000;
 
 /// 初始化时钟中断
 ///
@@ -32,6 +32,7 @@ fn set_next_timeout() {
 ///
 /// 设置下一次时钟中断，同时计数 +1
 pub fn tick() {
+    //print!("*");
     set_next_timeout();
     unsafe {
         TICKS += 1;
