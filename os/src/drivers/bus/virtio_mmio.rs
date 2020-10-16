@@ -38,7 +38,7 @@ pub fn virtio_probe(node: &Node) {
 lazy_static! {
     /// 用于放置给设备 DMA 所用的物理页（[`FrameTracker`]）
     pub static ref TRACKERS: Mutex<BTreeMap<PhysicalAddress, FrameTracker>> =
-        Mutex::new(BTreeMap::new());
+        Mutex::new(BTreeMap::new(), "TRACKERS");
 }
 
 /// 为 DMA 操作申请连续 pages 个物理页（为 [`virtio_drivers`] 库提供）

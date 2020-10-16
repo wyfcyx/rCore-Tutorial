@@ -32,5 +32,5 @@ pub trait Driver: Send + Sync {
 
 lazy_static! {
     /// 所有驱动
-    pub static ref DRIVERS: Mutex<Vec<Arc<dyn Driver>>> = Mutex::new(Vec::new());
+    pub static ref DRIVERS: Mutex<Vec<Arc<dyn Driver>>> = Mutex::new(Vec::new(), "DRIVERS");
 }

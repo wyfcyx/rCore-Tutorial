@@ -3,7 +3,6 @@
 use crate::sync::{Mutex, MutexGuard};
 
 /// 关闭中断的互斥锁
-#[derive(Default)]
 pub struct Lock<T>(pub(self) Mutex<T>);
 
 /// 封装 [`MutexGuard`] 来实现 drop 时恢复 sstatus
@@ -17,7 +16,7 @@ pub struct LockGuard<'a, T> {
 impl<T> Lock<T> {
     /// 创建一个新对象
     pub fn new(obj: T) -> Self {
-        Self(Mutex::new(obj))
+        Self(Mutex::new(obj, "Lock"))
     }
 
     /// 获得上锁的对象

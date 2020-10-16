@@ -740,7 +740,10 @@ fn hexdump(buffer: &[u8], base: usize) {
 }
 
 lazy_static! {
-    pub static ref PERIPHERALS: Mutex<Peripherals> = Mutex::new(Peripherals::take().unwrap());
+    pub static ref PERIPHERALS: Mutex<Peripherals> = Mutex::new(
+        Peripherals::take().unwrap(),
+        "Peripherals",
+    );
 
     /*
     pub static ref SDCARD: Mutex<SDCard<SPIImpl<SPI0>>> = Mutex::new({
@@ -832,7 +835,7 @@ pub struct Sd_card(Mutex<SDCard<SPIImpl<SPI0>>>);
 
 impl Sd_card {
     pub fn new() -> Self {
-        Sd_card(Mutex::new(init_sdcard()))
+        Sd_card(Mutex::new(init_sdcard(), "SDCard"))
     }
 }
 

@@ -12,7 +12,10 @@ pub struct ThreadPool {
 }
 
 lazy_static! {
-    pub static ref THREAD_POOL: Mutex<ThreadPool> = Mutex::new(ThreadPool::default());
+    pub static ref THREAD_POOL: Mutex<ThreadPool> = Mutex::new(
+        ThreadPool::default(),
+        "THREAD_POOL",
+    );
 }
 
 impl ThreadPool {

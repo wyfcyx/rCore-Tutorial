@@ -5,11 +5,17 @@ use alloc::collections::VecDeque;
 use crate::sync::Condvar;
 
 lazy_static! {
-    pub static ref STDIN: Arc<Stdin> = Default::default();
+    pub static ref STDIN: Arc<Stdin> = Arc::new(
+        Stdin {
+            buffer: Mutex::new(Default::default(), "Stdin.buffer"),
+            condvar: Condvar {
+                watchers: Mutex::new(Default::default(), "Stdin.condvar.watchers"),
+            }
+        },
+    );
 }
 
 /// 控制台键盘输入，实现 [`INode`] 接口
-#[derive(Default)]
 pub struct Stdin {
     /// 从后插入，前段弹出
     buffer: Mutex<VecDeque<u8>>,

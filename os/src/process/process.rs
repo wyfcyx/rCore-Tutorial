@@ -41,9 +41,9 @@ impl PidAllocator {
 }
 
 lazy_static! {
-    pub static ref PID_ALLOCATOR: Mutex<PidAllocator> = Mutex::new(PidAllocator::new());
+    pub static ref PID_ALLOCATOR: Mutex<PidAllocator> = Mutex::new(PidAllocator::new(), "PID_ALLOCATOR");
     pub static ref KERNEL_PROCESS: Arc<Process> = Process::new_kernel().unwrap();
-    pub static ref WAIT_MAP: Mutex<HashMap<usize, Weak<Thread>>> = Mutex::new(HashMap::new());
+    pub static ref WAIT_MAP: Mutex<HashMap<usize, Weak<Thread>>> = Mutex::new(HashMap::new(), "WAIT_MAP");
 }
 
 /// 进程的信息
@@ -84,7 +84,7 @@ impl Process {
             inner: Mutex::new(ProcessInner {
                 memory_set: MemorySet::new_kernel()?,
                 descriptors: vec![STDIN.clone(), STDOUT.clone()],
-            }),
+            }, "ProcessInner"),
         }))
     }
 
@@ -96,7 +96,7 @@ impl Process {
             inner: Mutex::new(ProcessInner {
                 memory_set: MemorySet::from_elf(file, is_user)?,
                 descriptors: vec![STDIN.clone(), STDOUT.clone()],
-            }),
+            }, "ProcessInner"),
         }))
     }
 

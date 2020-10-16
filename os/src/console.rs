@@ -11,7 +11,6 @@
 //! [`write_str`]: core::fmt::Write::write_str
 //! [`write_fmt`]: core::fmt::Write::write_fmt
 
-use crate::sbi::*;
 use core::fmt::{self, Write};
 use crate::sync::Mutex;
 use lazy_static::*;
@@ -24,7 +23,7 @@ use lazy_static::*;
 struct Stdout;
 
 lazy_static! {
-    static ref STDOUT: Mutex<Stdout> = Mutex::new(Stdout);
+    static ref STDOUT: Mutex<Stdout> = Mutex::new(Stdout, "Stdout");
 }
 
 impl Write for Stdout {
@@ -118,4 +117,15 @@ macro_rules! dbgx {
     ($($val:expr),+ $(,)?) => {
         ($(dbgx!($val)),+,)
     };
+}
+
+fn console_putchar(c: usize) {
+    let uarths_txdata = 0x3800_0000 as *mut u32;
+    unsafe {
+        // wait for txfifo vacancies
+        while (uarths_txdata.read_volatile() & (1u32 << 31) != 0) {
+            continue;
+        }
+        uarths_txdata.write_volatile(c as u32);
+    }
 }

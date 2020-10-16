@@ -15,7 +15,7 @@ pub type ThreadID = isize;
 
 /// 线程计数，用于设置线程 ID
 lazy_static! {
-    static ref THREAD_COUNTER: Mutex<ThreadID> = Mutex::new(0);
+    static ref THREAD_COUNTER: Mutex<ThreadID> = Mutex::new(0, "THREAD_COUNTER");
 }
 
 /// 线程的信息
@@ -92,7 +92,7 @@ impl Thread {
                 sleeping: false,
                 dead: false,
                 thread_trace: ThreadTrace::new(),
-            }),
+            }, "ThreadInner"),
         });
 
         Ok(thread)

@@ -10,10 +10,9 @@ use crate::process::{
     sleep_current_thread,
 };
 
-#[derive(Default)]
 pub struct Condvar {
     /// 所有等待此条件变量的线程
-    watchers: Mutex<VecDeque<Arc<Thread>>>,
+    pub watchers: Mutex<VecDeque<Arc<Thread>>>,
 }
 
 impl Condvar {

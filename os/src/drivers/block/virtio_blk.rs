@@ -29,6 +29,8 @@ impl Driver for VirtIOBlkDriver {
 /// 将从设备树中读取出的设备信息放到 [`static@DRIVERS`] 中
 pub fn add_driver(header: &'static mut VirtIOHeader) {
     let virtio_blk = VirtIOBlk::new(header).expect("failed to init blk driver");
-    let driver = Arc::new(VirtIOBlkDriver(Mutex::new(virtio_blk)));
+    let driver = Arc::new(
+        VirtIOBlkDriver(Mutex::new(virtio_blk, "VirtIOBlk"))
+    );
     DRIVERS.lock().push(driver);
 }
