@@ -9,6 +9,7 @@ use alloc::collections::BTreeMap;
 use alloc::sync::{Arc, Weak};
 use lazy_static::*;
 use hashbrown::HashMap;
+use crate::sync::MutexGuard;
 
 pub struct PidAllocator {
     max_id: usize,
@@ -100,7 +101,7 @@ impl Process {
     }
 
     /// 上锁并获得可变部分的引用
-    pub fn inner(&self) -> spin::MutexGuard<ProcessInner> {
+    pub fn inner(&self) -> MutexGuard<ProcessInner> {
         self.inner.lock()
     }
 

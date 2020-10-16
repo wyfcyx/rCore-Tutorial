@@ -1,6 +1,6 @@
 //! 一个关闭中断的互斥锁 [`Lock`]
 
-use spin::{Mutex, MutexGuard};
+use crate::sync::{Mutex, MutexGuard};
 
 /// 关闭中断的互斥锁
 #[derive(Default)]

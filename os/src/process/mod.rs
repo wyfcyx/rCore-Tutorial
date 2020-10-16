@@ -12,7 +12,7 @@ mod thread_pool;
 use crate::interrupt::*;
 use crate::memory::*;
 use alloc::{sync::Arc, vec, vec::Vec};
-use spin::Mutex;
+use crate::sync::Mutex;
 
 pub use config::*;
 pub use lock::Lock;

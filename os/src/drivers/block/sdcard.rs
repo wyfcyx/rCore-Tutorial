@@ -702,7 +702,7 @@ use crate::drivers::soc::{
         SPIImpl,
     },
 };
-use spin::Mutex;
+use crate::sync::Mutex;
 use lazy_static::*;
 use bitflags::_core::ptr::null;
 

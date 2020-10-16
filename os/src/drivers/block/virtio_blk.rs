@@ -1,6 +1,6 @@
 use super::super::driver::{DeviceType, Driver, DRIVERS};
 use alloc::sync::Arc;
-use spin::Mutex;
+use crate::sync::Mutex;
 use virtio_drivers::{VirtIOBlk, VirtIOHeader};
 
 /// virtio 协议的块设备驱动
@@ -30,5 +30,5 @@ impl Driver for VirtIOBlkDriver {
 pub fn add_driver(header: &'static mut VirtIOHeader) {
     let virtio_blk = VirtIOBlk::new(header).expect("failed to init blk driver");
     let driver = Arc::new(VirtIOBlkDriver(Mutex::new(virtio_blk)));
-    DRIVERS.write().push(driver);
+    DRIVERS.lock().push(driver);
 }

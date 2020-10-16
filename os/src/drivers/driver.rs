@@ -4,7 +4,7 @@
 
 use alloc::{sync::Arc, vec::Vec};
 use lazy_static::lazy_static;
-use spin::RwLock;
+use crate::sync::Mutex;
 
 /// 驱动类型
 ///
@@ -32,5 +32,5 @@ pub trait Driver: Send + Sync {
 
 lazy_static! {
     /// 所有驱动
-    pub static ref DRIVERS: RwLock<Vec<Arc<dyn Driver>>> = RwLock::new(Vec::new());
+    pub static ref DRIVERS: Mutex<Vec<Arc<dyn Driver>>> = Mutex::new(Vec::new());
 }

@@ -6,7 +6,7 @@ use super::*;
 use crate::memory::*;
 use algorithm::*;
 use lazy_static::*;
-use spin::Mutex;
+use crate::sync::Mutex;
 
 lazy_static! {
     /// 帧分配器

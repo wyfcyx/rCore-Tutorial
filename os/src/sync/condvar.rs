@@ -1,7 +1,7 @@
 //! 条件变量
 
 use alloc::collections::VecDeque;
-use spin::Mutex;
+use crate::sync::Mutex;
 use alloc::sync::Arc;
 use crate::process::{
     Thread,

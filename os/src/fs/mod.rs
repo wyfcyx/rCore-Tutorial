@@ -11,7 +11,7 @@ use alloc::{sync::Arc, vec::Vec};
 use core::any::Any;
 use lazy_static::lazy_static;
 use rcore_fs_sfs::SimpleFileSystem;
-use spin::Mutex;
+use crate::sync::Mutex;
 
 mod config;
 mod inode_ext;
@@ -29,7 +29,7 @@ lazy_static! {
     /// 根文件系统的根目录的 INode
     pub static ref ROOT_INODE: Arc<dyn INode> = {
         // 选择第一个块设备
-        for driver in DRIVERS.read().iter() {
+        for driver in DRIVERS.lock().iter() {
             if driver.device_type() == DeviceType::Block {
                 let device = BlockDevice(driver.clone());
                 // 动态分配一段内存空间作为设备 Cache

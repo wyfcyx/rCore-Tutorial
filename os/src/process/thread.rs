@@ -2,12 +2,13 @@
 
 use super::*;
 use core::hash::{Hash, Hasher};
-use spin::Mutex;
+use crate::sync::Mutex;
 use lazy_static::*;
 use alloc::vec::Vec;
 use hashbrown::HashMap;
 use alloc::string::String;
 use alloc::format;
+use crate::sync::MutexGuard;
 
 /// 线程 ID 使用 `isize`，可以用负数表示错误
 pub type ThreadID = isize;
@@ -98,7 +99,7 @@ impl Thread {
     }
 
     /// 上锁并获得可变部分的引用
-    pub fn inner(&self) -> spin::MutexGuard<ThreadInner> {
+    pub fn inner(&self) -> MutexGuard<ThreadInner> {
         self.inner.lock()
     }
 }

@@ -62,7 +62,7 @@ use core::sync::atomic::{AtomicBool, spin_loop_hint, Ordering};
 use process::*;
 use crate::board::config::CPU_NUM;
 use lazy_static::*;
-use spin::Mutex;
+use crate::sync::Mutex;
 
 // 汇编编写的程序入口，具体见该文件
 global_asm!(include_str!("entry.asm"));

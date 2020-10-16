@@ -3,7 +3,7 @@ use alloc::sync::Arc;
 use super::Thread;
 use hashbrown::HashSet;
 use lazy_static::*;
-use spin::Mutex;
+use crate::sync::Mutex;
 
 #[derive(Default)]
 pub struct ThreadPool {

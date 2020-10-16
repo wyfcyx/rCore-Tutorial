@@ -14,7 +14,6 @@ buddy_system_allocator = "0.4.0"
 hashbrown = "0.8.1"
 lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
 riscv = { git = "https://github.com/rcore-os/riscv", features = ["inline-asm"] }
-spin = "0.5.2"
 device_tree = { git = "https://github.com/rcore-os/device_tree-rs" }
 virtio-drivers = { git = "https://github.com/rcore-os/virtio-drivers" }
 rcore-fs = { git = "https://github.com/rcore-os/rcore-fs"}

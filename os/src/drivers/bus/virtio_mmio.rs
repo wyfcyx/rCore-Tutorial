@@ -11,7 +11,7 @@ use crate::memory::{
 use alloc::collections::btree_map::BTreeMap;
 use device_tree::{util::SliceRead, Node};
 use lazy_static::lazy_static;
-use spin::RwLock;
+use crate::sync::Mutex;
 use virtio_drivers::{DeviceType, VirtIOHeader};
 
 /// 从设备树的某个节点探测 virtio 协议具体类型
@@ -37,8 +37,8 @@ pub fn virtio_probe(node: &Node) {
 
 lazy_static! {
     /// 用于放置给设备 DMA 所用的物理页（[`FrameTracker`]）
-    pub static ref TRACKERS: RwLock<BTreeMap<PhysicalAddress, FrameTracker>> =
-        RwLock::new(BTreeMap::new());
+    pub static ref TRACKERS: Mutex<BTreeMap<PhysicalAddress, FrameTracker>> =
+        Mutex::new(BTreeMap::new());
 }
 
 /// 为 DMA 操作申请连续 pages 个物理页（为 [`virtio_drivers`] 库提供）
@@ -58,7 +58,7 @@ extern "C" fn virtio_dma_alloc(pages: usize) -> PhysicalAddress {
             assert_eq!(last + PAGE_SIZE, tracker.address());
         }
         last = tracker.address();
-        TRACKERS.write().insert(last, tracker);
+        TRACKERS.lock().insert(last, tracker);
     }
     pa
 }
@@ -67,7 +67,7 @@ extern "C" fn virtio_dma_alloc(pages: usize) -> PhysicalAddress {
 #[no_mangle]
 extern "C" fn virtio_dma_dealloc(pa: PhysicalAddress, pages: usize) -> i32 {
     for i in 0..pages {
-        TRACKERS.write().remove(&(pa + i * PAGE_SIZE));
+        TRACKERS.lock().remove(&(pa + i * PAGE_SIZE));
     }
     0
 }
