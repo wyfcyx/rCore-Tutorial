@@ -12,4 +12,8 @@ panic = "abort"
 [profile.release]
 panic = "abort"
 
+[features]
+board_qemu = []
+board_k210 = []
+
 [dependencies]
