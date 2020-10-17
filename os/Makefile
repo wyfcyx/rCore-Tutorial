@@ -1,5 +1,5 @@
 TARGET      := riscv64imac-unknown-none-elf
-MODE        := release
+MODE        := debug
 KERNEL_FILE := target/$(TARGET)/$(MODE)/os
 BIN_FILE    := target/$(TARGET)/$(MODE)/kernel.bin
 DISASM_FILE := target/$(TARGET)/$(MODE)/os.asm
