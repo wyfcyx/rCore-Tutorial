@@ -120,12 +120,16 @@ macro_rules! dbgx {
 }
 
 fn console_putchar(c: usize) {
-    let uarths_txdata = 0x3800_0000 as *mut u32;
+    #[cfg(feature = "board_k210")]
     unsafe {
+        let uarths_txdata = 0x3800_0000 as *mut u32;
         // wait for txfifo vacancies
         while (uarths_txdata.read_volatile() & (1u32 << 31) != 0) {
             continue;
         }
         uarths_txdata.write_volatile(c as u32);
     }
+
+    #[cfg(feature = "board_qemu")]
+    crate::sbi::console_putchar(c);
 }
