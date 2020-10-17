@@ -67,16 +67,6 @@ use crate::sync::Mutex;
 // 汇编编写的程序入口，具体见该文件
 global_asm!(include_str!("entry.asm"));
 
-lazy_static! {
-    static ref AP_CAN_INIT: AtomicBool = AtomicBool::new(false);
-}
-
-/*
-lazy_static! {
-    pub static ref AP_CAN_INIT: Mutex<bool> = Mutex::new(false);
-}
- */
-
 /// Rust 的入口函数
 ///
 /// 在 `_start` 为我们进行了一系列准备之后，这是第一个被调用的 Rust 函数
