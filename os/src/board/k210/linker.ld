@@ -34,7 +34,7 @@ SECTIONS
     .data : {
         sdata = .;
         *(.data .data.*)
-        *(.ph_frame)
+        *(.eh_frame)
         edata = .;
     }
 
