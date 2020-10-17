@@ -12,7 +12,6 @@ SECTIONS
     kernel_start = .;
 
     . = ALIGN(4K);
-
     text_start = .;
     .text : {
         stext = .;
@@ -34,6 +33,7 @@ SECTIONS
     .data : {
         sdata = .;
         *(.data .data.*)
+        *(.eh_frame)
         edata = .;
     }
 

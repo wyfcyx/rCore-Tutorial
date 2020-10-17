@@ -1,5 +1,5 @@
 TARGET      := riscv64imac-unknown-none-elf
-MODE        := debug
+MODE        := release
 KERNEL_FILE := target/$(TARGET)/$(MODE)/os
 BIN_FILE    := target/$(TARGET)/$(MODE)/kernel.bin
 DISASM_FILE := target/$(TARGET)/$(MODE)/os.asm
@@ -35,7 +35,11 @@ doc:
 kernel:
 	@cp src/board/$(BOARD)/linker.ld src/linker.ld
 	@cp src/board/$(BOARD)/entry.asm src/entry.asm
+ifeq ($(MODE),release)
+	@cargo build --release --features "board_$(BOARD)"
+else
 	@cargo build --features "board_$(BOARD)"
+endif
 
 # 生成 kernel 的二进制文件
 $(BIN_FILE): kernel
