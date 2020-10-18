@@ -3,6 +3,7 @@ use crate::syscall::syscall_handler;
 use riscv::register::{
     scause::{Exception, Interrupt, Scause, Trap},
     sie, stvec,
+    sstatus::{self, SPP},
 };
 use crate::process::{
     park_current_thread,
@@ -68,6 +69,12 @@ pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) -> 
         Trap::Exception(Exception::Breakpoint) => breakpoint(context),
         // 系统调用
         Trap::Exception(Exception::UserEnvCall) => syscall_handler(context),
+        Trap::Exception(Exception::InstructionFault) |
+        Trap::Exception(Exception::InstructionPageFault) |
+        Trap::Exception(Exception::LoadFault) |
+        Trap::Exception(Exception::LoadPageFault) |
+        Trap::Exception(Exception::StoreFault) |
+        Trap::Exception(Exception::StorePageFault) => page_fault(context, scause, stval),
         // 时钟中断
         Trap::Interrupt(Interrupt::SupervisorTimer) => supervisor_timer(context),
         // 外部中断（键盘输入）
@@ -158,4 +165,16 @@ pub unsafe fn devintr() {
 }
 
 pub unsafe fn dummy() {
+}
+
+pub fn page_fault(context: &mut Context, scause: Scause, stval: usize) -> *mut Context {
+    if context.sstatus.spp() == SPP::Supervisor {
+        panic!("page fault in kernel!");
+    }
+    let current_thread = current_thread();
+    println!("Process {} Segmentation Fault cause = {:?}, vaddr = {:#x}", current_thread.process.pid, scause.cause(), stval);
+    current_thread.as_ref().inner().thread_trace.exit_kernel(hart_id(), read_time());
+    current_thread.as_ref().inner().thread_trace.print_trace();
+    kill_current_thread();
+    prepare_next_thread()
 }
