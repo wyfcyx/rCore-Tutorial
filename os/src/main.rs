@@ -3,6 +3,7 @@
 #![feature(global_asm)]
 #![feature(llvm_asm)]
 #![feature(panic_info_message)]
+#![feature(alloc_error_handler)]
 
 #[macro_use]
 mod console;
@@ -10,6 +11,10 @@ mod lang_item;
 mod sbi;
 mod trap;
 mod board;
+mod memory;
+mod sync;
+
+extern crate alloc;
 
 global_asm!(include_str!("entry.asm"));
 
@@ -41,6 +46,8 @@ pub extern "C" fn rust_main() -> ! {
         llvm_asm!("ebreak" :::: "volatile");
     }
     println!("after breakpoint!");
+    memory::init_heap();
+    memory::kernel_heap_test();
     trap::enable_interrupt();
     loop {}
 }
