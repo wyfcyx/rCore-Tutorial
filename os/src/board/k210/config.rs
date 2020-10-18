@@ -6,7 +6,7 @@ pub const BOARD_STACK_SIZE: usize = 0x8000;
 pub const BOARD_KERNEL_STACK_SIZE: usize = 0x8000;
 
 pub const MMIO_INTERVALS: &[(usize, usize)] = &[
-    (0x0200_0000, 0x1000),      /* CLINT     */
+    // we don't need clint in S priv when running
     // we only need claim/complete for target0 after initializing
     (0x0C20_0000, 0x1000),      /* PLIC      */
     (0x3800_0000, 0x1000),      /* UARTHS    */
@@ -30,4 +30,4 @@ pub const RISCV_SPEC_PATCH: usize = 1;
 
 pub const CPU_NUM: usize = 2;
 
-pub const CPU_FREQUENCY: usize = 390000000;
+pub const CPU_FREQUENCY: usize = 10000000;

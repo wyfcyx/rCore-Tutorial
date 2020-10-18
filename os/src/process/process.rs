@@ -68,6 +68,7 @@ impl Drop for Process {
 }
 
 pub struct ProcessInner {
+    pub run_stack_pointer: usize,
     /// 进程中的线程公用页表 / 内存映射
     pub memory_set: MemorySet,
     /// 打开的文件描述符
@@ -82,6 +83,7 @@ impl Process {
             pid: PID_ALLOCATOR.lock().alloc(),
             is_user: false,
             inner: Mutex::new(ProcessInner {
+                run_stack_pointer: usize::max_value() - PAGE_SIZE + 1,
                 memory_set: MemorySet::new_kernel()?,
                 descriptors: vec![STDIN.clone(), STDOUT.clone()],
             }, "ProcessInner"),
@@ -94,6 +96,7 @@ impl Process {
             pid: PID_ALLOCATOR.lock().alloc(),
             is_user,
             inner: Mutex::new(ProcessInner {
+                run_stack_pointer: 0x0C00_0000,
                 memory_set: MemorySet::from_elf(file, is_user)?,
                 descriptors: vec![STDIN.clone(), STDOUT.clone()],
             }, "ProcessInner"),
@@ -136,6 +139,24 @@ impl Process {
         )?;
         // 返回地址区间（使用参数 size，而非向上取整的 alloc_size）
         Ok(Range::from(range.start..(range.start + size)))
+    }
+
+    pub fn alloc_run_stack(&self) -> MemoryResult<Range<VirtualAddress>> {
+        let mut process_inner = self.inner();
+        let mut run_stack_pointer: VirtualAddress = process_inner.run_stack_pointer.into();
+        let memory_set = &mut process_inner.memory_set;
+        let range = Range::<VirtualAddress>::from(run_stack_pointer - STACK_SIZE..run_stack_pointer);
+        run_stack_pointer -= STACK_SIZE + PAGE_SIZE;
+        memory_set.add_segment(
+            Segment {
+                map_type: MapType::Framed,
+                range,
+                flags: Flags::READABLE | Flags::WRITABLE | Flags::user(self.is_user),
+            },
+            None,
+        )?;
+        process_inner.run_stack_pointer = run_stack_pointer.into();
+        Ok(range)
     }
 }
 

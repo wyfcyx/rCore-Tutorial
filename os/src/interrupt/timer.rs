@@ -7,7 +7,7 @@ use crate::board::config::CPU_FREQUENCY;
 pub static mut TICKS: usize = 0;
 
 /// 时钟中断的间隔，单位是 CPU 指令
-static INTERVAL: usize = CPU_FREQUENCY / 1000;
+static INTERVAL: usize = CPU_FREQUENCY / 100;
 
 /// 初始化时钟中断
 ///
