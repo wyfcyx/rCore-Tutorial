@@ -8,6 +8,7 @@
 mod console;
 mod lang_item;
 mod sbi;
+mod trap;
 
 global_asm!(include_str!("entry.asm"));
 
