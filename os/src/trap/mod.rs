@@ -9,6 +9,8 @@ use {
 };
 
 mod trapframe;
+mod handler;
+mod timer;
 
 global_asm!(include_str!("trap.asm"));
 
@@ -18,6 +20,11 @@ pub fn init() {
         sscratch::write(0);
         stvec::write(__trapentry as usize, stvec::TrapMode::Direct);
     }
+    timer::init();
+}
+
+pub fn enable_interrupt() {
+    unsafe { sstatus::set_sie(); }
 }
 
 pub use trapframe::TrapFrame;

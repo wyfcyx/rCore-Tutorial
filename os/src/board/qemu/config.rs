@@ -1,0 +1,1 @@
+pub const CPU_FREQUENCY: usize = 25000000;

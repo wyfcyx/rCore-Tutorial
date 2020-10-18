@@ -9,6 +9,7 @@ mod console;
 mod lang_item;
 mod sbi;
 mod trap;
+mod board;
 
 global_asm!(include_str!("entry.asm"));
 
@@ -35,5 +36,11 @@ fn clear_bss() {
 pub extern "C" fn rust_main() -> ! {
     clear_bss();
     println!("Hello rCore-Tutorial!");
-    panic!("end of rust main!");
+    trap::init();
+    unsafe {
+        llvm_asm!("ebreak" :::: "volatile");
+    }
+    println!("after breakpoint!");
+    trap::enable_interrupt();
+    loop {}
 }
