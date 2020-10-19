@@ -21,19 +21,12 @@ pub(super) fn sys_exit(code: usize) -> SyscallResult {
         current_thread().id,
         code
     );
+    current_thread().process.exit(code);
     SyscallResult::Kill
 }
 
 pub(super) fn sys_getpid() -> SyscallResult {
     SyscallResult::Proceed(current_thread().process.pid as isize)
-}
-
-pub(super) fn sys_wait(pid: usize) -> SyscallResult {
-    // TODO: check given process is a child process of current process
-    //println!("insert pid = {} in sys_wait", pid);
-    WAIT_MAP.lock().insert(pid, Arc::downgrade(&current_thread()));
-    sleep_current_thread();
-    SyscallResult::Park(0)
 }
 
 pub (super) fn sys_exec(path: *const u8, context: Context) -> SyscallResult {
@@ -68,11 +61,37 @@ pub(super) fn sys_fork(mut context: Context) -> SyscallResult {
     let thread = current_thread();
     let child_process = Process::from_parent(&thread.process)
         .expect("creating child_process in sys_fork");
-    context.set_arguments(&[child_process.pid]);
+    info!("child.pid = {}, parent.pid = {}", child_process.pid, thread.process.pid);
+    context.set_arguments(&[0]);
     let child_thread = thread.replace_context(child_process.clone(), context);
     THREAD_POOL.lock().add_thread(child_thread);
+    thread.process.as_ref().inner().child.push(child_process.clone());
+    /* wait by sys_wait
     WAIT_MAP.lock().insert(child_process.pid as usize, Arc::downgrade(&thread));
     sleep_current_thread();
-    SyscallResult::Park(0)
+     */
+    SyscallResult::Proceed(child_process.pid as isize)
 }
 
+pub(super) fn sys_wait(xstate: *mut usize) -> SyscallResult {
+    trace!("into sys_wait!");
+    let thread = current_thread().clone();
+    let mut inner = thread.process.as_ref().inner();
+    if inner.child.len() == 0 {
+        return SyscallResult::Proceed(-1);
+    }
+    if let Some((id, exited_child)) = inner
+        .child
+        .iter()
+        .enumerate()
+        .find(|(_, p)| {p.clone().as_ref().inner().exited == true}) {
+        let rc = exited_child.as_ref().inner().xstate;
+        unsafe { xstate.write_volatile(rc); }
+        // dealloc child Process here
+        inner.child.remove(id);
+        SyscallResult::Proceed(0)
+    } else {
+        inner.wait.wait();
+        SyscallResult::Park(-2)
+    }
+}

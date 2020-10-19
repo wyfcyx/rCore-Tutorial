@@ -92,7 +92,7 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
 
         THREAD_POOL
             .lock()
-            .add_thread(create_user_process("user_shell"));
+            .add_thread(create_user_process("forktest"));
 
         //interrupt::init();
         /*

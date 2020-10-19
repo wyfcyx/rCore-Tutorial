@@ -9,7 +9,8 @@ use alloc::collections::BTreeMap;
 use alloc::sync::{Arc, Weak};
 use lazy_static::*;
 use hashbrown::HashMap;
-use crate::sync::MutexGuard;
+use crate::sync::{Condvar, MutexGuard};
+use log::*;
 
 pub struct PidAllocator {
     max_id: usize,
@@ -51,13 +52,14 @@ pub struct Process {
     pub pid: usize,
     /// 是否属于用户态
     pub is_user: bool,
+    pub parent: Option<Weak<Process>>,
     /// 用 `Mutex` 包装一些可变的变量
     pub inner: Mutex<ProcessInner>,
 }
 
 impl Drop for Process {
     fn drop(&mut self) {
-        println!("Process {} exited", self.pid);
+        info!("Process {} dropped", self.pid);
         PID_ALLOCATOR.lock().dealloc(self.pid);
         //println!("ready waking up waiting thread!");
         if let Some(thread) = WAIT_MAP.lock().get(&self.pid) {
@@ -75,7 +77,9 @@ pub struct ProcessInner {
     /// 打开的文件描述符
     pub descriptors: Vec<Arc<dyn INode>>,
     pub xstate: usize,
+    pub exited: bool,
     pub child: Vec<Arc<Process>>,
+    pub wait: Condvar,
 }
 
 #[allow(unused)]
@@ -85,13 +89,16 @@ impl Process {
         Ok(Arc::new(Self {
             pid: PID_ALLOCATOR.lock().alloc(),
             is_user: false,
+            parent: None,
             inner: Mutex::new(ProcessInner {
                 run_stack_pointer: usize::max_value() - PAGE_SIZE + 1,
                 user_size: 0,
                 memory_set: MemorySet::new_kernel()?,
                 descriptors: vec![STDIN.clone(), STDOUT.clone()],
                 xstate: 0,
+                exited: false,
                 child: Vec::new(),
+                wait: Condvar::new("ProcessInner.wait"),
             }, "ProcessInner"),
         }))
     }
@@ -101,26 +108,29 @@ impl Process {
         Ok(Arc::new(Self {
             pid: PID_ALLOCATOR.lock().alloc(),
             is_user,
+            parent: None,
             inner: {
                 let memory_set = MemorySet::from_elf(file, is_user)?;
-
                 Mutex::new(ProcessInner {
                     run_stack_pointer: 0x0C00_0000,
                     user_size: 0,
                     memory_set,
                     descriptors: vec![STDIN.clone(), STDOUT.clone()],
                     xstate: 0,
+                    exited: false,
                     child: Vec::new(),
+                    wait: Condvar::new("ProcessInner.wait"),
                 }, "ProcessInner")
             },
         }))
     }
 
-    pub fn from_parent(parent: &Self) -> MemoryResult<Arc<Self>> {
+    pub fn from_parent(parent: &Arc<Self>) -> MemoryResult<Arc<Self>> {
         let memory_set = MemorySet::copy_parent(&parent.inner().memory_set)?;
         Ok(Arc::new(Self {
             pid: PID_ALLOCATOR.lock().alloc(),
             is_user: parent.is_user,
+            parent: Some(Arc::downgrade(&parent.clone())),
             inner: {
                 Mutex::new(ProcessInner {
                     run_stack_pointer: 0x0C00_0000,
@@ -128,7 +138,9 @@ impl Process {
                     memory_set,
                     descriptors: vec![STDIN.clone(), STDOUT.clone()],
                     xstate: 0,
+                    exited: false,
                     child: Vec::new(),
+                    wait: Condvar::new("ProcessInner.wait"),
                 }, "ProcessInner")
             },
         }))
@@ -136,6 +148,7 @@ impl Process {
 
     /// 上锁并获得可变部分的引用
     pub fn inner(&self) -> MutexGuard<ProcessInner> {
+        trace!("acquire ProcessInner pid = {}", self.pid);
         self.inner.lock()
     }
 
@@ -188,6 +201,35 @@ impl Process {
         )?;
         process_inner.run_stack_pointer = run_stack_pointer.into();
         Ok(range)
+    }
+
+    pub fn unmap_user(&self) {
+        let mut inner = self.inner();
+        let memory_set = &mut inner.memory_set;
+        let framed_segments = inner.memory_set.segments
+            .iter()
+            .filter(|s| s.map_type == MapType::Framed)
+            .map(|s| *s)
+            .collect::<Vec<_>>();
+        for segment in framed_segments.iter() {
+            inner.memory_set.remove_segment(segment);
+        }
+    }
+
+    pub fn exit(&self, code: usize) {
+        trace!("into exit, current pid = {}", self.pid);
+        let mut inner = self.inner();
+        (move || {
+            inner.xstate = code;
+            inner.exited = true;
+        })();
+        trace!("after marking xstate & exited!");
+        self.unmap_user();
+        trace!("after unmap_user!");
+        if let Some(parent) = &self.parent {
+            parent.upgrade().unwrap().as_ref().inner().wait.notify_one();
+        }
+        trace!("after notifying!");
     }
 }
 

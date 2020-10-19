@@ -8,9 +8,7 @@ lazy_static! {
     pub static ref STDIN: Arc<Stdin> = Arc::new(
         Stdin {
             buffer: Mutex::new(Default::default(), "Stdin.buffer"),
-            condvar: Condvar {
-                watchers: Mutex::new(Default::default(), "Stdin.condvar.watchers"),
-            }
+            condvar: Condvar::new("STDIN.condvar"),
         },
     );
 }

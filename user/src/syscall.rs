@@ -68,6 +68,11 @@ pub fn sys_exec(path: *const u8) -> isize {
     syscall(SYSCALL_EXEC,path as usize,0,0)
 }
 
-pub fn sys_wait(pid: usize) {
-    syscall(SYSCALL_WAIT, pid, 0, 0);
+pub fn sys_wait(xstate: *mut usize) -> isize {
+    loop {
+        let ret = syscall(SYSCALL_WAIT, xstate as usize, 0, 0);
+        if ret != -2 {
+            return ret;
+        }
+    }
 }

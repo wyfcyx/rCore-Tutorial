@@ -16,6 +16,14 @@ pub struct Condvar {
 }
 
 impl Condvar {
+    pub fn new(name: &'static str) -> Self {
+        Self {
+            watchers: Mutex::new(
+                Default::default(),
+                name,
+            ),
+        }
+    }
     /// 令当前线程休眠，等待此条件变量
     pub fn wait(&self) {
         //println!("ready push current_thread into condvar queue!");
