@@ -13,9 +13,10 @@ use crate::process::{
     WAIT_MAP,
 };
 use alloc::sync::Arc;
+use log::*;
 
 pub(super) fn sys_exit(code: usize) -> SyscallResult {
-    println!(
+    info!(
         "thread {} exit with code {}",
         current_thread().id,
         code

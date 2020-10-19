@@ -16,6 +16,7 @@ use crate::process::{
 use crate::interrupt::timer::{self, read_time};
 use crate::sbi::console_getchar;
 use crate::fs::STDIN;
+use log::*;
 
 global_asm!(include_str!("./interrupt.asm"));
 
@@ -56,7 +57,7 @@ pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) -> 
         let current_thread = current_thread();
         let dead = current_thread.as_ref().inner().dead;
         if dead {
-            println!("thread {} exit", current_thread.as_ref().id);
+            info!("thread {} exit", current_thread.as_ref().id);
             current_thread.as_ref().inner().thread_trace.exit_kernel(hart_id(), read_time());
             current_thread.as_ref().inner().thread_trace.print_trace();
             kill_current_thread();
@@ -93,12 +94,12 @@ pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) -> 
 
 /// 出现未能解决的异常，终止当前线程
 fn fault(msg: &str, scause: Scause, stval: usize) -> *mut Context {
-    println!(
+    warn!(
         "{:#x?} terminated: {}",
         current_thread(),
         msg
     );
-    println!("cause: {:?}, stval: {:x}", scause.cause(), stval);
+    warn!("cause: {:?}, stval: {:x}", scause.cause(), stval);
 
     kill_current_thread();
     // 跳转到 PROCESSOR 调度的下一个线程

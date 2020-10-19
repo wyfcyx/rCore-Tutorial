@@ -9,6 +9,7 @@ use hashbrown::HashMap;
 use alloc::string::String;
 use alloc::format;
 use crate::sync::MutexGuard;
+use log::*;
 
 /// 线程 ID 使用 `isize`，可以用负数表示错误
 pub type ThreadID = isize;
@@ -208,12 +209,13 @@ impl ThreadTrace {
         let mut total_user: usize = 0;
         let mut total_kernel: usize = 0;
         let mut str = String::new();
+        str.push('\n');
         for (hart_id, time_pair) in self.hart_time.iter() {
             str += format!("on Core #{}, user time = {}, kernel time = {}\n", hart_id, time_pair.0, time_pair.1).as_str();
             total_user += time_pair.0;
             total_kernel += time_pair.1;
         }
         str += format!("total user = {}, kernel = {}, sum = {}", total_user, total_kernel, total_user + total_kernel).as_str();
-        println!("{}", str);
+        info!("{}", str);
     }
 }

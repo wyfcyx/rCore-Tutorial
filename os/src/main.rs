@@ -51,6 +51,7 @@ mod process;
 mod sbi;
 mod board;
 mod sync;
+mod logging;
 
 extern crate alloc;
 
@@ -63,6 +64,7 @@ use process::*;
 use crate::board::config::CPU_NUM;
 use lazy_static::*;
 use crate::sync::Mutex;
+use log::*;
 
 // 汇编编写的程序入口，具体见该文件
 global_asm!(include_str!("entry.asm"));
@@ -74,6 +76,7 @@ global_asm!(include_str!("entry.asm"));
 pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
     if hartid == 0 {
         memory::bsp_init();
+        logging::init();
         crate::board::device_init(dtb_pa);
         fs::init();
 
@@ -81,10 +84,10 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
             fn boot_stack();
             fn boot_stack_top();
         }
-        println!("boot_stack = {:#x}, boot_stack_top = {:#x}", boot_stack as usize, boot_stack_top as usize);
+        info!("boot_stack = {:#x}, boot_stack_top = {:#x}", boot_stack as usize, boot_stack_top as usize);
         use crate::process::KERNEL_STACK;
         for i in 0..CPU_NUM {
-            println!("kernel stack #{} = {:p}", i, unsafe { KERNEL_STACK[i].0.as_ptr() });
+            info!("kernel stack #{} = {:p}", i, unsafe { KERNEL_STACK[i].0.as_ptr() });
         }
 
         THREAD_POOL
@@ -111,8 +114,8 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
     memory::thread_local_init();
     interrupt::init();
     println!("Hello rCore hartid = {}, dtp_pa = {}", hart_id(), dtb_pa);
-    println!("sp = {:#x}", unsafe { let mut sp: usize = 0; llvm_asm!("mv $0, sp" : "=r"(sp) ::: "volatile"); sp });
-    println!("I am hart {}, and i can go forward!", hart_id());
+    info!("sp = {:#x}", unsafe { let mut sp: usize = 0; llvm_asm!("mv $0, sp" : "=r"(sp) ::: "volatile"); sp });
+    info!("I am hart {}, and i can go forward!", hart_id());
 
     extern "C" {
         fn __restore(context: usize);
@@ -120,7 +123,7 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
     //println!("getting context!");
     // 获取第一个线程的 Context
     let context = processor_main();
-    println!("context = {:p} on hart {}", context, hartid);
+    info!("context = {:p} on hart {}", context, hartid);
     //println!("switch to idle!");
     // 启动第一个线程
     unsafe {
