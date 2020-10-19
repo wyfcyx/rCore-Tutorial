@@ -23,7 +23,7 @@ pub(super) enum SyscallResult {
     /// Continue without return value
     Exec,
     /// 记录返回值，但暂存当前线程
-    Park(isize),
+    Park,
     /// 丢弃当前 context，调度下一个线程继续执行
     Kill,
 }
@@ -31,7 +31,6 @@ pub(super) enum SyscallResult {
 /// 系统调用的总入口
 pub fn syscall_handler(context: &mut Context) -> *mut Context {
     // 无论如何处理，一定会跳过当前的 ecall 指令
-    context.sepc += 4;
 
     let syscall_id = context.x[17];
     //println!("syscall_id = {}", syscall_id);
@@ -54,14 +53,15 @@ pub fn syscall_handler(context: &mut Context) -> *mut Context {
     match result {
         SyscallResult::Proceed(ret) => {
             // 将返回值放入 context 中
+            context.sepc += 4;
             context.x[10] = ret as usize;
             context
         }
         SyscallResult::Exec => { context }
-        SyscallResult::Park(ret) => {
+        SyscallResult::Park => {
             //println!("SyscallResult::Park");
             // 将返回值放入 context 中
-            context.x[10] = ret as usize;
+            //context.x[10] = ret as usize;
             // 保存 context，准备下一个线程
             current_thread().as_ref().inner().thread_trace.exit_kernel(hart_id(), read_time());
             //println!("ready park_current_thread!");

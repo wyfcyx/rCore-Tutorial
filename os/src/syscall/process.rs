@@ -86,6 +86,7 @@ pub(super) fn sys_fork(mut context: Context) -> SyscallResult {
         .expect("creating child_process in sys_fork");
     info!("child.pid = {}, parent.pid = {}", child_process.pid, thread.process.pid);
     context.set_arguments(&[0]);
+    context.sepc += 4;
     let child_thread = thread.replace_context(child_process.clone(), context);
     THREAD_POOL.lock().add_thread(child_thread);
     thread.process.as_ref().inner().child.push(child_process.clone());
@@ -116,6 +117,6 @@ pub(super) fn sys_wait(xstate: *mut usize) -> SyscallResult {
         SyscallResult::Proceed(pid as isize)
     } else {
         inner.wait.wait();
-        SyscallResult::Park(-2)
+        SyscallResult::Park
     }
 }

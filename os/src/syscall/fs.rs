@@ -27,7 +27,7 @@ pub(super) fn sys_read(fd: usize, buffer: *mut u8, size: usize) -> SyscallResult
             }
             if ret == 0 {
                 //println!("SyscallResult::Park!");
-                return SyscallResult::Park(ret);
+                return SyscallResult::Park;
             }
         }
     }

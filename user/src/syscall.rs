@@ -27,17 +27,12 @@ fn syscall(id: usize, arg0: usize, arg1: usize, arg2: usize) -> isize {
 
 /// 读取字符
 pub fn sys_read(fd: usize, buffer: &mut [u8]) -> isize {
-    loop {
-        let ret = syscall(
-            SYSCALL_READ,
-            fd,
-            buffer as *const [u8] as *const u8 as usize,
-            buffer.len(),
-        );
-        if ret > 0 {
-            return ret;
-        }
-    }
+    syscall(
+        SYSCALL_READ,
+        fd,
+        buffer as *const [u8] as *const u8 as usize,
+        buffer.len(),
+    )
 }
 
 /// 打印字符串
@@ -69,10 +64,5 @@ pub fn sys_exec(path: *const u8) -> isize {
 }
 
 pub fn sys_wait(xstate: *mut usize) -> isize {
-    loop {
-        let ret = syscall(SYSCALL_WAIT, xstate as usize, 0, 0);
-        if ret != -2 {
-            return ret;
-        }
-    }
+    syscall(SYSCALL_WAIT, xstate as usize, 0, 0)
 }
