@@ -11,6 +11,8 @@ use crate::interrupt::timer::read_time;
 pub const SYS_READ: usize = 63;
 pub const SYS_WRITE: usize = 64;
 pub const SYS_EXIT: usize = 93;
+pub const SYS_GETPID: usize = 172;
+pub const SYS_FORK: usize = 220;
 pub const SYS_EXEC: usize = 221;
 pub const SYS_WAIT: usize = 260;
 
@@ -37,6 +39,8 @@ pub fn syscall_handler(context: &mut Context) -> *mut Context {
         SYS_READ => sys_read(args[0], args[1] as *mut u8, args[2]),
         SYS_WRITE => sys_write(args[0], args[1] as *mut u8, args[2]),
         SYS_EXIT => sys_exit(args[0]),
+        SYS_GETPID => sys_getpid(),
+        SYS_FORK => sys_fork(*context),
         SYS_EXEC => sys_exec(args[0] as *const u8, *context),
         SYS_WAIT => sys_wait(args[0]),
         _ => {

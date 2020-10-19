@@ -23,6 +23,10 @@ pub(super) fn sys_exit(code: usize) -> SyscallResult {
     SyscallResult::Kill
 }
 
+pub(super) fn sys_getpid() -> SyscallResult {
+    SyscallResult::Proceed(current_thread().process.pid as isize)
+}
+
 pub(super) fn sys_wait(pid: usize) -> SyscallResult {
     // TODO: check given process is a child process of current process
     //println!("insert pid = {} in sys_wait", pid);
@@ -58,3 +62,16 @@ unsafe fn from_cstr(s:*const u8)->&'static str{
     let len=(0usize..).find(|&i| *s.add(i)==0).unwrap();
     str::from_utf8(slice::from_raw_parts(s,len)).unwrap()
 }
+
+pub(super) fn sys_fork(mut context: Context) -> SyscallResult {
+    let thread = current_thread();
+    let child_process = Process::from_parent(&thread.process)
+        .expect("creating child_process in sys_fork");
+    context.set_arguments(&[child_process.pid]);
+    let child_thread = thread.replace_context(child_process.clone(), context);
+    THREAD_POOL.lock().add_thread(child_thread);
+    WAIT_MAP.lock().insert(child_process.pid as usize, Arc::downgrade(&thread));
+    sleep_current_thread();
+    SyscallResult::Park(0)
+}
+

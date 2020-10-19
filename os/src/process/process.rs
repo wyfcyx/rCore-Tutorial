@@ -69,10 +69,13 @@ impl Drop for Process {
 
 pub struct ProcessInner {
     pub run_stack_pointer: usize,
+    pub user_size: usize,
     /// 进程中的线程公用页表 / 内存映射
     pub memory_set: MemorySet,
     /// 打开的文件描述符
     pub descriptors: Vec<Arc<dyn INode>>,
+    pub xstate: usize,
+    pub child: Vec<Arc<Process>>,
 }
 
 #[allow(unused)]
@@ -84,8 +87,11 @@ impl Process {
             is_user: false,
             inner: Mutex::new(ProcessInner {
                 run_stack_pointer: usize::max_value() - PAGE_SIZE + 1,
+                user_size: 0,
                 memory_set: MemorySet::new_kernel()?,
                 descriptors: vec![STDIN.clone(), STDOUT.clone()],
+                xstate: 0,
+                child: Vec::new(),
             }, "ProcessInner"),
         }))
     }
@@ -95,11 +101,36 @@ impl Process {
         Ok(Arc::new(Self {
             pid: PID_ALLOCATOR.lock().alloc(),
             is_user,
-            inner: Mutex::new(ProcessInner {
-                run_stack_pointer: 0x0C00_0000,
-                memory_set: MemorySet::from_elf(file, is_user)?,
-                descriptors: vec![STDIN.clone(), STDOUT.clone()],
-            }, "ProcessInner"),
+            inner: {
+                let memory_set = MemorySet::from_elf(file, is_user)?;
+
+                Mutex::new(ProcessInner {
+                    run_stack_pointer: 0x0C00_0000,
+                    user_size: 0,
+                    memory_set,
+                    descriptors: vec![STDIN.clone(), STDOUT.clone()],
+                    xstate: 0,
+                    child: Vec::new(),
+                }, "ProcessInner")
+            },
+        }))
+    }
+
+    pub fn from_parent(parent: &Self) -> MemoryResult<Arc<Self>> {
+        let memory_set = MemorySet::copy_parent(&parent.inner().memory_set)?;
+        Ok(Arc::new(Self {
+            pid: PID_ALLOCATOR.lock().alloc(),
+            is_user: parent.is_user,
+            inner: {
+                Mutex::new(ProcessInner {
+                    run_stack_pointer: 0x0C00_0000,
+                    user_size: 0,
+                    memory_set,
+                    descriptors: vec![STDIN.clone(), STDOUT.clone()],
+                    xstate: 0,
+                    child: Vec::new(),
+                }, "ProcessInner")
+            },
         }))
     }
 

@@ -74,7 +74,6 @@ impl Thread {
     ) -> MemoryResult<Arc<Thread>> {
         // 让所属进程分配并映射一段空间，作为线程的栈
         let stack = process.alloc_run_stack()?;
-        println!("alloc a running stack starting at {}, is_user = {}", stack.start, process.is_user);
         // 构建线程的 Context
         let context = Context::new(stack.end.into(), entry_point, arguments, process.is_user);
 
@@ -98,6 +97,24 @@ impl Thread {
         Ok(thread)
     }
 
+    pub fn replace_context(&self, process: Arc<Process>, context: Context) -> Arc<Self> {
+        let new_thread = Thread {
+            id: unsafe {
+                let mut thread_counter = THREAD_COUNTER.lock();
+                *thread_counter += 1;
+                *thread_counter
+            },
+            stack: self.stack,
+            process,
+            inner: Mutex::new(ThreadInner {
+                context: Some(context),
+                sleeping: false,
+                dead: false,
+                thread_trace: ThreadTrace::new(),
+            }, "ThreadInner"),
+        };
+        Arc::new(new_thread)
+    }
     /// 上锁并获得可变部分的引用
     pub fn inner(&self) -> MutexGuard<ThreadInner> {
         self.inner.lock()

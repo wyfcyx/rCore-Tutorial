@@ -128,7 +128,30 @@ impl MemorySet {
         Ok(memory_set)
     }
 
+    pub fn copy_parent(parent: &Self) -> MemoryResult<MemorySet> {
+        // memory linear mapping & MMIO equally mapping
+        let mut memory_set = MemorySet::new_kernel()?;
+        // copy all data below 0x0C00_0000, they are all MapType::Framed
+        for segment in parent.segments.iter() {
+            if segment.map_type == MapType::Framed {
+                // alloc physical frame without data
+                memory_set.add_segment(*segment, None);
+                for vpn in segment.page_range().iter() {
+                    // copy a page of data
+                    let src = vpn.deref();
+                    let dst: &mut [u8; PAGE_SIZE]  = memory_set.mapping
+                        .find_entry(vpn)?
+                        .address()
+                        .deref_kernel();
+                    dst.copy_from_slice(src);
+                }
+            }
+        }
+        Ok(memory_set)
+    }
+
     /// 替换 `satp` 以激活页表
+    ///
     ///
     /// 如果当前页表就是自身，则不会替换，但仍然会刷新 TLB。
     pub fn activate(&self) {
