@@ -12,11 +12,11 @@ const DL: u8 = 0x7fu8;
 const BS: u8 = 0x08u8;
 
 use alloc::string::String;
-use user_lib::syscall::{sys_exec, sys_wait};
+use user_lib::syscall::{sys_fork, sys_exec, sys_wait, sys_exit};
 use user_lib::console::getchar;
 
 #[no_mangle]
-pub fn main(){
+pub fn main() -> usize {
     println!("Rust user shell");
     let mut line: String = String::new();
     print!(">> ");
@@ -26,9 +26,21 @@ pub fn main(){
             LF | CR => {
                 println!("");
                 if !line.is_empty() {
-                    println!("searching for program {}", line);
+                    //println!("searching for program {}", line);
                     line.push('\0');
-                    sys_exec(line.as_ptr());
+                    let pid = sys_fork();
+                    if pid == 0 {
+                        // child process
+                        if sys_exec(line.as_ptr()) == -1 {
+                            println!("Command not found!");
+                            return 0;
+                        }
+                        unreachable!();
+                    } else {
+                        let mut xstate: usize = 0;
+                        sys_wait(&mut xstate);
+                        println!("Shell: Process {} exited with code {}", pid, xstate);
+                    }
                     line.clear();
                 }
                 print!(">> ");

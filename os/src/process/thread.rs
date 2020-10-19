@@ -169,12 +169,18 @@ impl ThreadTrace {
             time_clock: 0,
         }
     }
+
+    pub fn reset(&mut self) {
+        *self = Self::new();
+    }
+
     pub fn prologue(&mut self, hart: usize, time_clock: usize) {
         //println!("[prologue] hart = {}, time_clock = {}", hart, time_clock);
         self.current_hart = hart;
         self.time_clock = time_clock;
     }
     pub fn into_kernel(&mut self, hart: usize, time_clock: usize, is_user: bool) {
+        trace!("into_kernel hart = {}, time_clock = {}", hart, time_clock);
         //println!("[into_kernel] hart = {} time_clock = {}", hart, time_clock);
         //assert_eq!(hart, self.current_hart);
         let delta_time = time_clock - self.time_clock;
@@ -194,7 +200,7 @@ impl ThreadTrace {
         self.time_clock = time_clock;
     }
     pub fn exit_kernel(&mut self, hart: usize, time_clock: usize) {
-        //println!("[exit_kernel] hart = {} time_clock = {}", hart, time_clock);
+        trace!("exit_kernel hart = {} time_clock = {}", hart, time_clock);
         //assert_eq!(hart, self.current_hart);
         let delta_time = time_clock - self.time_clock;
         if let Some(time_pair) = self.hart_time.get(&hart) {

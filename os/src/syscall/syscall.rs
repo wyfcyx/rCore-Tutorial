@@ -20,6 +20,8 @@ pub const SYS_WAIT: usize = 260;
 pub(super) enum SyscallResult {
     /// 继续执行，带返回值
     Proceed(isize),
+    /// Continue without return value
+    Exec,
     /// 记录返回值，但暂存当前线程
     Park(isize),
     /// 丢弃当前 context，调度下一个线程继续执行
@@ -41,7 +43,7 @@ pub fn syscall_handler(context: &mut Context) -> *mut Context {
         SYS_EXIT => sys_exit(args[0]),
         SYS_GETPID => sys_getpid(),
         SYS_FORK => sys_fork(*context),
-        SYS_EXEC => sys_exec(args[0] as *const u8, *context),
+        SYS_EXEC => sys_exec(args[0] as *const u8, context),
         SYS_WAIT => sys_wait(args[0] as *mut usize),
         _ => {
             println!("unimplemented syscall: {}", syscall_id);
@@ -55,6 +57,7 @@ pub fn syscall_handler(context: &mut Context) -> *mut Context {
             context.x[10] = ret as usize;
             context
         }
+        SyscallResult::Exec => { context }
         SyscallResult::Park(ret) => {
             //println!("SyscallResult::Park");
             // 将返回值放入 context 中

@@ -152,6 +152,7 @@ impl Process {
         self.inner.lock()
     }
 
+    /*
     /// 分配一定数量的连续虚拟空间
     ///
     /// 从 `memory_set` 中找到一段给定长度的未占用虚拟地址空间，分配物理页面并建立映射。返回对应的页面区间。
@@ -184,6 +185,7 @@ impl Process {
         // 返回地址区间（使用参数 size，而非向上取整的 alloc_size）
         Ok(Range::from(range.start..(range.start + size)))
     }
+     */
 
     pub fn alloc_run_stack(&self) -> MemoryResult<Range<VirtualAddress>> {
         let mut process_inner = self.inner();
