@@ -44,7 +44,7 @@ impl PidAllocator {
 lazy_static! {
     pub static ref PID_ALLOCATOR: Mutex<PidAllocator> = Mutex::new(PidAllocator::new(), "PID_ALLOCATOR");
     pub static ref KERNEL_PROCESS: Arc<Process> = Process::new_kernel().unwrap();
-    pub static ref WAIT_MAP: Mutex<HashMap<usize, Weak<Thread>>> = Mutex::new(HashMap::new(), "WAIT_MAP");
+    //pub static ref WAIT_MAP: Mutex<HashMap<usize, Weak<Thread>>> = Mutex::new(HashMap::new(), "WAIT_MAP");
 }
 
 /// 进程的信息
@@ -61,11 +61,12 @@ impl Drop for Process {
     fn drop(&mut self) {
         info!("Process {} dropped", self.pid);
         PID_ALLOCATOR.lock().dealloc(self.pid);
-        //println!("ready waking up waiting thread!");
+        /*
         if let Some(thread) = WAIT_MAP.lock().get(&self.pid) {
             THREAD_POOL.lock()
                 .wake_thread(thread.upgrade().unwrap());
         }
+         */
     }
 }
 

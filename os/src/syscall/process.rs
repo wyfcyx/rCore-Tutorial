@@ -58,14 +58,6 @@ pub (super) fn sys_exec(path: *const u8, context: &mut Context) -> SyscallResult
             context.sepc = entry as usize;
             // running stack of user process is at a fixed location: 0x0C00_0000
             context.set_sp(current_thread().stack.end.into());
-            /*
-            let process = Process::from_elf(&elf, true).unwrap();
-            let thread=Thread::new(process, elf.header.pt2.entry_point() as usize, None).unwrap();
-            let pid = thread.process.pid as isize;
-            THREAD_POOL.lock().add_thread(thread);
-            WAIT_MAP.lock().insert(pid as usize, Arc::downgrade(&current_thread()));
-            sleep_current_thread();
-             */
             SyscallResult::Exec
         },
         Err(_) => {
@@ -90,10 +82,6 @@ pub(super) fn sys_fork(mut context: Context) -> SyscallResult {
     let child_thread = thread.replace_context(child_process.clone(), context);
     THREAD_POOL.lock().add_thread(child_thread);
     thread.process.as_ref().inner().child.push(child_process.clone());
-    /* wait by sys_wait
-    WAIT_MAP.lock().insert(child_process.pid as usize, Arc::downgrade(&thread));
-    sleep_current_thread();
-     */
     SyscallResult::Proceed(child_process.pid as isize)
 }
 

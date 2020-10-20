@@ -26,7 +26,6 @@ pub fn main() -> usize {
             LF | CR => {
                 println!("");
                 if !line.is_empty() {
-                    //println!("searching for program {}", line);
                     line.push('\0');
                     let pid = sys_fork();
                     if pid == 0 {
