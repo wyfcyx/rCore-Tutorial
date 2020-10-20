@@ -24,4 +24,7 @@ SECTIONS
     .bss : {
         *(.sbss .bss .bss.*)
     }
+    /DISCARD/ : {
+        *(.debug*)
+    }
 }
