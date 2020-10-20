@@ -11,7 +11,7 @@ _start:
 .option pop
 
     # call user-program function
-    LOAD a0, 0(sp)
-    addi a1, sp, (__riscv_xlen / 8)
+    #LOAD a0, 0(sp)
+    #addi a1, sp, (__riscv_xlen / 8)
     call umain
 1:  j 1b

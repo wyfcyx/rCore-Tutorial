@@ -9,6 +9,8 @@ MODE ?= release
 EN_RUST ?= y
 EN_UCORE ?= y
 EN_VMM ?= n
+SDCARD ?= /dev/sdb
+
 ifneq ($(shell uname), Darwin)
 	EN_BISCUIT ?= y
 	EN_APP ?= y
@@ -243,6 +245,10 @@ build: rcore-fs-fuse rust ucore
 endif
 
 sfsimg: $(out_qcow2)
+
+sdcard: $(out_img)
+	@sudo dd if=/dev/zero of=$(SDCARD) bs=1M count=50
+	@sudo dd if=$(out_img) of=$(SDCARD)
 
 # pack qcow2 and img without building again
 pack:

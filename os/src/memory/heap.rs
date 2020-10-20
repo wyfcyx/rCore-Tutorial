@@ -5,6 +5,7 @@
 use super::config::KERNEL_HEAP_SIZE;
 use buddy_system_allocator::LockedHeap;
 use bitflags::_core::alloc::Layout;
+use log::*;
 
 /// 进行动态内存分配所用的堆空间
 ///
@@ -37,6 +38,7 @@ unsafe impl alloc::alloc::GlobalAlloc for HeapAllocator {
         let alloc_size = layout.size();
         let ptr = self.0.alloc(layout);
         //println!("alloc ok ptr = {:p}, heap = {:?}", ptr, *self.0.lock());
+        info!("allocated after alloc = {}", self.0.lock().stats_alloc_user());
 
         // the below assertion do not work when multicore!
         //assert_eq!(user_before + alloc_size, self.0.lock().stats_alloc_user());

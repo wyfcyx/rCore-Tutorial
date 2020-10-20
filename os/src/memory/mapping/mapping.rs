@@ -96,10 +96,12 @@ impl Mapping {
                             let stop = min(PAGE_SIZE, segment.range.end - page_address);
                             let src_start = page_address + start - segment.range.start;
                             let src_stop = min(src_start + stop - start, init_data.len());
-                            // 计算来源和目标区间并进行拷贝
-                            let dst_slice = &mut page_data[start..(start + src_stop - src_start)];
-                            let src_slice = &init_data[src_start..src_stop];
-                            dst_slice.copy_from_slice(src_slice);
+                            if src_start < init_data.len() {
+                                // 计算来源和目标区间并进行拷贝
+                                let dst_slice = &mut page_data[start..(start + src_stop - src_start)];
+                                let src_slice = &init_data[src_start..src_stop];
+                                dst_slice.copy_from_slice(src_slice);
+                            }
                         }
                     };
 
