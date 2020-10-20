@@ -63,6 +63,6 @@ pub fn sys_exec(path: *const u8) -> isize {
     syscall(SYSCALL_EXEC,path as usize,0,0)
 }
 
-pub fn sys_wait(xstate: *mut usize) -> isize {
-    syscall(SYSCALL_WAIT, xstate as usize, 0, 0)
+pub fn sys_wait(waitpid: usize, xstate: *mut usize) -> isize {
+    syscall(SYSCALL_WAIT, waitpid, xstate as usize, 0)
 }

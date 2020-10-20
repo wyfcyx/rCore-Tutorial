@@ -38,7 +38,7 @@ unsafe impl alloc::alloc::GlobalAlloc for HeapAllocator {
         let alloc_size = layout.size();
         let ptr = self.0.alloc(layout);
         //println!("alloc ok ptr = {:p}, heap = {:?}", ptr, *self.0.lock());
-        info!("allocated after alloc = {}", self.0.lock().stats_alloc_user());
+        trace!("allocated after alloc = {}", self.0.lock().stats_alloc_user());
 
         // the below assertion do not work when multicore!
         //assert_eq!(user_before + alloc_size, self.0.lock().stats_alloc_user());

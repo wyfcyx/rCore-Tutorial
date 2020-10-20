@@ -12,7 +12,7 @@ const DL: u8 = 0x7fu8;
 const BS: u8 = 0x08u8;
 
 use alloc::string::String;
-use user_lib::syscall::{sys_fork, sys_exec, sys_wait, sys_exit};
+use user_lib::{fork, exec, wait, exit};
 use user_lib::console::getchar;
 
 #[no_mangle]
@@ -27,17 +27,17 @@ pub fn main() -> usize {
                 println!("");
                 if !line.is_empty() {
                     line.push('\0');
-                    let pid = sys_fork();
+                    let pid = fork();
                     if pid == 0 {
                         // child process
-                        if sys_exec(line.as_ptr()) == -1 {
+                        if exec(line.as_ptr()) == -1 {
                             println!("Command not found!");
                             return 0;
                         }
                         unreachable!();
                     } else {
                         let mut xstate: usize = 0;
-                        sys_wait(&mut xstate);
+                        wait(&mut xstate);
                         println!("Shell: Process {} exited with code {}", pid, xstate);
                     }
                     line.clear();

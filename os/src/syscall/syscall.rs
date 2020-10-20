@@ -43,7 +43,7 @@ pub fn syscall_handler(context: &mut Context) -> *mut Context {
         SYS_GETPID => sys_getpid(),
         SYS_FORK => sys_fork(*context),
         SYS_EXEC => sys_exec(args[0] as *const u8, context),
-        SYS_WAIT => sys_wait(args[0] as *mut usize),
+        SYS_WAIT => sys_wait(args[0], args[1] as *mut usize),
         _ => {
             println!("unimplemented syscall: {}", syscall_id);
             SyscallResult::Kill

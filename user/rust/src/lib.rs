@@ -76,3 +76,25 @@ pub extern "C" fn abort() {
 fn oom(_: Layout) -> ! {
     panic!("out of memory");
 }
+
+pub fn read(fd: usize, buffer: &mut [u8]) -> isize {
+    sys_read(fd, buffer)
+}
+
+pub fn write(fd: usize, buffer: &[u8]) -> isize {
+    sys_write(fd, buffer)
+}
+
+pub fn exit(code: isize) -> ! {
+    sys_exit(code)
+}
+
+pub fn getpid() -> isize { sys_getpid() }
+pub fn fork() -> isize { sys_fork() }
+pub fn exec(name: *const u8) -> isize { sys_exec(name) }
+pub fn wait(xstate: *mut usize) -> isize {
+    sys_wait(0, xstate)
+}
+pub fn waitpid(pid: usize, xstate: *mut usize) -> isize {
+    sys_wait(pid, xstate)
+}

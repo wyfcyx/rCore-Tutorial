@@ -174,6 +174,7 @@ pub fn page_fault(context: &mut Context, scause: Scause, stval: usize) -> *mut C
     }
     let current_thread = current_thread();
     println!("Process {} Segmentation Fault cause = {:?}, vaddr = {:#x}", current_thread.process.pid, scause.cause(), stval);
+    //info!("context = {:?}", context);
     // page fault
     current_thread.process.exit(2);
     current_thread.as_ref().inner().thread_trace.exit_kernel(hart_id(), read_time());

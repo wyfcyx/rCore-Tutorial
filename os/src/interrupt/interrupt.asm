@@ -45,6 +45,7 @@ __interrupt:
     csrr    x1, sscratch
     SAVE    x1, 2
     # 保存 x5 至 x31
+    SAVE    x3, 3
     .set    n, 5
     .rept   27
         SAVE_N  %n
@@ -86,6 +87,7 @@ __restore:
     # 恢复通用寄存器
     LOAD    x1, 1
     # 恢复 x5 至 x31
+    LOAD    x3, 3
     .set    n, 5
     .rept   27
         LOAD_N  %n

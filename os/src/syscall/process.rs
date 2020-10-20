@@ -84,21 +84,31 @@ pub(super) fn sys_fork(mut context: Context) -> SyscallResult {
     SyscallResult::Proceed(child_process.pid as isize)
 }
 
-pub(super) fn sys_wait(xstate: *mut usize) -> SyscallResult {
-    trace!("into sys_wait!");
+pub(super) fn sys_wait(waitpid: usize, xstate: *mut usize) -> SyscallResult {
+    info!("into sys_wait, waitpid = {}, xstate = {:p}", waitpid, xstate);
     let thread = current_thread().clone();
     let mut inner = thread.process.as_ref().inner();
-    if inner.child.len() == 0 {
+    if inner.child.iter().len() == 0 {
         return SyscallResult::Proceed(-1);
     }
+    if waitpid != 0 && inner.child.iter().find(|p| {
+        waitpid == p.pid
+    }).is_none() {
+        return SyscallResult::Proceed(-1);
+    }
+
     if let Some((id, exited_child)) = inner
         .child
         .iter()
         .enumerate()
-        .find(|(_, p)| {p.clone().as_ref().inner().exited == true}) {
+        .find(|(_, p)| {
+            p.clone().as_ref().inner().exited && (waitpid == 0 || waitpid == p.pid)
+        }) {
         let rc = exited_child.as_ref().inner().xstate;
         let pid = exited_child.pid;
-        unsafe { xstate.write_volatile(rc); }
+        if xstate as usize > 0 {
+            unsafe { xstate.write_volatile(rc); }
+        }
         // dealloc child Process here
         inner.child.remove(id);
         SyscallResult::Proceed(pid as isize)
