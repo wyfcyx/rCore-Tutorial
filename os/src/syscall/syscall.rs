@@ -11,6 +11,7 @@ use crate::interrupt::timer::read_time;
 pub const SYS_READ: usize = 63;
 pub const SYS_WRITE: usize = 64;
 pub const SYS_EXIT: usize = 93;
+pub const SYS_YIELD: usize = 124;
 pub const SYS_GETPID: usize = 172;
 pub const SYS_FORK: usize = 220;
 pub const SYS_EXEC: usize = 221;
@@ -22,6 +23,7 @@ pub(super) enum SyscallResult {
     Proceed(isize),
     /// Continue without return value
     Exec,
+    Yield,
     /// 记录返回值，但暂存当前线程
     Park,
     /// 丢弃当前 context，调度下一个线程继续执行
@@ -40,6 +42,7 @@ pub fn syscall_handler(context: &mut Context) -> *mut Context {
         SYS_READ => sys_read(args[0], args[1] as *mut u8, args[2]),
         SYS_WRITE => sys_write(args[0], args[1] as *mut u8, args[2]),
         SYS_EXIT => sys_exit(args[0]),
+        SYS_YIELD => sys_yield(context),
         SYS_GETPID => sys_getpid(),
         SYS_FORK => sys_fork(*context),
         SYS_EXEC => sys_exec(args[0] as *const u8, context),
@@ -68,6 +71,17 @@ pub fn syscall_handler(context: &mut Context) -> *mut Context {
             park_current_thread(context);
             //println!("return prepare_next_thread!");
             prepare_next_thread()
+        }
+        SyscallResult::Yield => {
+            current_thread().as_ref().inner().thread_trace.exit_kernel(hart_id(), read_time());
+            //println!("ready park_current_thread!");
+            park_current_thread(context);
+            //println!("return prepare_next_thread!");
+            let yielded_thread = current_thread().clone();
+            let context = prepare_next_thread();
+            // add yielded_thread after scheduling
+            THREAD_POOL.lock().add_thread(yielded_thread);
+            context
         }
         SyscallResult::Kill => {
             let current_thread = current_thread();

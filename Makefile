@@ -1,5 +1,5 @@
 run:
-	@make -C user build
+	@make -C user sfsimg
 	@make -C os run
 
 clean:

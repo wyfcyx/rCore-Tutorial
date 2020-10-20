@@ -122,7 +122,7 @@ impl Mapping {
     /// 移除一段映射
     pub fn unmap(&mut self, segment: &Segment) {
         for vpn in segment.page_range().iter() {
-            let entry = self.find_entry(vpn).unwrap();
+            let entry = self.find_entry(vpn, true).unwrap();
             assert!(!entry.is_empty());
             // 从页表中清除项
             entry.clear();
@@ -135,20 +135,24 @@ impl Mapping {
     /// 找到给定虚拟页号的三级页表项
     ///
     /// 如果找不到对应的页表项，则会相应创建页表
-    pub fn find_entry(&mut self, vpn: VirtualPageNumber) -> MemoryResult<&mut PageTableEntry> {
+    pub fn find_entry(&mut self, vpn: VirtualPageNumber, alloc: bool) -> MemoryResult<&mut PageTableEntry> {
         // 从根页表开始向下查询
         // 这里不用 self.page_tables[0] 避免后面产生 borrow-check 冲突（我太菜了）
         let root_table: &mut PageTable = PhysicalAddress::from(self.root_ppn).deref_kernel();
         let mut entry = &mut root_table.entries[vpn.levels()[0]];
         for vpn_slice in &vpn.levels()[1..] {
             if entry.is_empty() {
-                // 如果页表不存在，则需要分配一个新的页表
-                let new_table = PageTableTracker::new(FRAME_ALLOCATOR.lock().alloc()?);
-                let new_ppn = new_table.page_number();
-                // 将新页表的页号写入当前的页表项
-                *entry = PageTableEntry::new(Some(new_ppn), Flags::VALID);
-                // 保存页表
-                self.page_tables.push(new_table);
+                if alloc {
+                    // 如果页表不存在，则需要分配一个新的页表
+                    let new_table = PageTableTracker::new(FRAME_ALLOCATOR.lock().alloc()?);
+                    let new_ppn = new_table.page_number();
+                    // 将新页表的页号写入当前的页表项
+                    *entry = PageTableEntry::new(Some(new_ppn), Flags::VALID);
+                    // 保存页表
+                    self.page_tables.push(new_table);
+                } else {
+                    return Err("entry not found!");
+                }
             }
             // 进入下一级页表（使用偏移量来访问物理地址）
             entry = &mut entry.get_next_table().entries[*vpn_slice];
@@ -195,7 +199,7 @@ impl Mapping {
         flags: Flags,
     ) -> MemoryResult<()> {
         // 定位到页表项
-        let entry = self.find_entry(vpn)?;
+        let entry = self.find_entry(vpn, true)?;
         assert!(entry.is_empty(), "virtual address is already mapped");
         // 页表项为空，则写入内容
         *entry = PageTableEntry::new(ppn, flags);

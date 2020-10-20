@@ -146,7 +146,7 @@ impl MemorySet {
                     // copy a page of data
                     let src = vpn.deref();
                     let dst: &mut [u8; PAGE_SIZE]  = memory_set.mapping
-                        .find_entry(vpn)?
+                        .find_entry(vpn, true)?
                         .address()
                         .deref_kernel();
                     dst.copy_from_slice(src);

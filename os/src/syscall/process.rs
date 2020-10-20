@@ -4,7 +4,7 @@ use super::*;
 use xmas_elf::ElfFile;
 use crate::fs::ROOT_INODE;
 use crate::fs::INodeExt;
-use crate::memory::MemorySet;
+use crate::memory::{MemorySet, Flags, VirtualAddress, VirtualPageNumber};
 use crate::process::{
     current_thread,
     sleep_current_thread,
@@ -23,6 +23,12 @@ pub(super) fn sys_exit(code: usize) -> SyscallResult {
     );
     current_thread().process.exit(code);
     SyscallResult::Kill
+}
+
+pub(super) fn sys_yield(context: &mut Context) -> SyscallResult {
+    //info!("into sys_yield, current sepc = {}!", context.sepc);
+    context.sepc += 4;
+    SyscallResult::Yield
 }
 
 pub(super) fn sys_getpid() -> SyscallResult {
@@ -95,6 +101,21 @@ pub(super) fn sys_wait(waitpid: usize, xstate: *mut usize) -> SyscallResult {
         waitpid == p.pid
     }).is_none() {
         return SyscallResult::Proceed(-1);
+    }
+
+    if xstate as usize != 0 {
+        if let Ok(entry) = inner
+            .memory_set
+            .mapping
+            .find_entry(VirtualPageNumber::floor((xstate as usize).into()), false) {
+            let flags = entry.flags();
+            let expected = Flags::WRITABLE | Flags::USER | Flags::VALID;
+            if flags & expected != expected {
+                return SyscallResult::Proceed(-1);
+            }
+        } else {
+            return SyscallResult::Proceed(-1);
+        }
     }
 
     if let Some((id, exited_child)) = inner
