@@ -13,6 +13,7 @@ pub const SYS_WRITE: usize = 64;
 pub const SYS_EXIT: usize = 93;
 pub const SYS_SLEEP: usize = 101;
 pub const SYS_YIELD: usize = 124;
+pub const SYS_KILL: usize = 129;
 pub const SYS_GETTIME: usize = 169;
 pub const SYS_GETPID: usize = 172;
 pub const SYS_FORK: usize = 220;
@@ -46,6 +47,7 @@ pub fn syscall_handler(context: &mut Context) -> *mut Context {
         SYS_EXIT => sys_exit(args[0]),
         SYS_SLEEP => sys_sleep(args[0], context),
         SYS_YIELD => sys_yield(context),
+        SYS_KILL => sys_kill(args[0]),
         SYS_GETTIME => sys_get_time_msec(),
         SYS_GETPID => sys_getpid(),
         SYS_FORK => sys_fork(*context),

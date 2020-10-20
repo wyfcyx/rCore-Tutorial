@@ -65,6 +65,13 @@ pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) -> 
             return prepare_next_thread();
         }
     }
+
+    if start_thread.process.as_ref().inner().killed {
+        start_thread.process.exit(1);
+        kill_current_thread();
+        return prepare_next_thread();
+    }
+
     // 根据中断类型来处理，返回的 Context 必须位于放在内核栈顶
     let context = match scause.cause() {
         // 断点中断（ebreak）

@@ -45,6 +45,7 @@ lazy_static! {
     pub static ref PID_ALLOCATOR: Mutex<PidAllocator> = Mutex::new(PidAllocator::new(), "PID_ALLOCATOR");
     pub static ref KERNEL_PROCESS: Arc<Process> = Process::new_kernel().unwrap();
     //pub static ref WAIT_MAP: Mutex<HashMap<usize, Weak<Thread>>> = Mutex::new(HashMap::new(), "WAIT_MAP");
+    pub static ref PROCESS_TABLE: Mutex<HashMap<usize, Weak<Process>>> = Mutex::new(HashMap::new(), "PROCESS_TABLE");
 }
 
 /// 进程的信息
@@ -61,6 +62,7 @@ impl Drop for Process {
     fn drop(&mut self) {
         info!("Process {} dropped", self.pid);
         PID_ALLOCATOR.lock().dealloc(self.pid);
+        PROCESS_TABLE.lock().remove(&self.pid);
         /*
         if let Some(thread) = WAIT_MAP.lock().get(&self.pid) {
             THREAD_POOL.lock()
@@ -79,6 +81,7 @@ pub struct ProcessInner {
     pub descriptors: Vec<Arc<dyn INode>>,
     pub xstate: usize,
     pub exited: bool,
+    pub killed: bool,
     pub child: Vec<Arc<Process>>,
     pub wait: Condvar,
 }
@@ -98,6 +101,7 @@ impl Process {
                 descriptors: vec![STDIN.clone(), STDOUT.clone()],
                 xstate: 0,
                 exited: false,
+                killed: false,
                 child: Vec::new(),
                 wait: Condvar::new("ProcessInner.wait"),
             }, "ProcessInner"),
@@ -106,7 +110,7 @@ impl Process {
 
     /// 创建进程，从文件中读取代码
     pub fn from_elf(file: &ElfFile, is_user: bool) -> MemoryResult<Arc<Self>> {
-        Ok(Arc::new(Self {
+        let process = Arc::new(Self {
             pid: PID_ALLOCATOR.lock().alloc(),
             is_user,
             parent: None,
@@ -119,16 +123,19 @@ impl Process {
                     descriptors: vec![STDIN.clone(), STDOUT.clone()],
                     xstate: 0,
                     exited: false,
+                    killed: false,
                     child: Vec::new(),
                     wait: Condvar::new("ProcessInner.wait"),
                 }, "ProcessInner")
             },
-        }))
+        });
+        PROCESS_TABLE.lock().insert(process.pid, Arc::downgrade(&process));
+        Ok(process)
     }
 
     pub fn from_parent(parent: &Arc<Self>) -> MemoryResult<Arc<Self>> {
         let memory_set = MemorySet::copy_parent(&parent.inner().memory_set)?;
-        Ok(Arc::new(Self {
+        let process = Arc::new(Self {
             pid: PID_ALLOCATOR.lock().alloc(),
             is_user: parent.is_user,
             parent: Some(Arc::downgrade(&parent.clone())),
@@ -140,11 +147,14 @@ impl Process {
                     descriptors: vec![STDIN.clone(), STDOUT.clone()],
                     xstate: 0,
                     exited: false,
+                    killed: false,
                     child: Vec::new(),
                     wait: Condvar::new("ProcessInner.wait"),
                 }, "ProcessInner")
             },
-        }))
+        });
+        PROCESS_TABLE.lock().insert(process.pid, Arc::downgrade(&process));
+        Ok(process)
     }
 
     /// 上锁并获得可变部分的引用
@@ -221,6 +231,7 @@ impl Process {
 
     pub fn exit(&self, code: usize) {
         trace!("into exit, current pid = {}", self.pid);
+        PROCESS_TABLE.lock().remove(&self.pid);
         let mut inner = self.inner();
         (move || {
             inner.xstate = code;

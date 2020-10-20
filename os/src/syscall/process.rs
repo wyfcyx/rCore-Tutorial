@@ -41,6 +41,18 @@ pub(super) fn sys_yield(context: &mut Context) -> SyscallResult {
     SyscallResult::Yield
 }
 
+pub(super) fn sys_kill(kill_pid: usize) -> SyscallResult {
+    if current_thread().process.pid == kill_pid {
+        return sys_exit(1);
+    }
+    if let Some(kill_process) = PROCESS_TABLE.lock().get(&kill_pid) {
+        kill_process.upgrade().unwrap().inner().killed = true;
+        SyscallResult::Proceed(0)
+    } else {
+        SyscallResult::Proceed(-1)
+    }
+}
+
 pub(super) fn sys_get_time_msec() -> SyscallResult {
     // ONE_TICK -> 10ms
     // 1ms -> ONE_TICK/10
