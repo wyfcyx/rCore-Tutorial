@@ -14,7 +14,7 @@ make run BOARD=k210
 ### For Qemu platform
 ```sh
 # prepare user program
-cd user && make build
+cd user && make sfsimg
 # Run tutorial on qemu platform
 make run
 ```
