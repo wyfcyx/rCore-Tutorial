@@ -11,7 +11,6 @@ use crate::process::{
     park_current_thread,
     prepare_next_thread,
     THREAD_POOL,
-    WAIT_MAP,
 };
 use alloc::sync::Arc;
 use log::*;

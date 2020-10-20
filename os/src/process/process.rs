@@ -192,7 +192,7 @@ impl Process {
         let mut process_inner = self.inner();
         let mut run_stack_pointer: VirtualAddress = process_inner.run_stack_pointer.into();
         let memory_set = &mut process_inner.memory_set;
-        let range = Range::<VirtualAddress>::from(run_stack_pointer - STACK_SIZE..run_stack_pointer);
+        let range = Range::<VirtualAddress>::from((run_stack_pointer - STACK_SIZE)..run_stack_pointer);
         run_stack_pointer -= STACK_SIZE + PAGE_SIZE;
         memory_set.add_segment(
             Segment {

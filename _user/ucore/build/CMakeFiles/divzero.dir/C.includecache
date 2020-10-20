@@ -1,0 +1,28 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../src/include/defs.h
+
+../src/include/stdarg.h
+
+../src/include/stdio.h
+defs.h
+-
+stdarg.h
+-
+
+../src/include/ulib.h
+defs.h
+-
+
+/home/shinbokuow/workspace/rcore-user/ucore/src/divzero.c
+stdio.h
+-
+ulib.h
+-
+

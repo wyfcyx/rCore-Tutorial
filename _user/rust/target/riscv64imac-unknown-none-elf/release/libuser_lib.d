@@ -1,0 +1,1 @@
+/home/shinbokuow/workspace/rCore-Tutorial/user/rust/target/riscv64imac-unknown-none-elf/release/libuser_lib.rlib: /home/shinbokuow/workspace/rCore-Tutorial/user/rust/src/config.rs /home/shinbokuow/workspace/rCore-Tutorial/user/rust/src/console.rs /home/shinbokuow/workspace/rCore-Tutorial/user/rust/src/lib.rs /home/shinbokuow/workspace/rCore-Tutorial/user/rust/src/syscall.rs

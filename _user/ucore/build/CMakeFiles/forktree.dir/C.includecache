@@ -1,0 +1,34 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../src/include/defs.h
+
+../src/include/stdarg.h
+
+../src/include/stdio.h
+defs.h
+-
+stdarg.h
+-
+
+../src/include/string.h
+defs.h
+-
+
+../src/include/ulib.h
+defs.h
+-
+
+/home/shinbokuow/workspace/rcore-user/ucore/src/forktree.c
+ulib.h
+-
+stdio.h
+-
+string.h
+-
+

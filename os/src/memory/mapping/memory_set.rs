@@ -14,6 +14,7 @@ use xmas_elf::{
     program::{SegmentData, Type},
     ElfFile,
 };
+use log::*;
 
 /// 一个进程所有关于内存空间管理的信息
 pub struct MemorySet {
@@ -93,6 +94,7 @@ impl MemorySet {
 
     /// 通过 elf 文件创建内存映射（不包括栈）
     pub fn from_elf(file: &ElfFile, is_user: bool) -> MemoryResult<MemorySet> {
+        info!("into MemorySet::from_elf");
         // 建立带有内核映射的 MemorySet
         let mut memory_set = MemorySet::new_kernel()?;
 
@@ -104,12 +106,16 @@ impl MemorySet {
             // 从每个字段读取「起始地址」「大小」和「数据」
             let start = VirtualAddress(program_header.virtual_addr() as usize);
             let size = program_header.mem_size() as usize;
+            if program_header.file_size() < program_header.mem_size() {
+                warn!("filesz < memsz, filesz = {:#x}, memsz = {:#x}", program_header.file_size(), program_header.mem_size());
+            }
             let data: &[u8] =
                 if let SegmentData::Undefined(data) = program_header.get_data(file).unwrap() {
                     data
                 } else {
                     return Err("unsupported elf format");
                 };
+            info!("program_header: va = {}, size = {:#x}, flags = {:?}, data.len = {:#x}", start, size, program_header.flags(), data.len());
 
             // 将每一部分作为 Segment 进行映射
             let segment = Segment {

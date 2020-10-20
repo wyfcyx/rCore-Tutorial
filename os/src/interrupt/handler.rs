@@ -170,7 +170,7 @@ pub unsafe fn dummy() {
 
 pub fn page_fault(context: &mut Context, scause: Scause, stval: usize) -> *mut Context {
     if context.sstatus.spp() == SPP::Supervisor {
-        panic!("page fault in kernel!");
+        panic!("page fault in kernel, cause = {:?}, vaddr = {:#x}!", scause.cause(), stval);
     }
     let current_thread = current_thread();
     println!("Process {} Segmentation Fault cause = {:?}, vaddr = {:#x}", current_thread.process.pid, scause.cause(), stval);
