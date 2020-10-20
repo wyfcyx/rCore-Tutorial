@@ -3,11 +3,12 @@
 use crate::sbi::set_timer;
 use riscv::register::{sie, time};
 use crate::board::config::CPU_FREQUENCY;
+
 /// 触发时钟中断计数
 pub static mut TICKS: usize = 0;
 
 /// 时钟中断的间隔，单位是 CPU 指令
-static INTERVAL: usize = CPU_FREQUENCY / 100;
+pub static ONE_TICK: usize = CPU_FREQUENCY / 100;
 
 /// 初始化时钟中断
 ///
@@ -25,7 +26,7 @@ pub fn init() {
 ///
 /// 获取当前时间，加上中断间隔，通过 SBI 调用预约下一次中断
 fn set_next_timeout() {
-    set_timer(time::read() + INTERVAL);
+    set_timer(time::read() + ONE_TICK);
 }
 
 /// 每一次时钟中断时调用

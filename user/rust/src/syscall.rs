@@ -6,6 +6,9 @@ pub const STDOUT: usize = 1;
 const SYSCALL_READ: usize = 63;
 const SYSCALL_WRITE: usize = 64;
 const SYSCALL_EXIT: usize = 93;
+const SYSCALL_SLEEP: usize = 101;
+const SYSCALL_YIELD: usize = 124;
+const SYSCALL_GET_TIME: usize = 169;
 const SYSCALL_GETPID: usize = 172;
 const SYSCALL_FORK: usize = 220;
 const SYSCALL_EXEC: usize = 221;
@@ -49,6 +52,18 @@ pub fn sys_write(fd: usize, buffer: &[u8]) -> isize {
 pub fn sys_exit(code: isize) -> ! {
     syscall(SYSCALL_EXIT, code as usize, 0, 0);
     unreachable!()
+}
+
+pub fn sys_sleep(ticks: usize) -> isize {
+    syscall(SYSCALL_SLEEP, ticks, 0, 0)
+}
+
+pub fn sys_yield() -> isize {
+    syscall(SYSCALL_YIELD, 0, 0, 0)
+}
+
+pub fn sys_get_time() -> isize {
+    syscall(SYSCALL_GET_TIME, 0, 0, 0)
 }
 
 pub fn sys_getpid() -> isize {

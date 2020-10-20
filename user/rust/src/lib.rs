@@ -88,7 +88,8 @@ pub fn write(fd: usize, buffer: &[u8]) -> isize {
 pub fn exit(code: isize) -> ! {
     sys_exit(code)
 }
-
+pub fn sleep(ticks: usize) -> isize { sys_sleep(ticks) }
+pub fn get_time() -> isize { sys_get_time() }
 pub fn getpid() -> isize { sys_getpid() }
 pub fn fork() -> isize { sys_fork() }
 pub fn exec(name: *const u8) -> isize { sys_exec(name) }

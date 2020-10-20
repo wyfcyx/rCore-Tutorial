@@ -11,7 +11,9 @@ use crate::process::{
     park_current_thread,
     prepare_next_thread,
     THREAD_POOL,
+    add_sleep_trigger,
 };
+use crate::interrupt::{read_time, ONE_TICK};
 use alloc::sync::Arc;
 use log::*;
 
@@ -25,10 +27,24 @@ pub(super) fn sys_exit(code: usize) -> SyscallResult {
     SyscallResult::Kill
 }
 
+pub(super) fn sys_sleep(ticks: usize, context: &mut Context) -> SyscallResult {
+    add_sleep_trigger(read_time() + ticks * ONE_TICK);
+    context.sepc += 4;
+    context.x[10] = 0;
+    SyscallResult::Park
+}
+
 pub(super) fn sys_yield(context: &mut Context) -> SyscallResult {
     //info!("into sys_yield, current sepc = {}!", context.sepc);
     context.sepc += 4;
+    context.x[10] = 0;
     SyscallResult::Yield
+}
+
+pub(super) fn sys_get_time_msec() -> SyscallResult {
+    // ONE_TICK -> 10ms
+    // 1ms -> ONE_TICK/10
+    SyscallResult::Proceed((read_time() * 10 / ONE_TICK) as isize)
 }
 
 pub(super) fn sys_getpid() -> SyscallResult {

@@ -27,6 +27,7 @@ forktree(const char *cur) {
 
     forkchild(cur, '0');
     forkchild(cur, '1');
+    while (wait() >= 0);
 }
 
 int

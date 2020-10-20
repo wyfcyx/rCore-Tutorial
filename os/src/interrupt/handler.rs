@@ -12,6 +12,7 @@ use crate::process::{
     kill_current_thread,
     current_thread,
     hart_id,
+    handle_sleep_trigger,
 };
 use crate::interrupt::timer::{self, read_time};
 use crate::sbi::console_getchar;
@@ -121,6 +122,7 @@ pub fn supervisor_timer(context: &mut Context) -> *mut Context {
     //crate::memory::heap::debug_heap();
     //unsafe { riscv::register::sie::clear_stimer(); }
     //println!("park_current_thread in supervisor_timer!");
+    handle_sleep_trigger(read_time());
     park_current_thread(context);
     run_current_thread_later();
     //println!("prepare_next_thread in supervisor_timer");

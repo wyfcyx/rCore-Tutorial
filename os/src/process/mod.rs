@@ -8,6 +8,7 @@ mod process;
 mod processor;
 mod thread;
 mod thread_pool;
+mod sleep;
 
 use crate::interrupt::*;
 use crate::memory::*;
@@ -31,3 +32,4 @@ pub use processor::{
     processor_main,
 };
 pub use process::KERNEL_PROCESS;
+pub use sleep::{add_sleep_trigger, handle_sleep_trigger};
