@@ -68,7 +68,7 @@ rust:
 ifeq ($(EN_RUST), y)
 	@echo Building rust programs
 	@cd rust && cargo build $(rust_build_args)
-	@rm -rf $(out_dir)/rust && mkdir -p $(out_dir)/rust
+	@mkdir -p $(out_dir)
 	@cp $(rust_bins) $(out_dir)
 else
 	@echo Building rust disabled
@@ -80,7 +80,7 @@ ifeq ($(EN_UCORE), y)
 	@echo Building ucore programs
 	@mkdir -p ucore/build
 	@cd ucore/build && cmake $(cmake_build_args) .. && make -j
-	@rm -rf $(out_dir)/ucore && mkdir -p $(out_dir)/ucore
+	@mkdir -p $(out_dir)
 	@cp $(ucore_bin_path)/* $(out_dir)
 else
 	@echo Building ucore disabled
