@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <ulib.h>
 
-#define ARRAYSIZE (1024*1024)
+#define ARRAYSIZE (1024*1024/4)
 
 uint32_t bigarray[ARRAYSIZE];
 

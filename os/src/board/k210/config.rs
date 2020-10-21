@@ -1,9 +1,9 @@
 #![allow(dead_code)]
 
-pub const BOARD_MEMORY_END_ADDRESS: usize = 0x8060_0000;
+pub const BOARD_MEMORY_END_ADDRESS: usize = 0x8080_0000;
 pub const BOARD_KERNEL_HEAP_SIZE: usize = 0x30_0000;
 pub const BOARD_STACK_SIZE: usize = 0x8000;
-pub const BOARD_KERNEL_STACK_SIZE: usize = 0x8000;
+pub const BOARD_KERNEL_STACK_SIZE: usize = 0x20000;
 
 pub const MMIO_INTERVALS: &[(usize, usize)] = &[
     // we don't need clint in S priv when running
@@ -21,7 +21,7 @@ pub const MMIO_INTERVALS: &[(usize, usize)] = &[
     (0x5200_0000, 0x1000),      /* SPI0      */
     (0x5300_0000, 0x1000),      /* SPI1      */
     (0x5400_0000, 0x1000),      /* SPI2      */
-    (0x8000_0000, 0x600000),    /* Memory    */
+    (0x8000_0000, 0x800000),    /* Memory    */
 ];
 
 pub const RISCV_SPEC_MAJOR: usize = 1;

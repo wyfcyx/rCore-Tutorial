@@ -79,7 +79,7 @@ pub struct ProcessInner {
     pub memory_set: MemorySet,
     /// 打开的文件描述符
     pub descriptors: Vec<Arc<dyn INode>>,
-    pub xstate: usize,
+    pub xstate: i32,
     pub exited: bool,
     pub killed: bool,
     pub child: Vec<Arc<Process>>,
@@ -233,7 +233,7 @@ impl Process {
         }
     }
 
-    pub fn exit(&self, code: usize) {
+    pub fn exit(&self, code: i32) {
         trace!("into exit, current pid = {}", self.pid);
         PROCESS_TABLE.lock().remove(&self.pid);
         let mut inner = self.inner();

@@ -16,7 +16,7 @@ use user_lib::{fork, exec, wait, exit};
 use user_lib::console::getchar;
 
 #[no_mangle]
-pub fn main() -> usize {
+pub fn main() -> i32 {
     println!("Rust user shell");
     let mut line: String = String::new();
     print!(">> ");

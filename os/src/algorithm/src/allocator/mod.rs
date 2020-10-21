@@ -11,6 +11,7 @@ pub trait Allocator {
     fn alloc(&mut self) -> Option<usize>;
     /// 回收一个元素
     fn dealloc(&mut self, index: usize);
+    fn available(&self) -> usize;
 }
 
 pub use segment_tree_allocator::SegmentTreeAllocator;

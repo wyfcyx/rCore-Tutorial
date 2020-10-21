@@ -61,7 +61,7 @@ pub extern "C" fn _start(_args: isize, _argv: *const u8) -> ! {
 /// 设置了弱的 linkage，会被 `bin` 中文件的 `main` 函数取代
 #[linkage = "weak"]
 #[no_mangle]
-fn main() -> isize {
+fn main() -> i32 {
     panic!("no main() linked");
 }
 
@@ -85,7 +85,7 @@ pub fn write(fd: usize, buffer: &[u8]) -> isize {
     sys_write(fd, buffer)
 }
 
-pub fn exit(code: isize) -> ! {
+pub fn exit(code: i32) -> ! {
     sys_exit(code)
 }
 pub fn sleep(ticks: usize) -> isize { sys_sleep(ticks) }

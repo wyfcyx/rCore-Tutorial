@@ -8,6 +8,7 @@ use bit_field::BitArray;
 pub struct SegmentTreeAllocator {
     /// 树本身
     tree: Vec<u8>,
+    last: usize,
 }
 
 impl Allocator for SegmentTreeAllocator {
@@ -28,13 +29,17 @@ impl Allocator for SegmentTreeAllocator {
             let v = tree.get_bit(i * 2) && tree.get_bit(i * 2 + 1);
             tree.set_bit(i, v);
         }
-        Self { tree }
+        Self {
+            tree,
+            last: capacity,
+        }
     }
 
     fn alloc(&mut self) -> Option<usize> {
         if self.tree.get_bit(1) {
             None
         } else {
+            self.last -= 1;
             let mut node = 1;
             // 递归查找直到找到一个值为 0 的树叶
             while node < self.tree.len() / 2 {
@@ -58,7 +63,10 @@ impl Allocator for SegmentTreeAllocator {
         let node = index + self.tree.len() / 2;
         assert!(self.tree.get_bit(node));
         self.update_node(node, false);
+        self.last += 1;
     }
+
+    fn available(&self) -> usize { self.last }
 }
 
 impl SegmentTreeAllocator {

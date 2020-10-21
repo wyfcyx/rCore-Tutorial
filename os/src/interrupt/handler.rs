@@ -45,10 +45,14 @@ pub fn init() {
 /// 具体的中断类型需要根据 scause 来推断，然后分别处理
 #[no_mangle]
 pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) -> *mut Context {
+
     //println!("triggered interrupt {:?} on hart {}", scause.cause(), hart_id());
     // 首先检查线程是否已经结束（内核线程会自己设置标记来结束自己）
     let start_thread = current_thread().clone();
     let is_user = start_thread.process.is_user;
+    if is_user {
+        info!("Process {} into kernel, scause = {:?}, stval = {}", start_thread.process.pid, scause.cause(), stval);
+    }
     start_thread.as_ref()
         .inner()
         .thread_trace
@@ -60,7 +64,7 @@ pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) -> 
         if dead {
             info!("thread {} exit", current_thread.as_ref().id);
             current_thread.as_ref().inner().thread_trace.exit_kernel(hart_id(), read_time());
-            current_thread.as_ref().inner().thread_trace.print_trace();
+            current_thread.as_ref().inner().thread_trace.print_trace(&current_thread);
             kill_current_thread();
             return prepare_next_thread();
         }
@@ -131,11 +135,12 @@ pub fn supervisor_timer(context: &mut Context) -> *mut Context {
     //println!("park_current_thread in supervisor_timer!");
     handle_sleep_trigger(read_time());
     park_current_thread(context);
-    let current_thread = current_thread();
+    let switched_thread = current_thread();
     //println!("prepare_next_thread in supervisor_timer");
     let context = prepare_next_thread();
+    //info!("in timer: Process {} -> Process {}", switched_thread.process.pid, current_thread().process.pid);
+    run_thread_later(switched_thread);
     timer::tick();
-    run_thread_later(current_thread);
     context
 }
 
@@ -188,7 +193,7 @@ pub fn page_fault(context: &mut Context, scause: Scause, stval: usize) -> *mut C
     // page fault
     current_thread.process.exit(2);
     current_thread.as_ref().inner().thread_trace.exit_kernel(hart_id(), read_time());
-    current_thread.as_ref().inner().thread_trace.print_trace();
+    current_thread.as_ref().inner().thread_trace.print_trace(&current_thread);
     kill_current_thread();
     prepare_next_thread()
 }

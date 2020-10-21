@@ -79,6 +79,8 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
         logging::init();
         crate::board::device_init(dtb_pa);
         fs::init();
+        #[cfg(feature = "board_k210")]
+        memory::extra_memory_test();
 
         extern "C" {
             fn boot_stack();
@@ -94,6 +96,7 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
             .lock()
             .add_thread(create_user_process("r_user_shell"));
 
+        memory::stat_frame_allocator();
         //interrupt::init();
         /*
         for i in 1..9usize {
@@ -130,7 +133,7 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
         llvm_asm!("fence.i" :::: "volatile");
         __restore(context as usize);
     }
-    unreachable!()
+    panic!("It should run idle!");
 }
 
 fn sample_process(id: usize) {

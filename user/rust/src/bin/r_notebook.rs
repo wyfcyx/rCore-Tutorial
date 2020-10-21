@@ -7,7 +7,7 @@ extern crate user_lib;
 use user_lib::console::*;
 
 #[no_mangle]
-pub fn main() -> isize {
+pub fn main() -> i32 {
     println!("\x1b[2J<notebook>");
     loop {
         /*

@@ -44,7 +44,8 @@ pub fn console_getchar() -> usize {
 /// 调用 SBI_SHUTDOWN 来关闭操作系统（直接退出 QEMU）
 pub fn shutdown() -> ! {
     sbi_call(SBI_SHUTDOWN, 0, 0, 0);
-    unreachable!()
+    panic!("It should shutdown!");
+    //unreachable!()
 }
 
 /// 设置下一次时钟中断的时间

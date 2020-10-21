@@ -74,7 +74,7 @@ pub fn init() {
 }
 
 pub fn debug_heap() {
-    println!("{:?}", *HEAP.0.lock());
+    info!("{:?}", *HEAP.0.lock());
 }
 
 /// 空间分配错误的回调，直接 panic 退出

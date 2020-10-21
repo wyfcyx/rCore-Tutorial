@@ -180,7 +180,7 @@ impl ThreadTrace {
         self.time_clock = time_clock;
     }
     pub fn into_kernel(&mut self, hart: usize, time_clock: usize, is_user: bool) {
-        trace!("into_kernel hart = {}, time_clock = {}", hart, time_clock);
+        //trace!("into_kernel hart = {}, time_clock = {}", hart, time_clock);
         //println!("[into_kernel] hart = {} time_clock = {}", hart, time_clock);
         //assert_eq!(hart, self.current_hart);
         let delta_time = time_clock - self.time_clock;
@@ -200,7 +200,7 @@ impl ThreadTrace {
         self.time_clock = time_clock;
     }
     pub fn exit_kernel(&mut self, hart: usize, time_clock: usize) {
-        trace!("exit_kernel hart = {} time_clock = {}", hart, time_clock);
+        //trace!("exit_kernel hart = {} time_clock = {}", hart, time_clock);
         //assert_eq!(hart, self.current_hart);
         let delta_time = time_clock - self.time_clock;
         if let Some(time_pair) = self.hart_time.get(&hart) {
@@ -210,12 +210,13 @@ impl ThreadTrace {
         }
         self.time_clock = time_clock;
     }
-    pub fn print_trace(&self) {
+    pub fn print_trace(&self, thread: &Arc<Thread>) {
         //println!("into print_trace!");
         let mut total_user: usize = 0;
         let mut total_kernel: usize = 0;
         let mut str = String::new();
         str.push('\n');
+        str += format!("Process {} trace result:\n", thread.process.pid).as_str();
         for (hart_id, time_pair) in self.hart_time.iter() {
             str += format!("on Core #{}, user time = {}, kernel time = {}\n", hart_id, time_pair.0, time_pair.1).as_str();
             total_user += time_pair.0;

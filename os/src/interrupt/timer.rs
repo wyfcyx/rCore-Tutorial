@@ -5,7 +5,7 @@ use riscv::register::{sie, time};
 use crate::board::config::CPU_FREQUENCY;
 
 /// 触发时钟中断计数
-pub static mut TICKS: usize = 0;
+//pub static mut TICKS: usize = 0;
 
 /// 时钟中断的间隔，单位是 CPU 指令
 pub static ONE_TICK: usize = CPU_FREQUENCY / 100;
@@ -35,12 +35,14 @@ fn set_next_timeout() {
 pub fn tick() {
     //print!("*");
     set_next_timeout();
+    /*
     unsafe {
         TICKS += 1;
         // if TICKS % 100 == 0 {
         //     println!("{} tick", TICKS);
         // }
     }
+     */
 }
 
 pub fn read_time() -> usize { time::read() }

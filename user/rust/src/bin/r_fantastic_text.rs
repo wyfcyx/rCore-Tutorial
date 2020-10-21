@@ -12,7 +12,7 @@ macro_rules! color_text {
 
 // IMPORTANT: Must define main() like this
 #[no_mangle]
-pub fn main() {
+pub fn main() -> i32 {
     println!(
         "{}{}{}{}{} {}{}{}{} {}{}{}{}{}{}",
         color_text!("H", 31),
@@ -41,4 +41,5 @@ pub fn main() {
     for i in 90..98 {
         println!("{}", color_text!(text, i));
     }
+    0
 }

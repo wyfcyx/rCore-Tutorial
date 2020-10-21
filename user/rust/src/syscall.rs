@@ -49,7 +49,7 @@ pub fn sys_write(fd: usize, buffer: &[u8]) -> isize {
 }
 
 /// 退出并返回数值
-pub fn sys_exit(code: isize) -> ! {
+pub fn sys_exit(code: i32) -> ! {
     syscall(SYSCALL_EXIT, code as usize, 0, 0);
     unreachable!()
 }

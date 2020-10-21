@@ -28,7 +28,7 @@ static tests: &[&str] = &[
 use user_lib::{exec, fork, waitpid};
 
 #[no_mangle]
-pub fn main() -> usize {
+pub fn main() -> i32 {
     for test in tests {
         println!("Usertests: Running {}", test);
         let pid = fork();

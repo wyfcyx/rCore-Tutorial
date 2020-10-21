@@ -32,4 +32,12 @@ impl Allocator for StackedAllocator {
     fn dealloc(&mut self, index: usize) {
         self.list.push((index, index + 1));
     }
+
+    fn available(&self) -> usize {
+        let mut total = 0usize;
+        for (start, end) in self.list.iter() {
+            total += *end - *start;
+        }
+        total
+    }
 }

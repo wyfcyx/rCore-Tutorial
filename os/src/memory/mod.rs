@@ -24,6 +24,8 @@ pub use {
     frame::FRAME_ALLOCATOR,
     mapping::{Flags, MapType, MemorySet, Segment},
     range::Range,
+    frame::stat_frame_allocator,
+    heap::debug_heap,
 };
 
 /// 初始化内存相关的子模块
@@ -64,4 +66,17 @@ fn clear_bss() {
             unsafe { (p as *mut u8).write_volatile(0) }
         });
     }
+}
+
+pub fn extra_memory_test() {
+    let start: usize = 0xffff_ffff_8060_0000;
+    let end: usize = 0xffff_ffff_8080_0000;
+    (start..end).step_by(1).for_each(|p| {
+        let pointer = p as *mut u8;
+        unsafe {
+            *pointer = 233;
+            assert_eq!(*pointer, 233);
+        }
+    });
+    println!("extra_memory_test passed!");
 }

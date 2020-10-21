@@ -10,7 +10,7 @@ fn f(d: usize) {
 }
 
 #[no_mangle]
-pub fn main() -> usize {
+pub fn main() -> i32 {
     println!("It should trigger segmentation fault!");
     f(0);
     0

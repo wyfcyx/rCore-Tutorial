@@ -7,6 +7,7 @@ use crate::memory::*;
 use algorithm::*;
 use lazy_static::*;
 use crate::sync::Mutex;
+use log::*;
 
 lazy_static! {
     /// 帧分配器
@@ -47,4 +48,8 @@ impl<T: Allocator> FrameAllocator<T> {
     pub(super) fn dealloc(&mut self, frame: &FrameTracker) {
         self.allocator.dealloc(frame.page_number() - self.start_ppn);
     }
+}
+
+pub fn stat_frame_allocator() {
+    info!("FRAME_ALLOCATOR: {} frames available", FRAME_ALLOCATOR.lock().allocator.available());
 }

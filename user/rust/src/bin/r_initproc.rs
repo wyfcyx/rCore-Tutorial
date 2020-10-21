@@ -6,7 +6,7 @@ extern crate user_lib;
 
 use user_lib::wait;
 #[no_mangle]
-pub fn main() -> usize {
+pub fn main() -> i32 {
     loop {
         if wait(&mut 0usize) == -1 {
             continue;

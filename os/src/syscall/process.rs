@@ -17,7 +17,7 @@ use crate::interrupt::{read_time, ONE_TICK};
 use alloc::sync::Arc;
 use log::*;
 
-pub(super) fn sys_exit(code: usize) -> SyscallResult {
+pub(super) fn sys_exit(code: i32) -> SyscallResult {
     info!(
         "thread {} exit with code {}",
         current_thread().id,
@@ -91,6 +91,9 @@ pub (super) fn sys_exec(path: *const u8, context: &mut Context) -> SyscallResult
             context.sepc = entry as usize;
             // running stack of user process is at a fixed location: 0x0C00_0000
             context.set_sp(current_thread().stack.end.into());
+            info!("after sys_exec: ");
+            crate::memory::stat_frame_allocator();
+            crate::memory::debug_heap();
             SyscallResult::Exec
         },
         Err(_) => {
@@ -118,7 +121,7 @@ pub(super) fn sys_fork(mut context: Context) -> SyscallResult {
     SyscallResult::Proceed(child_process.pid as isize)
 }
 
-pub(super) fn sys_wait(waitpid: usize, xstate: *mut usize) -> SyscallResult {
+pub(super) fn sys_wait(waitpid: usize, xstate: *mut i32) -> SyscallResult {
     info!("into sys_wait, waitpid = {}, xstate = {:p}", waitpid, xstate);
     let thread = current_thread().clone();
     let mut inner = thread.process.as_ref().inner();
@@ -156,6 +159,7 @@ pub(super) fn sys_wait(waitpid: usize, xstate: *mut usize) -> SyscallResult {
         let rc = exited_child.as_ref().inner().xstate;
         let pid = exited_child.pid;
         if xstate as usize > 0 {
+            info!("xstate @{:p}", xstate);
             unsafe { xstate.write_volatile(rc); }
         }
         // dealloc child Process here

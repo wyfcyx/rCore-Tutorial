@@ -257,6 +257,7 @@ pack:
 	qemu-img resize $(out_qcow2) +1G
 
 $(out_img): build rcore-fs-fuse
+	$(foreach app,$(wildcard build/riscv64/*),riscv64-linux-musl-strip -S $(app);)
 	rcore-fs-fuse $@ $(out_dir) zip
 
 $(out_qcow2): $(out_img)
