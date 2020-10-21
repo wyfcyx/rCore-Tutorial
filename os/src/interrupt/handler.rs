@@ -51,7 +51,7 @@ pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) -> 
     let start_thread = current_thread().clone();
     let is_user = start_thread.process.is_user;
     if is_user {
-        info!("Process {} into kernel, scause = {:?}, stval = {}", start_thread.process.pid, scause.cause(), stval);
+        info!("Process {} into kernel, scause = {:?}", start_thread.process.pid, scause.cause());
     }
     start_thread.as_ref()
         .inner()
@@ -100,7 +100,7 @@ pub fn handle_interrupt(context: &mut Context, scause: Scause, stval: usize) -> 
     if *current_thread() == *start_thread {
         start_thread.as_ref().inner().thread_trace.exit_kernel(hart_id(), read_time());
     }
-
+    info!("q");
     context
 }
 
@@ -135,12 +135,16 @@ pub fn supervisor_timer(context: &mut Context) -> *mut Context {
     //println!("park_current_thread in supervisor_timer!");
     handle_sleep_trigger(read_time());
     park_current_thread(context);
+    info!("-pa");
     let switched_thread = current_thread();
     //println!("prepare_next_thread in supervisor_timer");
     let context = prepare_next_thread();
+    info!("-pr");
     //info!("in timer: Process {} -> Process {}", switched_thread.process.pid, current_thread().process.pid);
     run_thread_later(switched_thread);
+    info!("-rn");
     timer::tick();
+    info!("-ti");
     context
 }
 

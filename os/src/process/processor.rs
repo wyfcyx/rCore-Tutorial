@@ -145,10 +145,13 @@ impl Processor {
     pub fn run_thread_later(&mut self, thread: Arc<Thread>) {
         if *thread.as_ref() != *self.idle_thread {
             //info!("run process {} later!", thread.process.pid);
-            THREAD_POOL.lock()
+            let mut thread_pool = THREAD_POOL.lock();
+            info!("<");
+            thread_pool
                 .scheduler
                 .add_thread(thread);
-            //info!("O");
+            drop(thread_pool);
+            info!(">");
         }
     }
 
@@ -166,13 +169,11 @@ impl Processor {
             // 准备下一个线程
             //println!("replace current_thread!");
             //crate::memory::heap::debug_heap();
-            /*
             if self.current_thread.is_some() {
                 info!("{} -> {}", self.current_thread().process.pid, next_thread.process.pid);
             } else {
                 info!("EXITED -> {}", next_thread.process.pid);
             }
-             */
             next_thread.as_ref().inner().thread_trace.prologue(hart_id(), read_time());
             if self.current_thread.is_some() {
                 self.current_thread()
@@ -196,13 +197,11 @@ impl Processor {
                 context
             }
              */
-            /*
             if self.current_thread.is_some() {
-                info!("{} -> IDLE", self.current_thread().process.pid);
+                info!("{} -> 2", self.current_thread().process.pid);
             } else {
-                info!("EXITED -> IDLE");
+                info!("EXITED -> 2");
             }
-             */
             let context = self.prepare_thread(self.idle_thread.clone());
             //info!("[{}]->idle sepc={:#x} context@{:p}", hart_id(), unsafe { (*context).sepc }, context);
             assert!(self.idle_thread.clone().inner().context.is_none());
