@@ -11,6 +11,7 @@ use crate::process::{
     park_current_thread,
     prepare_next_thread,
     THREAD_POOL,
+    WAIT_LOCK,
     add_sleep_trigger,
 };
 use crate::interrupt::{read_time, ONE_TICK};
@@ -122,6 +123,7 @@ pub(super) fn sys_fork(mut context: Context) -> SyscallResult {
 }
 
 pub(super) fn sys_wait(waitpid: usize, xstate: *mut i32) -> SyscallResult {
+    let _ = WAIT_LOCK.lock();
     info!("into sys_wait, waitpid = {}, xstate = {:p}", waitpid, xstate);
     let thread = current_thread().clone();
     let mut inner = thread.process.as_ref().inner();

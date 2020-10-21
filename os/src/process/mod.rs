@@ -31,5 +31,5 @@ pub use processor::{
     current_thread,
     processor_main,
 };
-pub use process::{KERNEL_PROCESS, PROCESS_TABLE};
+pub use process::{KERNEL_PROCESS, PROCESS_TABLE, WAIT_LOCK};
 pub use sleep::{add_sleep_trigger, handle_sleep_trigger};

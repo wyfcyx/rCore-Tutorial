@@ -46,6 +46,7 @@ lazy_static! {
     pub static ref KERNEL_PROCESS: Arc<Process> = Process::new_kernel().unwrap();
     //pub static ref WAIT_MAP: Mutex<HashMap<usize, Weak<Thread>>> = Mutex::new(HashMap::new(), "WAIT_MAP");
     pub static ref PROCESS_TABLE: Mutex<HashMap<usize, Weak<Process>>> = Mutex::new(HashMap::new(), "PROCESS_TABLE");
+    pub static ref WAIT_LOCK: Mutex<()> = Mutex::new((), "WAIT_LOCK");
 }
 
 /// 进程的信息
@@ -236,6 +237,7 @@ impl Process {
     pub fn exit(&self, code: i32) {
         trace!("into exit, current pid = {}", self.pid);
         PROCESS_TABLE.lock().remove(&self.pid);
+        let _ = WAIT_LOCK.lock();
         let mut inner = self.inner();
         (move || {
             inner.xstate = code;
