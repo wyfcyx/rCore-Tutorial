@@ -9,6 +9,7 @@ use crate::process::{
     current_thread,
     sleep_current_thread,
 };
+use log::*;
 
 pub struct Condvar {
     /// 所有等待此条件变量的线程
@@ -36,7 +37,9 @@ impl Condvar {
 
     /// 唤起一个等待此条件变量的线程
     pub fn notify_one(&self) {
+        //info!("into notify one!");
         if let Some(thread) = self.watchers.lock().pop_front() {
+            //info!("found some in notify_one!");
             THREAD_POOL.lock().wake_thread(thread);
         }
     }

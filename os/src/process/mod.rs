@@ -25,7 +25,7 @@ pub use processor::{
     hart_id,
     prepare_next_thread,
     park_current_thread,
-    run_current_thread_later,
+    run_thread_later,
     kill_current_thread,
     sleep_current_thread,
     current_thread,

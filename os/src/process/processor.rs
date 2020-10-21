@@ -12,6 +12,8 @@ use alloc::vec::Vec;
 use core::cell::RefCell;
 use super::process::KERNEL_PROCESS;
 use crate::interrupt::timer::read_time;
+use log::*;
+
 /*
 lazy_static! {
     /// 全局的 [`Processor`]
@@ -140,11 +142,11 @@ impl Processor {
         self.prepare_thread(self.idle_thread.clone())
     }
 
-    pub fn run_current_thread_later(&mut self) {
-        if **self.current_thread.as_ref().unwrap() != *self.idle_thread {
+    pub fn run_thread_later(&mut self, thread: Arc<Thread>) {
+        if *thread.as_ref() != *self.idle_thread {
             THREAD_POOL.lock()
                 .scheduler
-                .add_thread(self.current_thread());
+                .add_thread(thread);
         }
     }
 
@@ -186,6 +188,7 @@ impl Processor {
             }
              */
             let context = self.prepare_thread(self.idle_thread.clone());
+            //info!("[{}]->idle sepc={:#x} context@{:p}", hart_id(), unsafe { (*context).sepc }, context);
             assert!(self.idle_thread.clone().inner().context.is_none());
             context
         }
@@ -235,8 +238,8 @@ pub fn park_current_thread(context: &Context) {
     //crate::memory::heap::debug_heap();
     PROCESSORS[hart_id()].lock().park_current_thread(context)
 }
-pub fn run_current_thread_later() {
-    PROCESSORS[hart_id()].lock().run_current_thread_later();
+pub fn run_thread_later(thread: Arc<Thread>) {
+    PROCESSORS[hart_id()].lock().run_thread_later(thread);
 }
 pub fn sleep_current_thread() {
     //println!("into outer sleep_current_thread on hart {}", hart_id());

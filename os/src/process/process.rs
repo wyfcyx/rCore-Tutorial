@@ -83,6 +83,7 @@ pub struct ProcessInner {
     pub exited: bool,
     pub killed: bool,
     pub child: Vec<Arc<Process>>,
+    //pub parent_pid: usize,
     pub wait: Condvar,
 }
 
@@ -103,6 +104,7 @@ impl Process {
                 exited: false,
                 killed: false,
                 child: Vec::new(),
+                //parent_pid: 0,
                 wait: Condvar::new("ProcessInner.wait"),
             }, "ProcessInner"),
         }))
@@ -125,6 +127,7 @@ impl Process {
                     exited: false,
                     killed: false,
                     child: Vec::new(),
+                    //parent_pid: 0,
                     wait: Condvar::new("ProcessInner.wait"),
                 }, "ProcessInner")
             },
@@ -149,6 +152,7 @@ impl Process {
                     exited: false,
                     killed: false,
                     child: Vec::new(),
+                    //parent_pid: parent.pid,
                     wait: Condvar::new("ProcessInner.wait"),
                 }, "ProcessInner")
             },
@@ -236,6 +240,13 @@ impl Process {
         (move || {
             inner.xstate = code;
             inner.exited = true;
+            /*
+            if inner.parent_pid != 0 {
+                let process_table = PROCESS_TABLE.lock();
+                let parent = process_table.get(&inner.parent_pid).unwrap();
+                parent.upgrade().unwrap().as_ref().inner().wait.notify_one();
+            }
+             */
         })();
         trace!("after marking xstate & exited!");
         self.unmap_user();

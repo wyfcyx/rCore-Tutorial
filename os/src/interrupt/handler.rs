@@ -7,7 +7,7 @@ use riscv::register::{
 };
 use crate::process::{
     park_current_thread,
-    run_current_thread_later,
+    run_thread_later,
     prepare_next_thread,
     kill_current_thread,
     current_thread,
@@ -131,10 +131,11 @@ pub fn supervisor_timer(context: &mut Context) -> *mut Context {
     //println!("park_current_thread in supervisor_timer!");
     handle_sleep_trigger(read_time());
     park_current_thread(context);
-    run_current_thread_later();
+    let current_thread = current_thread();
     //println!("prepare_next_thread in supervisor_timer");
     let context = prepare_next_thread();
     timer::tick();
+    run_thread_later(current_thread);
     context
 }
 
@@ -182,7 +183,7 @@ pub fn page_fault(context: &mut Context, scause: Scause, stval: usize) -> *mut C
         panic!("page fault in kernel, cause = {:?}, vaddr = {:#x}!", scause.cause(), stval);
     }
     let current_thread = current_thread();
-    println!("Process {} Segmentation Fault cause = {:?}, vaddr = {:#x}", current_thread.process.pid, scause.cause(), stval);
+    println!("Process {} Segmentation Fault cause = {:?}, vaddr = {:#x} @Core{}", current_thread.process.pid, scause.cause(), stval, hart_id());
     //info!("context = {:?}", context);
     // page fault
     current_thread.process.exit(2);

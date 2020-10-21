@@ -113,8 +113,8 @@ pub(super) fn sys_fork(mut context: Context) -> SyscallResult {
     context.set_arguments(&[0]);
     context.sepc += 4;
     let child_thread = thread.replace_context(child_process.clone(), context);
-    THREAD_POOL.lock().add_thread(child_thread);
     thread.process.as_ref().inner().child.push(child_process.clone());
+    THREAD_POOL.lock().add_thread(child_thread);
     SyscallResult::Proceed(child_process.pid as isize)
 }
 
