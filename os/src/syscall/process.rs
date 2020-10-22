@@ -14,6 +14,7 @@ use crate::process::{
     WAIT_LOCK,
     add_sleep_trigger,
 };
+use crate::board::config::CPU_FREQUENCY;
 use crate::interrupt::{read_time, ONE_TICK};
 use alloc::sync::Arc;
 use log::*;
@@ -58,6 +59,11 @@ pub(super) fn sys_get_time_msec() -> SyscallResult {
     // ONE_TICK -> 10ms
     // 1ms -> ONE_TICK/10
     SyscallResult::Proceed((read_time() * 10 / ONE_TICK) as isize)
+    /*
+    // 1000ms -> CPU_FREQUENCY
+    // 1ms -> CPU_FREQUENCY/1000
+    SyscallResult::Proceed((read_time() * 1000 / CPU_FREQUENCY) as isize)
+     */
 }
 
 pub(super) fn sys_getpid() -> SyscallResult {
