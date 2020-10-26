@@ -7,7 +7,7 @@ extern crate user_lib;
 static tests: &[&str] = &[
     "r_fantastic_text\0",
     "r_forktest\0",
-    "r_forktest2\0",
+    //"r_forktest2\0",
     "r_matrix\0",
     "r_matrix_g\0",
     "r_hello_world\0",
