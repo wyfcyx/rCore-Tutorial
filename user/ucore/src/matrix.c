@@ -54,8 +54,7 @@ main(void) {
             srand(i * i);
             int times = (((unsigned int)rand()) % total);
             times = (times * times + 10) * 1000;
-            //work(times);
-            work(50000);
+            work(times);
         }
         if (pids[i] < 0) {
             goto failed;
