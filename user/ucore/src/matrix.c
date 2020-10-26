@@ -53,8 +53,9 @@ main(void) {
         if ((pids[i] = fork()) == 0) {
             srand(i * i);
             int times = (((unsigned int)rand()) % total);
-            times = (times * times + 10) * 100;
-            work(times);
+            times = (times * times + 10) * 1000;
+            //work(times);
+            work(50000);
         }
         if (pids[i] < 0) {
             goto failed;

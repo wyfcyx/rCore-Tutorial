@@ -135,16 +135,16 @@ pub fn supervisor_timer(context: &mut Context) -> *mut Context {
     //println!("park_current_thread in supervisor_timer!");
     handle_sleep_trigger(read_time());
     park_current_thread(context);
-    info!("-pa");
+    //info!("-pa");
     let switched_thread = current_thread();
     //println!("prepare_next_thread in supervisor_timer");
     let context = prepare_next_thread();
-    info!("-pr");
+    //info!("-pr");
     //info!("in timer: Process {} -> Process {}", switched_thread.process.pid, current_thread().process.pid);
     run_thread_later(switched_thread);
-    info!("-rn");
+    //info!("-rn");
     timer::tick();
-    info!("-ti");
+    //info!("-ti");
     context
 }
 
@@ -165,6 +165,7 @@ pub fn supervisor_soft(context: &mut Context) -> *mut Context { context }
 /// It will be executed in M mode, and it can access kernel address space
 /// after setting mstatus.mprv.
 pub unsafe fn devintr() {
+    info!("+");
     // on k210, we only allow M mode devintr to be received on
     // hart0-M target after configuring PLIC.
     let hart0m_claim = 0x0C20_0004 as *mut u32;
@@ -182,6 +183,7 @@ pub unsafe fn devintr() {
         }
     }
     hart0m_claim.write_volatile(irq);
+    info!("-");
 }
 
 pub unsafe fn dummy() {

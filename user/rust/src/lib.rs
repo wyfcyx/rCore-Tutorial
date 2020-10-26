@@ -93,9 +93,9 @@ pub fn get_time() -> isize { sys_get_time() }
 pub fn getpid() -> isize { sys_getpid() }
 pub fn fork() -> isize { sys_fork() }
 pub fn exec(name: *const u8) -> isize { sys_exec(name) }
-pub fn wait(xstate: *mut usize) -> isize {
+pub fn wait(xstate: *mut i32) -> isize {
     sys_wait(0, xstate)
 }
-pub fn waitpid(pid: usize, xstate: *mut usize) -> isize {
+pub fn waitpid(pid: usize, xstate: *mut i32) -> isize {
     sys_wait(pid, xstate)
 }

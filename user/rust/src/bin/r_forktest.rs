@@ -8,7 +8,7 @@ use user_lib::{fork, getpid, wait};
 
 #[no_mangle]
 pub fn main() -> i32 {
-    assert_eq!(wait(&mut 0usize), -1);
+    assert_eq!(wait(&mut 0i32), -1);
     println!("sys_wait without child process test passed!");
     println!("parent start, pid = {}!", getpid());
     let pid = fork();
@@ -18,9 +18,10 @@ pub fn main() -> i32 {
         100
     } else {
         // parent process
-        let mut xstate: usize = 0;
+        let mut xstate: i32 = 0;
         println!("ready waiting on parent process!");
-        wait(&mut xstate);
+        assert_eq!(pid, wait(&mut xstate));
+        assert_eq!(xstate, 100);
         println!("child process pid = {}, exit code = {}", pid, xstate);
         0
     }

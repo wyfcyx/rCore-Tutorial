@@ -3,7 +3,7 @@
 #include <string.h>
 
 #define DEPTH 3
-#define SLEEP_TIME 400
+#define SLEEP_TIME 50
 void forktree(const char *cur);
 
 void

@@ -36,7 +36,7 @@ pub fn main() -> i32 {
                         }
                         unreachable!();
                     } else {
-                        let mut xstate: usize = 0;
+                        let mut xstate: i32 = 0;
                         wait(&mut xstate);
                         println!("Shell: Process {} exited with code {}", pid, xstate);
                     }

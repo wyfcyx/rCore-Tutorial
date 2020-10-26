@@ -8,7 +8,7 @@ use user_lib::wait;
 #[no_mangle]
 pub fn main() -> i32 {
     loop {
-        if wait(&mut 0usize) == -1 {
+        if wait(&mut 0i32) == -1 {
             continue;
         }
     }

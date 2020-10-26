@@ -7,6 +7,7 @@ extern crate user_lib;
 static tests: &[&str] = &[
     "r_fantastic_text\0",
     "r_forktest\0",
+    //"r_forktest2\0",
     "r_hello_world\0",
     "r_sleep\0",
     "r_stack_overflow\0",
@@ -17,11 +18,11 @@ static tests: &[&str] = &[
     "faultread\0",
     "faultreadkernel\0",
     "exit\0",
-    "matrix\0",
+    //"matrix\0",
     "yield\0",
     "badarg\0",
     "sleep\0",
-    "forktree\0",
+    //"forktree\0",
     "spin\0",
 ];
 
@@ -36,7 +37,7 @@ pub fn main() -> i32 {
             exec(*test as *const _ as *const u8);
             panic!("unreachable!");
         } else {
-            let mut xstate: usize = Default::default();
+            let mut xstate: i32 = Default::default();
             let wait_pid = waitpid(pid as usize, &mut xstate);
             assert_eq!(pid, wait_pid);
             println!("Usertests: Test {} in Process {} exited with code {}", test, pid, xstate);
