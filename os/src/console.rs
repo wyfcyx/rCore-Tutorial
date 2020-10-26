@@ -12,7 +12,8 @@
 //! [`write_fmt`]: core::fmt::Write::write_fmt
 
 use core::fmt::{self, Write};
-use crate::sync::Mutex;
+//use crate::sync::Mutex;
+use spin::Mutex;
 use lazy_static::*;
 
 /// 一个 [Zero-Sized Type]，实现 [`core::fmt::Write`] trait 来进行格式化输出
@@ -23,7 +24,8 @@ use lazy_static::*;
 struct Stdout;
 
 lazy_static! {
-    static ref STDOUT: Mutex<Stdout> = Mutex::new(Stdout, "Stdout");
+    //static ref STDOUT: Mutex<Stdout> = Mutex::new(Stdout, "Stdout");
+    static ref STDOUT: Mutex<Stdout> = Mutex::new(Stdout);
 }
 
 impl Write for Stdout {
