@@ -23,7 +23,8 @@ USER_BUILD  := $(USER_DIR)/build
 IMG_FILE    := $(USER_BUILD)/riscv64.img
 QCOW2_FILE	:= $(USER_BUILD)/riscv64.qcow2
 
-OBJDUMP     := rust-objdump --arch-name=riscv64
+#OBJDUMP     := rust-objdump --arch-name=riscv64
+OBJDUMP		:= riscv64-unknown-elf-objdump
 OBJCOPY     := rust-objcopy --binary-architecture=riscv64
 
 .PHONY: doc kernel build clean qemu run env

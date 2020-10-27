@@ -41,7 +41,7 @@ work(unsigned int times) {
     exit(0);
 }
 
-const int total = 15;
+const int total = 13;
 
 int
 main(void) {
