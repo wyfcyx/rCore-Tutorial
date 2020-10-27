@@ -89,6 +89,7 @@ pub fn exit(code: i32) -> ! {
     sys_exit(code)
 }
 pub fn sleep(ticks: usize) -> isize { sys_sleep(ticks) }
+pub fn kill(pid: usize) -> isize { sys_kill(pid) }
 pub fn get_time() -> isize { sys_get_time() }
 pub fn getpid() -> isize { sys_getpid() }
 pub fn fork() -> isize { sys_fork() }

@@ -4,16 +4,28 @@
 #[macro_use]
 extern crate user_lib;
 
-use user_lib::{get_time, sleep};
+use user_lib::{sleep, exit, get_time, fork, waitpid};
+
+fn sleepy() {
+    let time: usize = 100;
+    for i in 0..5 {
+        sleep(time);
+        println!("sleep {} x {} slices.", i + 1, time);
+    }
+    exit(0);
+}
 
 #[no_mangle]
 pub fn main() -> i32 {
-    println!("into sleep test!");
-    let start = get_time();
-    println!("current time_msec = {}", start);
-    sleep(100);
-    let end = get_time();
-    println!("time_msec = {} after sleeping 100 ticks, delta = {}ms!", end, end - start);
-    println!("r_sleep passed!");
+    let current_time = get_time();
+    let pid = fork();
+    let mut xstate: i32 = 0;
+    if pid == 0 {
+        sleepy();
+    }
+    assert!(waitpid(pid as usize, &mut xstate) == pid && xstate == 0);
+    println!("use {} msecs.", get_time() - current_time);
+    println!("sleep pass.");
     0
 }
+

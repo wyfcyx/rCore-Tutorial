@@ -6,12 +6,17 @@ extern crate user_lib;
 
 static tests: &[&str] = &[
     "r_fantastic_text\0",
+    "r_forktest_simple\0",
     "r_forktest\0",
     "r_forktest2\0",
+    "r_exit\0",
+    "r_yield\0",
     "r_matrix\0",
     "r_matrix_g\0",
     "r_hello_world\0",
+    "r_sleep_simple\0",
     "r_sleep\0",
+    "r_spin\0",
     "r_stack_overflow\0",
     "hello\0",
     "forktest\0",
