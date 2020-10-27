@@ -69,7 +69,7 @@ ifeq ($(BOARD),qemu)
     		-device loader,file=$(BIN_FILE),addr=0x80200000 \
     		-drive file=$(QCOW2_FILE),format=qcow2,id=sfs \
     		-device virtio-blk-device,drive=sfs \
-			-smp 4
+			-smp 2
 else
 	@cp $(BOOTLOADER) $(BOOTLOADER).copy
 	@dd if=$(BIN_FILE) of=$(BOOTLOADER).copy bs=128K seek=1

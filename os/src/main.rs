@@ -79,8 +79,10 @@ pub extern "C" fn rust_main(hartid: usize, dtb_pa: PhysicalAddress) -> ! {
         logging::init();
         crate::board::device_init(dtb_pa);
         fs::init();
+        /*
         #[cfg(feature = "board_k210")]
         memory::extra_memory_test();
+         */
 
         extern "C" {
             fn boot_stack();
