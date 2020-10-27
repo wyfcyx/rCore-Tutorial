@@ -15,6 +15,8 @@ pub fn main() -> i32 {
         if pid == 0 {
             println!("I am child {}", i);
             exit(0);
+        } else {
+            println!("forked child pid = {}", pid);
         }
         assert!(pid > 0);
     }
